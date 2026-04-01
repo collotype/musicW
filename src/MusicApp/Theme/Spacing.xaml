@@ -1,0 +1,56 @@
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:sys="clr-namespace:System;assembly=mscorlib">
+
+    <!-- Corner Radii -->
+    <CornerRadius x:Key="CornerRadiusXS">2</CornerRadius>
+    <CornerRadius x:Key="CornerRadiusSM">4</CornerRadius>
+    <CornerRadius x:Key="CornerRadiusMD">8</CornerRadius>
+    <CornerRadius x:Key="CornerRadiusLG">12</CornerRadius>
+    <CornerRadius x:Key="CornerRadiusXL">16</CornerRadius>
+    <CornerRadius x:Key="CornerRadiusXXL">24</CornerRadius>
+    <CornerRadius x:Key="CornerRadiusFull">999</CornerRadius>
+
+    <!-- Spacing Values -->
+    <sys:Double x:Key="SpacingXS">4</sys:Double>
+    <sys:Double x:Key="SpacingSM">8</sys:Double>
+    <sys:Double x:Key="SpacingMD">12</sys:Double>
+    <sys:Double x:Key="SpacingLG">16</sys:Double>
+    <sys:Double x:Key="SpacingXL">20</sys:Double>
+    <sys:Double x:Key="SpacingXXL">24</sys:Double>
+    <sys:Double x:Key="SpacingXXXL">32</sys:Double>
+
+    <!-- Layout Dimensions -->
+    <sys:Double x:Key="NavRailWidth">64</sys:Double>
+    <sys:Double x:Key="LibrarySidebarWidth">280</sys:Double>
+    <sys:Double x:Key="PlayerHeight">96</sys:Double>
+    <sys:Double x:Key="HeaderHeight">64</sys:Double>
+
+    <!-- Icon Sizes -->
+    <sys:Double x:Key="IconSizeXS">12</sys:Double>
+    <sys:Double x:Key="IconSizeSM">16</sys:Double>
+    <sys:Double x:Key="IconSizeMD">20</sys:Double>
+    <sys:Double x:Key="IconSizeLG">24</sys:Double>
+    <sys:Double x:Key="IconSizeXL">32</sys:Double>
+
+    <!-- Card Dimensions -->
+    <sys:Double x:Key="TrackCardWidth">180</sys:Double>
+    <sys:Double x:Key="TrackCardHeight">220</sys:Double>
+    <sys:Double x:Key="AlbumCardWidth">200</sys:Double>
+    <sys:Double x:Key="AlbumCardHeight">260</sys:Double>
+    <sys:Double x:Key="ArtistCircleSize">140</sys:Double>
+    <sys:Double x:Key="PlaylistCardWidth">220</sys:Double>
+    <sys:Double x:Key="PlaylistCardHeight">280</sys:Double>
+
+    <!-- Thumbnail Sizes -->
+    <sys:Double x:Key="ThumbnailSizeSM">40</sys:Double>
+    <sys:Double x:Key="ThumbnailSizeMD">56</sys:Double>
+    <sys:Double x:Key="ThumbnailSizeLG">80</sys:Double>
+    <sys:Double x:Key="ThumbnailSizeXL">120</sys:Double>
+    <sys:Double x:Key="ThumbnailSizeXXL">200</sys:Double>
+
+    <!-- Track Row Height -->
+    <sys:Double x:Key="TrackRowHeight">64</sys:Double>
+    <sys:Double x:Key="TrackRowHeightCompact">48</sys:Double>
+
+</ResourceDictionary>

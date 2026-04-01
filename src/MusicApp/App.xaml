@@ -1,0 +1,34 @@
+<Application x:Class="MusicApp.App"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:converters="clr-namespace:MusicApp.Converters"
+             StartupUri="MainWindow.xaml">
+    <Application.Resources>
+        <ResourceDictionary>
+            <!-- Converters -->
+            <converters:NullToVisibilityConverter x:Key="NullToVisibilityConverter"/>
+            <converters:BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter"/>
+            <converters:FormatTimeSpanConverter x:Key="FormatTimeSpanConverter"/>
+            <converters:FormatNumberConverter x:Key="FormatNumberConverter"/>
+            <converters:ImageSourceConverter x:Key="ImageSourceConverter"/>
+            <converters:PageTypeMatchConverter x:Key="PageTypeMatchConverter"/>
+            <converters:StringMatchConverter x:Key="StringMatchConverter"/>
+            <converters:EnumMatchConverter x:Key="EnumMatchConverter"/>
+            <converters:VolumeIconConverter x:Key="VolumeIconConverter"/>
+            <converters:DoubleToPercentConverter x:Key="DoubleToPercentConverter"/>
+            <converters:SliderProgressConverter x:Key="SliderProgressConverter"/>
+
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="Theme/Colors.xaml"/>
+                <ResourceDictionary Source="Theme/Typography.xaml"/>
+                <ResourceDictionary Source="Theme/Spacing.xaml"/>
+                <ResourceDictionary Source="Theme/Controls/Buttons.xaml"/>
+                <ResourceDictionary Source="Theme/Controls/Inputs.xaml"/>
+                <ResourceDictionary Source="Theme/Controls/Lists.xaml"/>
+                <ResourceDictionary Source="Theme/Controls/ScrollViewer.xaml"/>
+                <ResourceDictionary Source="Theme/Controls/CustomControls.xaml"/>
+                <ResourceDictionary Source="Theme/Controls/PlayerControls.xaml"/>
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
+    </Application.Resources>
+</Application>

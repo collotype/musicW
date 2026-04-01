@@ -1,0 +1,20 @@
+﻿MusicApp
+
+
+winexe
+C#
+.cs
+C:\Users\Collotype\Desktop\music-main windows\src\MusicApp\obj\Debug\net8.0-windows\
+MusicApp
+none
+false
+TRACE;DEBUG;NET;NET8_0;NETCOREAPP
+C:\Users\Collotype\Desktop\music-main windows\src\MusicApp\App.xaml
+161238803153
+
+48-832699222
+2451201241239
+MainWindow.xaml;Theme\Colors.xaml;Theme\Controls\Buttons.xaml;Theme\Controls\CustomControls.xaml;Theme\Controls\Inputs.xaml;Theme\Controls\Lists.xaml;Theme\Controls\PlayerControls.xaml;Theme\Controls\ScrollViewer.xaml;Theme\Spacing.xaml;Theme\Typography.xaml;Views\AlbumPage.xaml;Views\ArtistPage.xaml;Views\LibraryPage.xaml;Views\PlaylistPage.xaml;Views\SearchPage.xaml;Views\SettingsPage.xaml;
+
+False
+
