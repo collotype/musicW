@@ -40,6 +40,8 @@ public sealed partial class Album : ObservableObject
 
     public int TrackCount => Tracks.Count;
 
+    public string ReleaseYearLabel => ReleaseDate?.ToString("yyyy") ?? "New";
+
     public string DurationLabel => Duration.TotalHours >= 1
         ? Duration.ToString(@"h\:mm\:ss")
         : Duration.ToString(@"m\:ss");

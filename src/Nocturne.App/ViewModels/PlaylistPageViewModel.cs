@@ -30,7 +30,13 @@ public sealed class PlaylistPageViewModel : PageViewModelBase
     public Playlist? Playlist
     {
         get => _playlist;
-        private set => SetProperty(ref _playlist, value);
+        private set
+        {
+            if (SetProperty(ref _playlist, value))
+            {
+                RaisePlaylistProperties();
+            }
+        }
     }
 
     public bool IsLoading
@@ -40,6 +46,14 @@ public sealed class PlaylistPageViewModel : PageViewModelBase
     }
 
     public ObservableCollection<Track> Tracks { get; } = [];
+
+    public string PlaylistMetaLine => Playlist is null
+        ? string.Empty
+        : $"{Playlist.OwnerName} - {Playlist.TrackCount} tracks - {Playlist.DurationLabel}";
+
+    public string Description => Playlist?.Description ?? string.Empty;
+
+    public int MetadataOnlyTrackCount => Tracks.Count(track => track.IsMetadataOnly);
 
     public IAsyncRelayCommand PlayAllCommand { get; }
 
@@ -67,6 +81,7 @@ public sealed class PlaylistPageViewModel : PageViewModelBase
         finally
         {
             IsLoading = false;
+            RaisePlaylistProperties();
             PlayAllCommand.NotifyCanExecuteChanged();
         }
     }
@@ -91,6 +106,13 @@ public sealed class PlaylistPageViewModel : PageViewModelBase
         await _playbackService.PlayQueueAsync(Tracks.ToList(), track, "playlist");
     }
 
+    private void RaisePlaylistProperties()
+    {
+        OnPropertyChanged(nameof(PlaylistMetaLine));
+        OnPropertyChanged(nameof(Description));
+        OnPropertyChanged(nameof(MetadataOnlyTrackCount));
+    }
+
     private void ReplaceTracks(IEnumerable<Track> tracks)
     {
         Tracks.Clear();
@@ -98,5 +120,7 @@ public sealed class PlaylistPageViewModel : PageViewModelBase
         {
             Tracks.Add(track);
         }
+
+        RaisePlaylistProperties();
     }
 }

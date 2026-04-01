@@ -65,6 +65,28 @@ public sealed partial class Track : ObservableObject
     public string Subtitle =>
         string.IsNullOrWhiteSpace(AlbumTitle) ? ArtistName : string.Concat(ArtistName, " - ", AlbumTitle);
 
+    public string SourceLabel =>
+        Source switch
+        {
+            TrackSource.Local => "Local",
+            TrackSource.SoundCloud => "SoundCloud",
+            TrackSource.Spotify => "Spotify",
+            _ => "Unknown"
+        };
+
+    public bool IsMetadataOnly => Source == TrackSource.Spotify;
+
+    public bool SupportsInAppPlayback => !IsMetadataOnly;
+
+    public string AvailabilityLabel =>
+        IsMetadataOnly
+            ? "Metadata only"
+            : IsDownloaded || StorageLocation == StorageLocation.Library
+                ? "Saved"
+                : Source == TrackSource.SoundCloud
+                    ? "Streaming"
+                    : "Playable";
+
     public string DisplayDuration => Duration.TotalHours >= 1
         ? Duration.ToString(@"h\:mm\:ss")
         : Duration.ToString(@"m\:ss");

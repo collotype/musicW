@@ -2,35 +2,80 @@
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:controls="clr-namespace:Nocturne.App.Controls">
-    <Border Background="{StaticResource Brush.PanelBackground}"
-            BorderBrush="{StaticResource Brush.Border}"
-            BorderThickness="1"
-            CornerRadius="28"
-            Padding="18">
-        <DockPanel LastChildFill="True">
-            <StackPanel DockPanel.Dock="Top">
-                <TextBlock Style="{StaticResource Text.SectionTitle}"
-                           Text="Library" />
-                <TextBlock Margin="0,6,0,20"
-                           Style="{StaticResource Text.Body}"
-                           Text="Pinned collections and playlists" />
+    <Border Style="{StaticResource Surface.Sidebar}"
+            Padding="20">
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="*" />
+                <RowDefinition Height="Auto" />
+            </Grid.RowDefinitions>
+
+            <StackPanel>
+                <TextBlock Style="{StaticResource Text.Overline}"
+                           Text="CURATED LIBRARY" />
+                <Grid Margin="0,10,0,0">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="Auto" />
+                    </Grid.ColumnDefinitions>
+                    <StackPanel>
+                        <TextBlock Style="{StaticResource Text.SectionTitle}"
+                                   Text="Pinned Collections" />
+                        <TextBlock Margin="0,6,0,0"
+                                   Style="{StaticResource Text.Body}"
+                                   Text="System views, offline essentials, and your playlist stack." />
+                    </StackPanel>
+                    <Border Grid.Column="1"
+                            Padding="10,6"
+                            Background="{StaticResource Brush.AccentSoft}"
+                            BorderBrush="{StaticResource Brush.BorderStrong}"
+                            BorderThickness="1"
+                            CornerRadius="{StaticResource Radius.Pill}"
+                            VerticalAlignment="Top">
+                        <TextBlock Style="{StaticResource Text.Caption}"
+                                   Foreground="{StaticResource Brush.Accent}"
+                                   Text="{Binding PlaylistCount, StringFormat=Playlists {0}}" />
+                    </Border>
+                </Grid>
             </StackPanel>
 
-            <Button DockPanel.Dock="Bottom"
-                    Margin="0,18,0,0"
+            <ScrollViewer Grid.Row="1"
+                          Margin="0,22,0,18"
+                          VerticalScrollBarVisibility="Auto"
+                          HorizontalScrollBarVisibility="Disabled">
+                <StackPanel>
+                    <TextBlock Style="{StaticResource Text.Overline}"
+                               Text="COLLECTIONS" />
+                    <ItemsControl Margin="0,12,0,0"
+                                  ItemsSource="{Binding SystemCollections}">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <controls:SidebarCollectionItem Item="{Binding}"
+                                                                Command="{Binding DataContext.SelectSidebarItemCommand, RelativeSource={RelativeSource AncestorType=controls:LibrarySidebar}}" />
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+
+                    <TextBlock Margin="0,18,0,0"
+                               Style="{StaticResource Text.Overline}"
+                               Text="PLAYLISTS" />
+                    <ItemsControl Margin="0,12,0,0"
+                                  ItemsSource="{Binding UserPlaylists}">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <controls:SidebarCollectionItem Item="{Binding}"
+                                                                Command="{Binding DataContext.SelectSidebarItemCommand, RelativeSource={RelativeSource AncestorType=controls:LibrarySidebar}}" />
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                </StackPanel>
+            </ScrollViewer>
+
+            <Button Grid.Row="2"
+                    Style="{StaticResource Button.GhostPill}"
                     Command="{Binding CreatePlaylistCommand}"
                     Content="+ Add Playlist" />
-
-            <ScrollViewer VerticalScrollBarVisibility="Auto">
-                <ItemsControl ItemsSource="{Binding SidebarCollections}">
-                    <ItemsControl.ItemTemplate>
-                        <DataTemplate>
-                            <controls:SidebarCollectionItem Item="{Binding}"
-                                                            Command="{Binding DataContext.SelectSidebarItemCommand, RelativeSource={RelativeSource AncestorType=controls:LibrarySidebar}}" />
-                        </DataTemplate>
-                    </ItemsControl.ItemTemplate>
-                </ItemsControl>
-            </ScrollViewer>
-        </DockPanel>
+        </Grid>
     </Border>
 </UserControl>

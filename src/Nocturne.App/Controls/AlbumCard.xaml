@@ -7,26 +7,67 @@
             Background="Transparent"
             BorderThickness="0"
             Padding="0"
-            Width="206">
-        <Border Background="{StaticResource Brush.PanelBackground}"
-                BorderBrush="{StaticResource Brush.Border}"
-                BorderThickness="1"
-                CornerRadius="24"
+            Width="232">
+        <Border x:Name="Chrome"
                 Padding="14">
+            <Border.Style>
+                <Style TargetType="Border" BasedOn="{StaticResource Surface.CardElevated}">
+                    <Style.Triggers>
+                        <DataTrigger Binding="{Binding IsMouseOver, RelativeSource={RelativeSource AncestorType=Button}}" Value="True">
+                            <Setter Property="Background" Value="{StaticResource Brush.PanelHover}" />
+                            <Setter Property="BorderBrush" Value="{StaticResource Brush.BorderStrong}" />
+                        </DataTrigger>
+                    </Style.Triggers>
+                </Style>
+            </Border.Style>
             <StackPanel>
-                <Border Height="146"
-                        CornerRadius="18"
-                        ClipToBounds="True">
-                    <Image Source="{Binding Album.CoverArtUrl, ElementName=Root}" Stretch="UniformToFill" />
-                </Border>
-                <TextBlock Margin="0,14,0,0"
-                           Foreground="{StaticResource Brush.TextPrimary}"
-                           FontWeight="SemiBold"
+                <Grid Height="170"
+                      ClipToBounds="True">
+                    <Border CornerRadius="{StaticResource Radius.Large}"
+                            ClipToBounds="True">
+                        <Grid>
+                            <Image Source="{Binding Album.CoverArtUrl, ElementName=Root}"
+                                   Stretch="UniformToFill" />
+                            <Rectangle Fill="{StaticResource Brush.CardImageOverlay}" />
+                        </Grid>
+                    </Border>
+                    <Border HorizontalAlignment="Left"
+                            VerticalAlignment="Top"
+                            Margin="12"
+                            Padding="10,6"
+                            Background="#72000000"
+                            BorderBrush="{StaticResource Brush.BorderStrong}"
+                            BorderThickness="1"
+                            CornerRadius="{StaticResource Radius.Pill}">
+                        <TextBlock Style="{StaticResource Text.Caption}"
+                                   Foreground="{StaticResource Brush.TextPrimary}"
+                                   Text="{Binding Album.ReleaseYearLabel, ElementName=Root}" />
+                    </Border>
+                    <Border HorizontalAlignment="Right"
+                            VerticalAlignment="Bottom"
+                            Margin="12"
+                            Padding="10,6"
+                            Background="#70000000"
+                            BorderBrush="{StaticResource Brush.BorderStrong}"
+                            BorderThickness="1"
+                            CornerRadius="{StaticResource Radius.Pill}">
+                        <TextBlock Style="{StaticResource Text.Caption}"
+                                   Foreground="{StaticResource Brush.TextPrimary}"
+                                   Text="{Binding Album.TrackCount, ElementName=Root, StringFormat={}{0} tracks}" />
+                    </Border>
+                </Grid>
+                <TextBlock Margin="0,16,0,0"
+                           Style="{StaticResource Text.CardTitle}"
                            Text="{Binding Album.Title, ElementName=Root}"
                            TextTrimming="CharacterEllipsis" />
                 <TextBlock Margin="0,6,0,0"
+                           Style="{StaticResource Text.BodyMuted}"
+                           Text="{Binding Album.ArtistName, ElementName=Root}"
+                           TextTrimming="CharacterEllipsis" />
+                <TextBlock Margin="0,10,0,0"
                            Style="{StaticResource Text.Caption}"
-                           Text="{Binding Album.ArtistName, ElementName=Root}" />
+                           Foreground="{StaticResource Brush.TextSecondary}"
+                           Text="{Binding Album.DurationLabel, ElementName=Root}" />
             </StackPanel>
         </Border>
     </Button>

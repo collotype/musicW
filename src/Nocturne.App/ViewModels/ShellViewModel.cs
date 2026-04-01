@@ -49,13 +49,11 @@ public sealed partial class ShellViewModel : ViewModelBase
         _navigationService.CurrentViewModelChanged += (_, _) =>
         {
             CurrentPageViewModel = _navigationService.CurrentViewModel;
+            SyncSidebarSelectionForCurrentPage();
         };
 
         _libraryService.LibraryChanged += (_, _) => RebuildSidebarCollections();
-        _notificationService.NotificationChanged += (_, _) =>
-        {
-            OnPropertyChanged(nameof(CurrentNotification));
-        };
+        _notificationService.NotificationChanged += (_, _) => OnPropertyChanged(nameof(CurrentNotification));
     }
 
     public string Title => Branding.ProductName;
@@ -67,6 +65,12 @@ public sealed partial class ShellViewModel : ViewModelBase
     public ObservableCollection<NavigationItem> FooterNavigation { get; }
 
     public ObservableCollection<LibraryCollection> SidebarCollections { get; } = [];
+
+    public IEnumerable<LibraryCollection> SystemCollections => SidebarCollections.Where(item => !item.IsPlaylist);
+
+    public IEnumerable<LibraryCollection> UserPlaylists => SidebarCollections.Where(item => item.IsPlaylist);
+
+    public int PlaylistCount => UserPlaylists.Count();
 
     public PlayerBarViewModel PlayerBar { get; }
 
@@ -121,12 +125,7 @@ public sealed partial class ShellViewModel : ViewModelBase
             return;
         }
 
-        foreach (var item in SidebarCollections)
-        {
-            item.IsSelected = item == sidebarItem;
-        }
-
-        SelectedSidebarItem = sidebarItem;
+        SelectSidebarItem(sidebarItem);
 
         switch (sidebarItem.Type)
         {
@@ -145,6 +144,7 @@ public sealed partial class ShellViewModel : ViewModelBase
                 {
                     await _navigationService.NavigateAsync<PlaylistPageViewModel>(playlist);
                 }
+
                 break;
         }
     }
@@ -172,15 +172,18 @@ public sealed partial class ShellViewModel : ViewModelBase
         switch (target)
         {
             case NavigationTarget.Library:
+                SelectSidebarByType(CollectionType.Library);
                 await _navigationService.NavigateAsync<LibraryPageViewModel>();
                 break;
             case NavigationTarget.Search:
                 await _navigationService.NavigateAsync<SearchPageViewModel>();
                 break;
             case NavigationTarget.Favorites:
+                SelectSidebarByType(CollectionType.Favorites);
                 await _navigationService.NavigateAsync<FavoritesPageViewModel>();
                 break;
             case NavigationTarget.OfflineTracks:
+                SelectSidebarByType(CollectionType.OfflineTracks);
                 await _navigationService.NavigateAsync<OfflineTracksPageViewModel>();
                 break;
             case NavigationTarget.Settings:
@@ -205,11 +208,61 @@ public sealed partial class ShellViewModel : ViewModelBase
             SidebarCollections.Add(item);
         }
 
+        OnPropertyChanged(nameof(SystemCollections));
+        OnPropertyChanged(nameof(UserPlaylists));
+        OnPropertyChanged(nameof(PlaylistCount));
+
         if (SidebarCollections.Count > 0 && SelectedSidebarItem is null)
         {
-            SidebarCollections[0].IsSelected = true;
-            SelectedSidebarItem = SidebarCollections[0];
+            SelectSidebarItem(SidebarCollections[0]);
         }
+        else
+        {
+            SyncSidebarSelectionForCurrentPage();
+        }
+    }
+
+    private void SyncSidebarSelectionForCurrentPage()
+    {
+        switch (CurrentPageViewModel)
+        {
+            case LibraryPageViewModel:
+                SelectSidebarByType(CollectionType.Library);
+                break;
+            case FavoritesPageViewModel:
+                SelectSidebarByType(CollectionType.Favorites);
+                break;
+            case OfflineTracksPageViewModel:
+                SelectSidebarByType(CollectionType.OfflineTracks);
+                break;
+            case PlaylistPageViewModel playlistPageViewModel when playlistPageViewModel.Playlist is not null:
+                var playlistItem = SidebarCollections.FirstOrDefault(item => item.Id == playlistPageViewModel.Playlist.Id);
+                if (playlistItem is not null)
+                {
+                    SelectSidebarItem(playlistItem);
+                }
+
+                break;
+        }
+    }
+
+    private void SelectSidebarByType(CollectionType collectionType)
+    {
+        var item = SidebarCollections.FirstOrDefault(candidate => candidate.Type == collectionType);
+        if (item is not null)
+        {
+            SelectSidebarItem(item);
+        }
+    }
+
+    private void SelectSidebarItem(LibraryCollection sidebarItem)
+    {
+        foreach (var item in SidebarCollections)
+        {
+            item.IsSelected = item == sidebarItem;
+        }
+
+        SelectedSidebarItem = sidebarItem;
     }
 
     private static NavigationTarget ParseTarget(string? value)

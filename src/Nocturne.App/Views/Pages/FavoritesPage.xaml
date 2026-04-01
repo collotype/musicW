@@ -6,7 +6,7 @@
         <StackPanel>
             <TextBlock Style="{StaticResource Text.Display}"
                        Text="Favorites" />
-            <TextBlock Margin="0,8,0,28"
+            <TextBlock Margin="0,10,0,28"
                        Style="{StaticResource Text.Body}"
                        Text="The tracks you keep returning to." />
 
@@ -24,8 +24,13 @@
                 </controls:EmptyStateView.Style>
             </controls:EmptyStateView>
 
-            <controls:TrackListView ItemsSource="{Binding Tracks}"
-                                    PlayCommand="{Binding PlayTrackCommand}" />
+            <Border Margin="0,24,0,0"
+                    Style="{StaticResource Surface.CardElevated}"
+                    Padding="20">
+                <controls:TrackListView ItemsSource="{Binding Tracks}"
+                                        ActiveTrackId="{Binding DataContext.PlayerBar.CurrentTrack.Id, RelativeSource={RelativeSource AncestorType=Window}}"
+                                        PlayCommand="{Binding PlayTrackCommand}" />
+            </Border>
         </StackPanel>
     </ScrollViewer>
 </UserControl>

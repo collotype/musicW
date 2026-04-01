@@ -5,134 +5,167 @@
         <StackPanel>
             <TextBlock Style="{StaticResource Text.Display}"
                        Text="Settings" />
-            <TextBlock Margin="0,8,0,28"
+            <TextBlock Margin="0,10,0,28"
                        Style="{StaticResource Text.Body}"
-                       Text="Appearance, cache, audio behavior, and online provider configuration." />
+                       Text="Appearance, audio behavior, cache policy, and provider configuration for the desktop client." />
 
-            <UniformGrid Columns="2">
-                <Border Margin="0,0,14,14"
-                        Background="{StaticResource Brush.PanelBackground}"
-                        BorderBrush="{StaticResource Brush.Border}"
-                        BorderThickness="1"
-                        CornerRadius="24"
-                        Padding="20">
-                    <StackPanel>
-                        <TextBlock Style="{StaticResource Text.SectionTitle}"
-                                   Text="Appearance" />
-                        <TextBlock Margin="0,8,0,0"
-                                   Style="{StaticResource Text.Body}"
-                                   Text="Accent color" />
-                        <TextBox Margin="0,10,0,0"
-                                 Text="{Binding Settings.AccentColorHex, UpdateSourceTrigger=PropertyChanged}" />
-                        <ToggleButton Margin="0,12,0,0"
-                                      IsChecked="{Binding Settings.RememberLastSession}"
-                                      Content="Remember last session" />
-                        <ToggleButton Margin="0,10,0,0"
-                                      IsChecked="{Binding Settings.StartMinimized}"
-                                      Content="Start minimized" />
-                    </StackPanel>
-                </Border>
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="*" />
+                </Grid.ColumnDefinitions>
 
-                <Border Margin="14,0,0,14"
-                        Background="{StaticResource Brush.PanelBackground}"
-                        BorderBrush="{StaticResource Brush.Border}"
-                        BorderThickness="1"
-                        CornerRadius="24"
-                        Padding="20">
-                    <StackPanel>
-                        <TextBlock Style="{StaticResource Text.SectionTitle}"
-                                   Text="Audio" />
-                        <ToggleButton Margin="0,14,0,0"
-                                      IsChecked="{Binding Settings.NormalizeAudio}"
-                                      Content="Normalization placeholder" />
-                        <TextBlock Margin="0,16,0,0"
-                                   Style="{StaticResource Text.Body}"
-                                   Text="Language placeholder" />
-                        <TextBox Margin="0,10,0,0"
-                                 Text="{Binding Settings.LanguageCode, UpdateSourceTrigger=PropertyChanged}" />
-                    </StackPanel>
-                </Border>
+                <StackPanel Margin="0,0,14,0">
+                    <Border Style="{StaticResource Surface.CardElevated}"
+                            Padding="22"
+                            Margin="0,0,0,18">
+                        <StackPanel>
+                            <TextBlock Style="{StaticResource Text.Overline}"
+                                       Text="APPEARANCE" />
+                            <TextBlock Margin="0,10,0,0"
+                                       Style="{StaticResource Text.SectionTitle}"
+                                       Text="Client mood and session memory" />
+                            <TextBlock Margin="0,14,0,0"
+                                       Style="{StaticResource Text.Caption}"
+                                       Text="Accent color" />
+                            <TextBox Margin="0,8,0,0"
+                                     Text="{Binding Settings.AccentColorHex, UpdateSourceTrigger=PropertyChanged}" />
+                            <ToggleButton Margin="0,14,0,0"
+                                          IsChecked="{Binding Settings.RememberLastSession}"
+                                          Content="Remember last session" />
+                            <ToggleButton Margin="0,10,0,0"
+                                          IsChecked="{Binding Settings.StartMinimized}"
+                                          Content="Start minimized" />
+                        </StackPanel>
+                    </Border>
 
-                <Border Margin="0,0,14,14"
-                        Background="{StaticResource Brush.PanelBackground}"
-                        BorderBrush="{StaticResource Brush.Border}"
-                        BorderThickness="1"
-                        CornerRadius="24"
-                        Padding="20">
-                    <StackPanel>
-                        <TextBlock Style="{StaticResource Text.SectionTitle}"
-                                   Text="SoundCloud" />
-                        <ToggleButton Margin="0,14,0,0"
-                                      IsChecked="{Binding Settings.SoundCloudEnabled}"
-                                      Content="Enable SoundCloud provider" />
-                        <ToggleButton Margin="0,10,0,0"
-                                      IsChecked="{Binding Settings.DownloadTempStreams}"
-                                      Content="Keep downloaded streams" />
-                        <TextBlock Margin="0,14,0,0"
-                                   Style="{StaticResource Text.Body}"
-                                   Text="SoundCloud playback resolves playable streams in-app when progressive or supported stream URLs are available." />
-                    </StackPanel>
-                </Border>
+                    <Border Style="{StaticResource Surface.CardElevated}"
+                            Padding="22"
+                            Margin="0,0,0,18">
+                        <StackPanel>
+                            <TextBlock Style="{StaticResource Text.Overline}"
+                                       Text="AUDIO" />
+                            <TextBlock Margin="0,10,0,0"
+                                       Style="{StaticResource Text.SectionTitle}"
+                                       Text="Playback behavior" />
+                            <ToggleButton Margin="0,14,0,0"
+                                          IsChecked="{Binding Settings.NormalizeAudio}"
+                                          Content="Normalization placeholder" />
+                            <TextBlock Margin="0,18,0,0"
+                                       Style="{StaticResource Text.Caption}"
+                                       Text="Language placeholder" />
+                            <TextBox Margin="0,8,0,0"
+                                     Text="{Binding Settings.LanguageCode, UpdateSourceTrigger=PropertyChanged}" />
+                        </StackPanel>
+                    </Border>
 
-                <Border Margin="14,0,0,14"
-                        Background="{StaticResource Brush.PanelBackground}"
-                        BorderBrush="{StaticResource Brush.Border}"
-                        BorderThickness="1"
-                        CornerRadius="24"
-                        Padding="20">
-                    <StackPanel>
-                        <TextBlock Style="{StaticResource Text.SectionTitle}"
-                                   Text="Spotify" />
-                        <TextBlock Margin="0,10,0,0"
-                                   Style="{StaticResource Text.Body}"
-                                   Text="Metadata-only. Playback remains external." />
-                        <TextBox Margin="0,12,0,0"
-                                 Text="{Binding Settings.SpotifyClientId, UpdateSourceTrigger=PropertyChanged}" />
-                        <TextBox Margin="0,10,0,0"
-                                 Text="{Binding Settings.SpotifyClientSecret, UpdateSourceTrigger=PropertyChanged}" />
-                        <TextBox Margin="0,10,0,0"
-                                 Text="{Binding Settings.SpotifyMarket, UpdateSourceTrigger=PropertyChanged}" />
-                    </StackPanel>
-                </Border>
-            </UniformGrid>
-
-            <Border Background="{StaticResource Brush.PanelBackground}"
-                    BorderBrush="{StaticResource Brush.Border}"
-                    BorderThickness="1"
-                    CornerRadius="24"
-                    Padding="20">
-                <StackPanel>
-                    <TextBlock Style="{StaticResource Text.SectionTitle}"
-                               Text="Cache and Library Paths" />
-                    <TextBlock Margin="0,10,0,0"
-                               Style="{StaticResource Text.Body}"
-                               Text="{Binding Settings.CacheFolderPath}" />
-                    <ItemsControl Margin="0,14,0,0"
-                                  ItemsSource="{Binding LocalMusicFolders}">
-                        <ItemsControl.ItemTemplate>
-                            <DataTemplate>
-                                <Border Margin="0,0,0,8"
-                                        Background="{StaticResource Brush.PanelRaised}"
-                                        BorderBrush="{StaticResource Brush.Border}"
-                                        BorderThickness="1"
-                                        CornerRadius="16"
-                                        Padding="12">
-                                    <TextBlock Text="{Binding}" />
-                                </Border>
-                            </DataTemplate>
-                        </ItemsControl.ItemTemplate>
-                    </ItemsControl>
-
-                    <StackPanel Orientation="Horizontal"
-                                Margin="0,18,0,0">
-                        <Button Content="Save"
-                                Command="{Binding SaveCommand}" />
-                        <Button Margin="10,0,0,0"
-                                Content="Clear Cache"
-                                Command="{Binding ClearCacheCommand}" />
-                    </StackPanel>
+                    <Border Style="{StaticResource Surface.CardElevated}"
+                            Padding="22">
+                        <StackPanel>
+                            <TextBlock Style="{StaticResource Text.Overline}"
+                                       Text="LIBRARY PATHS" />
+                            <TextBlock Margin="0,10,0,0"
+                                       Style="{StaticResource Text.SectionTitle}"
+                                       Text="Music folders and cache" />
+                            <TextBlock Margin="0,14,0,0"
+                                       Style="{StaticResource Text.Caption}"
+                                       Text="Cache folder" />
+                            <TextBox Margin="0,8,0,0"
+                                     Text="{Binding Settings.CacheFolderPath, UpdateSourceTrigger=PropertyChanged}" />
+                            <TextBlock Margin="0,18,0,0"
+                                       Style="{StaticResource Text.Caption}"
+                                       Text="Local folders" />
+                            <ItemsControl Margin="0,10,0,0"
+                                          ItemsSource="{Binding LocalMusicFolders}">
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate>
+                                        <Border Margin="0,0,0,8"
+                                                Style="{StaticResource Surface.Card}">
+                                            <TextBlock Margin="12"
+                                                       Style="{StaticResource Text.Body}"
+                                                       Text="{Binding}" />
+                                        </Border>
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
+                        </StackPanel>
+                    </Border>
                 </StackPanel>
-            </Border>
+
+                <StackPanel Grid.Column="1"
+                            Margin="14,0,0,0">
+                    <Border Style="{StaticResource Surface.CardElevated}"
+                            Padding="22"
+                            Margin="0,0,0,18">
+                        <StackPanel>
+                            <TextBlock Style="{StaticResource Text.Overline}"
+                                       Text="SOUNDCLOUD" />
+                            <TextBlock Margin="0,10,0,0"
+                                       Style="{StaticResource Text.SectionTitle}"
+                                       Text="Streaming provider" />
+                            <ToggleButton Margin="0,14,0,0"
+                                          IsChecked="{Binding Settings.SoundCloudEnabled}"
+                                          Content="Enable SoundCloud provider" />
+                            <ToggleButton Margin="0,10,0,0"
+                                          IsChecked="{Binding Settings.DownloadTempStreams}"
+                                          Content="Keep downloaded streams" />
+                            <TextBlock Margin="0,14,0,0"
+                                       Style="{StaticResource Text.Body}"
+                                       Text="SoundCloud playback resolves supported stream URLs directly for in-app playback and downloads." />
+                        </StackPanel>
+                    </Border>
+
+                    <Border Style="{StaticResource Surface.CardElevated}"
+                            Padding="22"
+                            Margin="0,0,0,18">
+                        <StackPanel>
+                            <TextBlock Style="{StaticResource Text.Overline}"
+                                       Text="SPOTIFY" />
+                            <TextBlock Margin="0,10,0,0"
+                                       Style="{StaticResource Text.SectionTitle}"
+                                       Text="Metadata-only provider" />
+                            <TextBlock Margin="0,14,0,0"
+                                       Style="{StaticResource Text.Caption}"
+                                       Text="Client ID" />
+                            <TextBox Margin="0,8,0,0"
+                                     Text="{Binding Settings.SpotifyClientId, UpdateSourceTrigger=PropertyChanged}" />
+                            <TextBlock Margin="0,14,0,0"
+                                       Style="{StaticResource Text.Caption}"
+                                       Text="Client secret" />
+                            <TextBox Margin="0,8,0,0"
+                                     Text="{Binding Settings.SpotifyClientSecret, UpdateSourceTrigger=PropertyChanged}" />
+                            <TextBlock Margin="0,14,0,0"
+                                       Style="{StaticResource Text.Caption}"
+                                       Text="Market" />
+                            <TextBox Margin="0,8,0,0"
+                                     Text="{Binding Settings.SpotifyMarket, UpdateSourceTrigger=PropertyChanged}" />
+                        </StackPanel>
+                    </Border>
+
+                    <Border Style="{StaticResource Surface.CardElevated}"
+                            Padding="22">
+                        <StackPanel>
+                            <TextBlock Style="{StaticResource Text.Overline}"
+                                       Text="CACHE AND SESSION" />
+                            <TextBlock Margin="0,10,0,0"
+                                       Style="{StaticResource Text.SectionTitle}"
+                                       Text="Maintenance" />
+                            <TextBlock Margin="0,14,0,0"
+                                       Style="{StaticResource Text.Body}"
+                                       Text="Clear stale artwork and stream metadata, then save the updated desktop configuration." />
+                            <StackPanel Orientation="Horizontal"
+                                        Margin="0,18,0,0">
+                                <Button Content="Save"
+                                        Command="{Binding SaveCommand}" />
+                                <Button Margin="10,0,0,0"
+                                        Style="{StaticResource Button.GhostPill}"
+                                        Content="Clear Cache"
+                                        Command="{Binding ClearCacheCommand}" />
+                            </StackPanel>
+                        </StackPanel>
+                    </Border>
+                </StackPanel>
+            </Grid>
         </StackPanel>
     </ScrollViewer>
 </UserControl>

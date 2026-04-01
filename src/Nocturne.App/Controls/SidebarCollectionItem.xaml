@@ -8,18 +8,24 @@
             BorderThickness="0"
             Padding="0"
             HorizontalContentAlignment="Stretch">
-        <Border Padding="12"
-                CornerRadius="18"
-                Background="Transparent"
+        <Border x:Name="Chrome"
+                Margin="0,0,0,10"
+                Padding="12"
+                Background="{StaticResource Brush.PanelBackground}"
                 BorderBrush="{StaticResource Brush.Border}"
                 BorderThickness="1"
-                Margin="0,0,0,8">
+                CornerRadius="{StaticResource Radius.Medium}">
             <Border.Style>
                 <Style TargetType="Border">
                     <Setter Property="Background" Value="{StaticResource Brush.PanelBackground}" />
+                    <Setter Property="BorderBrush" Value="{StaticResource Brush.Border}" />
                     <Style.Triggers>
+                        <DataTrigger Binding="{Binding IsMouseOver, RelativeSource={RelativeSource AncestorType=Button}}" Value="True">
+                            <Setter Property="Background" Value="{StaticResource Brush.PanelHover}" />
+                            <Setter Property="BorderBrush" Value="{StaticResource Brush.BorderStrong}" />
+                        </DataTrigger>
                         <DataTrigger Binding="{Binding Item.IsSelected, ElementName=Root}" Value="True">
-                            <Setter Property="Background" Value="#1FB7F9E4" />
+                            <Setter Property="Background" Value="{StaticResource Brush.NavSelection}" />
                             <Setter Property="BorderBrush" Value="{StaticResource Brush.Accent}" />
                         </DataTrigger>
                     </Style.Triggers>
@@ -27,35 +33,49 @@
             </Border.Style>
             <Grid>
                 <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="44" />
+                    <ColumnDefinition Width="50" />
                     <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="Auto" />
                 </Grid.ColumnDefinitions>
-                <Border Width="38"
-                        Height="38"
-                        CornerRadius="12"
-                        Background="{StaticResource Brush.PanelRaised}"
+
+                <Border Width="42"
+                        Height="42"
+                        Background="{StaticResource Brush.PanelContrast}"
+                        BorderBrush="{StaticResource Brush.Border}"
+                        BorderThickness="1"
+                        CornerRadius="{StaticResource Radius.Medium}"
                         ClipToBounds="True">
                     <Grid>
-                        <Image Source="{Binding Item.CoverArtUrl, ElementName=Root}" Stretch="UniformToFill" />
+                        <Image Source="{Binding Item.CoverArtUrl, ElementName=Root}"
+                               Stretch="UniformToFill" />
+                        <Rectangle Fill="{StaticResource Brush.CardImageOverlay}" />
                         <TextBlock FontFamily="{StaticResource Font.Icon}"
+                                   FontSize="13"
                                    Foreground="{StaticResource Brush.TextSecondary}"
-                                   FontSize="14"
                                    HorizontalAlignment="Center"
                                    VerticalAlignment="Center"
                                    Text="{Binding Item.Glyph, ElementName=Root}" />
                     </Grid>
                 </Border>
+
                 <StackPanel Grid.Column="1"
                             Margin="12,0,0,0"
                             VerticalAlignment="Center">
-                    <TextBlock Text="{Binding Item.Title, ElementName=Root}"
-                               TextTrimming="CharacterEllipsis"
-                               Foreground="{StaticResource Brush.TextPrimary}"
-                               FontWeight="SemiBold" />
-                    <TextBlock Margin="0,4,0,0"
+                    <TextBlock Style="{StaticResource Text.CardTitle}"
+                               Text="{Binding Item.Title, ElementName=Root}"
+                               TextTrimming="CharacterEllipsis" />
+                    <TextBlock Margin="0,3,0,0"
                                Style="{StaticResource Text.Caption}"
-                               Text="{Binding Item.Subtitle, ElementName=Root}" />
+                               Text="{Binding Item.Subtitle, ElementName=Root}"
+                               TextTrimming="CharacterEllipsis" />
                 </StackPanel>
+
+                <TextBlock Grid.Column="2"
+                           Margin="12,0,0,0"
+                           FontFamily="{StaticResource Font.Icon}"
+                           Foreground="{StaticResource Brush.TextMuted}"
+                           VerticalAlignment="Center"
+                           Text="&#xE76C;" />
             </Grid>
         </Border>
     </Button>

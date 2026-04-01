@@ -39,7 +39,13 @@ public sealed class AlbumPageViewModel : PageViewModelBase
     public Album? Album
     {
         get => _album;
-        private set => SetProperty(ref _album, value);
+        private set
+        {
+            if (SetProperty(ref _album, value))
+            {
+                RaiseAlbumProperties();
+            }
+        }
     }
 
     public bool IsLoading
@@ -49,6 +55,12 @@ public sealed class AlbumPageViewModel : PageViewModelBase
     }
 
     public ObservableCollection<Track> Tracks { get; } = [];
+
+    public string AlbumMetaLine => Album is null
+        ? string.Empty
+        : $"{Album.ReleaseYearLabel} - {Album.TrackCount} tracks - {Album.DurationLabel}";
+
+    public string Description => Album?.Description ?? string.Empty;
 
     public IAsyncRelayCommand PlayAllCommand { get; }
 
@@ -82,6 +94,7 @@ public sealed class AlbumPageViewModel : PageViewModelBase
         finally
         {
             IsLoading = false;
+            RaiseAlbumProperties();
             PlayAllCommand.NotifyCanExecuteChanged();
             ShuffleCommand.NotifyCanExecuteChanged();
             SaveCommand.NotifyCanExecuteChanged();
@@ -150,6 +163,12 @@ public sealed class AlbumPageViewModel : PageViewModelBase
         });
     }
 
+    private void RaiseAlbumProperties()
+    {
+        OnPropertyChanged(nameof(AlbumMetaLine));
+        OnPropertyChanged(nameof(Description));
+    }
+
     private void ReplaceTracks(IEnumerable<Track> tracks)
     {
         Tracks.Clear();
@@ -157,5 +176,7 @@ public sealed class AlbumPageViewModel : PageViewModelBase
         {
             Tracks.Add(track);
         }
+
+        RaiseAlbumProperties();
     }
 }

@@ -34,11 +34,21 @@ public sealed class LibraryPageViewModel : PageViewModelBase
 
     public ObservableCollection<Track> FavoriteTracks { get; } = [];
 
+    public ObservableCollection<Track> OfflineTracks { get; } = [];
+
     public ObservableCollection<Album> Albums { get; } = [];
 
     public ObservableCollection<Artist> Artists { get; } = [];
 
     public ObservableCollection<Playlist> Playlists { get; } = [];
+
+    public int FavoriteCount => FavoriteTracks.Count;
+
+    public int OfflineCount => OfflineTracks.Count;
+
+    public int AlbumCount => Albums.Count;
+
+    public int PlaylistCount => Playlists.Count;
 
     public IAsyncRelayCommand<Track?> PlayTrackCommand { get; }
 
@@ -61,37 +71,37 @@ public sealed class LibraryPageViewModel : PageViewModelBase
             return;
         }
 
-        await _playbackService.PlayQueueAsync(RecentlyAdded.ToList(), track, "library");
+        var queue = RecentlyAdded.Count > 0 ? RecentlyAdded.ToList() : FavoriteTracks.ToList();
+        if (queue.Count == 0)
+        {
+            queue = OfflineTracks.ToList();
+        }
+
+        await _playbackService.PlayQueueAsync(queue, track, "library");
     }
 
-    private Task OpenArtistAsync(Artist? artist)
-    {
-        return artist is null
-            ? Task.CompletedTask
-            : _navigationService.NavigateAsync<ArtistPageViewModel>(artist);
-    }
+    private Task OpenArtistAsync(Artist? artist) =>
+        artist is null ? Task.CompletedTask : _navigationService.NavigateAsync<ArtistPageViewModel>(artist);
 
-    private Task OpenAlbumAsync(Album? album)
-    {
-        return album is null
-            ? Task.CompletedTask
-            : _navigationService.NavigateAsync<AlbumPageViewModel>(album);
-    }
+    private Task OpenAlbumAsync(Album? album) =>
+        album is null ? Task.CompletedTask : _navigationService.NavigateAsync<AlbumPageViewModel>(album);
 
-    private Task OpenPlaylistAsync(Playlist? playlist)
-    {
-        return playlist is null
-            ? Task.CompletedTask
-            : _navigationService.NavigateAsync<PlaylistPageViewModel>(playlist);
-    }
+    private Task OpenPlaylistAsync(Playlist? playlist) =>
+        playlist is null ? Task.CompletedTask : _navigationService.NavigateAsync<PlaylistPageViewModel>(playlist);
 
     private void RefreshCollections()
     {
-        ReplaceCollection(RecentlyAdded, _libraryService.GetRecentlyAdded());
-        ReplaceCollection(FavoriteTracks, _libraryService.GetFavorites());
-        ReplaceCollection(Albums, _libraryService.GetAlbums());
-        ReplaceCollection(Artists, _libraryService.GetArtists());
-        ReplaceCollection(Playlists, _libraryService.GetPlaylists());
+        ReplaceCollection(RecentlyAdded, _libraryService.GetRecentlyAdded(8));
+        ReplaceCollection(FavoriteTracks, _libraryService.GetFavorites().Take(6));
+        ReplaceCollection(OfflineTracks, _libraryService.GetOfflineTracks().Take(6));
+        ReplaceCollection(Albums, _libraryService.GetAlbums().Take(8));
+        ReplaceCollection(Artists, _libraryService.GetArtists().Take(8));
+        ReplaceCollection(Playlists, _libraryService.GetPlaylists().Take(8));
+
+        OnPropertyChanged(nameof(FavoriteCount));
+        OnPropertyChanged(nameof(OfflineCount));
+        OnPropertyChanged(nameof(AlbumCount));
+        OnPropertyChanged(nameof(PlaylistCount));
     }
 
     private static void ReplaceCollection<T>(ObservableCollection<T> target, IEnumerable<T> source)

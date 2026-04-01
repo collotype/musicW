@@ -3,79 +3,88 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:controls="clr-namespace:Nocturne.App.Controls"
              x:Name="Root">
-    <Grid>
-        <controls:BlurredBackgroundPresenter ImageSource="{Binding ImageSource, ElementName=Root}"
-                                             PresenterHeight="320"
-                                             CornerRadius="30" />
-        <Border Background="#6608090A"
-                CornerRadius="30" />
-        <Grid Margin="28">
-            <Grid.RowDefinitions>
-                <RowDefinition Height="*" />
-                <RowDefinition Height="Auto" />
-            </Grid.RowDefinitions>
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="180" />
-                <ColumnDefinition Width="*" />
-            </Grid.ColumnDefinitions>
+    <Border CornerRadius="{StaticResource Radius.XLarge}"
+            ClipToBounds="True">
+        <Grid MinHeight="360">
+            <controls:BlurredBackgroundPresenter ImageSource="{Binding ImageSource, ElementName=Root}"
+                                                 PresenterHeight="380"
+                                                 CornerRadius="38" />
+            <Rectangle Fill="{StaticResource Brush.HeaderOverlay}" />
+            <Rectangle Fill="{StaticResource Brush.HeroFade}" />
+            <Border BorderBrush="{StaticResource Brush.BorderStrong}"
+                    BorderThickness="1"
+                    CornerRadius="{StaticResource Radius.XLarge}" />
 
-            <Border Grid.RowSpan="2"
-                    Width="160"
-                    Height="160"
-                    VerticalAlignment="Bottom">
-                <Border.Style>
-                    <Style TargetType="Border">
-                        <Setter Property="CornerRadius" Value="28" />
-                        <Style.Triggers>
-                            <DataTrigger Binding="{Binding IsCircularCover, ElementName=Root}" Value="True">
-                                <Setter Property="CornerRadius" Value="80" />
-                            </DataTrigger>
-                        </Style.Triggers>
-                    </Style>
-                </Border.Style>
-                <Border.Effect>
-                    <DropShadowEffect BlurRadius="16"
-                                      ShadowDepth="0"
-                                      Opacity="0.28" />
-                </Border.Effect>
-                <Image Source="{Binding CoverArtUrl, ElementName=Root}"
-                       Stretch="UniformToFill" />
-            </Border>
+            <Grid Margin="34">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="220" />
+                    <ColumnDefinition Width="*" />
+                </Grid.ColumnDefinitions>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="*" />
+                    <RowDefinition Height="Auto" />
+                </Grid.RowDefinitions>
 
-            <StackPanel Grid.Column="1"
-                        Margin="22,34,0,0"
-                        VerticalAlignment="Bottom">
-                <TextBlock Style="{StaticResource Text.Caption}"
-                           Text="{Binding Kicker, ElementName=Root}" />
-                <TextBlock Margin="0,8,0,0"
-                           Style="{StaticResource Text.Display}"
-                           FontSize="44"
-                           Text="{Binding Title, ElementName=Root}" />
-                <TextBlock Margin="0,6,0,0"
-                           Style="{StaticResource Text.Body}"
-                           Text="{Binding Subtitle, ElementName=Root}" />
-                <TextBlock Margin="0,10,0,0"
-                           Style="{StaticResource Text.Caption}"
-                           Text="{Binding Meta, ElementName=Root}" />
-                <ItemsControl Margin="0,18,0,0"
-                              ItemsSource="{Binding Tags, ElementName=Root}">
-                    <ItemsControl.ItemsPanel>
-                        <ItemsPanelTemplate>
-                            <WrapPanel />
-                        </ItemsPanelTemplate>
-                    </ItemsControl.ItemsPanel>
-                    <ItemsControl.ItemTemplate>
-                        <DataTemplate>
-                            <controls:TagChip Text="{Binding}" />
-                        </DataTemplate>
-                    </ItemsControl.ItemTemplate>
-                </ItemsControl>
-            </StackPanel>
+                <Border Grid.RowSpan="2"
+                        Width="188"
+                        Height="188"
+                        VerticalAlignment="Bottom"
+                        Background="{StaticResource Brush.PanelContrast}"
+                        BorderBrush="{StaticResource Brush.BorderStrong}"
+                        BorderThickness="1"
+                        ClipToBounds="True"
+                        Effect="{StaticResource Effect.HeroCoverShadow}">
+                    <Border.Style>
+                        <Style TargetType="Border">
+                            <Setter Property="CornerRadius" Value="{StaticResource Radius.Large}" />
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding IsCircularCover, ElementName=Root}" Value="True">
+                                    <Setter Property="CornerRadius" Value="{StaticResource Radius.Pill}" />
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </Border.Style>
+                    <Image Source="{Binding CoverArtUrl, ElementName=Root}"
+                           Stretch="UniformToFill" />
+                </Border>
 
-            <ContentPresenter Grid.Row="1"
-                              Grid.Column="1"
-                              Margin="22,22,0,0"
-                              Content="{Binding ActionsContent, ElementName=Root}" />
+                <StackPanel Grid.Column="1"
+                            Margin="12,18,0,0"
+                            VerticalAlignment="Bottom">
+                    <TextBlock Style="{StaticResource Text.Overline}"
+                               Text="{Binding Kicker, ElementName=Root}" />
+                    <TextBlock Margin="0,10,0,0"
+                               Style="{StaticResource Text.HeroTitle}"
+                               Text="{Binding Title, ElementName=Root}"
+                               TextWrapping="Wrap" />
+                    <TextBlock Margin="0,10,0,0"
+                               Style="{StaticResource Text.Body}"
+                               Text="{Binding Subtitle, ElementName=Root}"
+                               TextWrapping="Wrap" />
+                    <TextBlock Margin="0,12,0,0"
+                               Style="{StaticResource Text.Caption}"
+                               Foreground="{StaticResource Brush.TextSecondary}"
+                               Text="{Binding Meta, ElementName=Root}" />
+                    <ItemsControl Margin="0,18,0,0"
+                                  ItemsSource="{Binding Tags, ElementName=Root}">
+                        <ItemsControl.ItemsPanel>
+                            <ItemsPanelTemplate>
+                                <WrapPanel />
+                            </ItemsPanelTemplate>
+                        </ItemsControl.ItemsPanel>
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <controls:TagChip Text="{Binding}" />
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                </StackPanel>
+
+                <ContentPresenter Grid.Row="1"
+                                  Grid.Column="1"
+                                  Margin="12,26,0,0"
+                                  Content="{Binding ActionsContent, ElementName=Root}" />
+            </Grid>
         </Grid>
-    </Grid>
+    </Border>
 </UserControl>

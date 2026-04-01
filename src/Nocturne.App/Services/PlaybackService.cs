@@ -1,22 +1,40 @@
 using NAudio.Wave;
 using Nocturne.App.Models;
 using Nocturne.App.Models.Enums;
-using System.Timers;
+using System.Windows;
+using System.Windows.Threading;
 using PlaybackStateModel = Nocturne.App.Models.PlaybackState;
 
 namespace Nocturne.App.Services;
 
-public sealed class PlaybackService(
-    IQueueService queueService,
-    IOnlineMusicService onlineMusicService,
-    INotificationService notificationService) : IPlaybackService, IDisposable
+public sealed class PlaybackService : IPlaybackService, IDisposable
 {
+    private readonly IQueueService _queueService;
+    private readonly IOnlineMusicService _onlineMusicService;
+    private readonly INotificationService _notificationService;
     private readonly SemaphoreSlim _gate = new(1, 1);
-    private readonly System.Timers.Timer _positionTimer = new(250);
+    private readonly DispatcherTimer _positionTimer;
 
     private IWavePlayer? _outputDevice;
     private MediaFoundationReader? _reader;
     private bool _ignoreStopEvent;
+    private bool _disposed;
+
+    public PlaybackService(
+        IQueueService queueService,
+        IOnlineMusicService onlineMusicService,
+        INotificationService notificationService)
+    {
+        _queueService = queueService;
+        _onlineMusicService = onlineMusicService;
+        _notificationService = notificationService;
+
+        _positionTimer = new DispatcherTimer(DispatcherPriority.Background)
+        {
+            Interval = TimeSpan.FromMilliseconds(200)
+        };
+        _positionTimer.Tick += OnPositionTimerTick;
+    }
 
     public PlaybackStateModel State { get; } = new();
 
@@ -24,22 +42,27 @@ public sealed class PlaybackService(
 
     public async Task PlayQueueAsync(IReadOnlyList<Track> tracks, Track? startTrack = null, string origin = "")
     {
-        queueService.ReplaceQueue(tracks, startTrack ?? tracks.FirstOrDefault(), origin);
-        if (queueService.CurrentTrack is not null)
+        if (tracks.Count == 0)
         {
-            await StartTrackAsync(queueService.CurrentTrack);
+            return;
+        }
+
+        _queueService.ReplaceQueue(tracks, startTrack ?? tracks.First(), origin);
+        if (_queueService.CurrentTrack is not null)
+        {
+            await StartTrackAsync(_queueService.CurrentTrack);
         }
     }
 
     public async Task PlayTrackAsync(Track track, IReadOnlyList<Track>? queue = null, string origin = "")
     {
-        if (queue is not null)
+        if (queue is not null && queue.Count > 0)
         {
-            queueService.ReplaceQueue(queue, track, origin);
+            _queueService.ReplaceQueue(queue, track, origin);
         }
-        else if (!queueService.TrySetCurrent(track))
+        else if (!_queueService.TrySetCurrent(track))
         {
-            queueService.ReplaceQueue([track], track, origin);
+            _queueService.ReplaceQueue([track], track, origin);
         }
 
         await StartTrackAsync(track);
@@ -47,9 +70,9 @@ public sealed class PlaybackService(
 
     public async Task TogglePlayPauseAsync()
     {
-        if (_outputDevice is null && queueService.CurrentTrack is not null)
+        if (_outputDevice is null && _queueService.CurrentTrack is not null)
         {
-            await StartTrackAsync(queueService.CurrentTrack);
+            await StartTrackAsync(_queueService.CurrentTrack);
             return;
         }
 
@@ -81,17 +104,21 @@ public sealed class PlaybackService(
             return;
         }
 
-        var nextTrack = queueService.MoveNext(State.IsShuffleEnabled);
-        if (nextTrack is null && State.RepeatMode == RepeatMode.All && queueService.Items.Count > 0)
+        var nextTrack = _queueService.MoveNext(State.IsShuffleEnabled);
+        if (nextTrack is null && State.RepeatMode == RepeatMode.All && _queueService.Items.Count > 0)
         {
-            nextTrack = queueService.Items[0].Track;
-            queueService.TrySetCurrent(nextTrack);
+            nextTrack = _queueService.Items[0].Track;
+            _queueService.TrySetCurrent(nextTrack);
         }
 
         if (nextTrack is not null)
         {
             await StartTrackAsync(nextTrack);
+            return;
         }
+
+        State.IsPlaying = false;
+        NotifyStateChanged();
     }
 
     public async Task PreviousAsync()
@@ -104,7 +131,7 @@ public sealed class PlaybackService(
             return;
         }
 
-        var previousTrack = queueService.MovePrevious();
+        var previousTrack = _queueService.MovePrevious();
         if (previousTrack is not null)
         {
             await StartTrackAsync(previousTrack);
@@ -161,7 +188,14 @@ public sealed class PlaybackService(
 
     public void Dispose()
     {
-        _positionTimer.Dispose();
+        if (_disposed)
+        {
+            return;
+        }
+
+        _disposed = true;
+        _positionTimer.Stop();
+        _positionTimer.Tick -= OnPositionTimerTick;
         CleanupAudio();
         _gate.Dispose();
     }
@@ -174,6 +208,8 @@ public sealed class PlaybackService(
             var playbackLocation = await ResolvePlaybackLocationAsync(track);
             if (string.IsNullOrWhiteSpace(playbackLocation))
             {
+                State.IsPlaying = false;
+                NotifyStateChanged();
                 return;
             }
 
@@ -197,8 +233,6 @@ public sealed class PlaybackService(
             track.LastPlayedAt = DateTimeOffset.UtcNow;
             track.PlaybackCount++;
 
-            _positionTimer.Elapsed -= OnPositionTimerElapsed;
-            _positionTimer.Elapsed += OnPositionTimerElapsed;
             _positionTimer.Start();
             NotifyStateChanged();
         }
@@ -206,7 +240,7 @@ public sealed class PlaybackService(
         {
             State.ErrorMessage = "Playback failed for the selected track.";
             State.IsPlaying = false;
-            await notificationService.ShowAsync("Playback unavailable", "This track could not be opened by the audio engine.", NotificationLevel.Warning);
+            await _notificationService.ShowAsync("Playback unavailable", "This track could not be opened by the audio engine.", NotificationLevel.Warning);
             NotifyStateChanged();
         }
         finally
@@ -219,27 +253,34 @@ public sealed class PlaybackService(
     {
         if (track.Source == TrackSource.Spotify)
         {
-            await notificationService.ShowAsync("Spotify is metadata only", "Open the track externally or play a local or SoundCloud result instead.", NotificationLevel.Info);
+            await _notificationService.ShowAsync("Spotify is metadata only", "Open the track externally or play a local or SoundCloud result instead.", NotificationLevel.Info);
             return null;
         }
 
-        if (!string.IsNullOrWhiteSpace(track.LocalFilePath) && File.Exists(track.LocalFilePath))
+        if (!string.IsNullOrWhiteSpace(track.LocalFilePath))
         {
-            return track.LocalFilePath;
-        }
-
-        if (track.Source == TrackSource.SoundCloud)
-        {
-            if (string.IsNullOrWhiteSpace(track.StreamUrl))
+            if (File.Exists(track.LocalFilePath))
             {
-                var resolved = await onlineMusicService.ResolvePlaybackAsync(track, CancellationToken.None);
-                if (resolved is not null)
-                {
-                    track.StreamUrl = resolved.StreamUrl;
-                }
+                return track.LocalFilePath;
             }
 
-            return track.StreamUrl;
+            await _notificationService.ShowAsync("File missing", "The local file for this track is no longer available.", NotificationLevel.Warning);
+            return null;
+        }
+
+        if (track.Source == TrackSource.SoundCloud && string.IsNullOrWhiteSpace(track.StreamUrl))
+        {
+            var resolved = await _onlineMusicService.ResolvePlaybackAsync(track, CancellationToken.None);
+            if (resolved is not null)
+            {
+                track.StreamUrl = resolved.StreamUrl;
+            }
+        }
+
+        if (string.IsNullOrWhiteSpace(track.StreamUrl))
+        {
+            await _notificationService.ShowAsync("Stream unavailable", "No playable stream could be resolved for this track.", NotificationLevel.Warning);
+            return null;
         }
 
         return track.StreamUrl;
@@ -247,7 +288,7 @@ public sealed class PlaybackService(
 
     private async void OnPlaybackStopped(object? sender, StoppedEventArgs e)
     {
-        if (_ignoreStopEvent)
+        if (_ignoreStopEvent || _disposed)
         {
             return;
         }
@@ -261,7 +302,7 @@ public sealed class PlaybackService(
         }
     }
 
-    private void OnPositionTimerElapsed(object? sender, ElapsedEventArgs e)
+    private void OnPositionTimerTick(object? sender, EventArgs e)
     {
         if (_reader is null)
         {
@@ -293,6 +334,12 @@ public sealed class PlaybackService(
 
     private void NotifyStateChanged()
     {
+        if (Application.Current?.Dispatcher is { } dispatcher && !dispatcher.CheckAccess())
+        {
+            dispatcher.Invoke(() => StateChanged?.Invoke(this, EventArgs.Empty));
+            return;
+        }
+
         StateChanged?.Invoke(this, EventArgs.Empty);
     }
 }

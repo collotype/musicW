@@ -17,6 +17,7 @@
             <converters:NullToVisibilityConverter x:Key="NullToVisibilityConverter" />
             <converters:TimeSpanToClockStringConverter x:Key="TimeSpanToClockStringConverter" />
             <converters:RepeatModeToGlyphConverter x:Key="RepeatModeToGlyphConverter" />
+            <converters:StringEqualsMultiConverter x:Key="StringEqualsMultiConverter" />
 
             <DataTemplate DataType="{x:Type viewModels:LibraryPageViewModel}">
                 <views:LibraryPage />

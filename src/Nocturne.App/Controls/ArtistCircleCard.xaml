@@ -7,26 +7,32 @@
             Background="Transparent"
             BorderThickness="0"
             Padding="0"
-            Width="154">
+            Width="168">
         <StackPanel>
-            <Border Width="120"
-                    Height="120"
-                    HorizontalAlignment="Center"
-                    CornerRadius="60"
-                    ClipToBounds="True"
-                    BorderBrush="{StaticResource Brush.Border}"
-                    BorderThickness="1">
-                <Image Source="{Binding Artist.AvatarUrl, ElementName=Root}" Stretch="UniformToFill" />
-            </Border>
+            <Grid Width="136"
+                  Height="136"
+                  HorizontalAlignment="Center">
+                <Ellipse Fill="{StaticResource Brush.DecorGlow}"
+                         Opacity="0.75" />
+                <Border Margin="8"
+                        Background="{StaticResource Brush.PanelContrast}"
+                        BorderBrush="{StaticResource Brush.BorderStrong}"
+                        BorderThickness="1"
+                        CornerRadius="{StaticResource Radius.Pill}"
+                        ClipToBounds="True">
+                    <Image Source="{Binding Artist.AvatarUrl, ElementName=Root}"
+                           Stretch="UniformToFill" />
+                </Border>
+            </Grid>
             <TextBlock Margin="0,14,0,0"
-                       Foreground="{StaticResource Brush.TextPrimary}"
+                       Style="{StaticResource Text.CardTitle}"
                        HorizontalAlignment="Center"
-                       FontWeight="SemiBold"
-                       Text="{Binding Artist.Name, ElementName=Root}" />
-            <TextBlock Margin="0,4,0,0"
-                       HorizontalAlignment="Center"
+                       Text="{Binding Artist.Name, ElementName=Root}"
+                       TextTrimming="CharacterEllipsis" />
+            <TextBlock Margin="0,6,0,0"
                        Style="{StaticResource Text.Caption}"
-                       Text="{Binding Artist.MonthlyListeners, ElementName=Root, StringFormat={}{0:N0} listeners}" />
+                       HorizontalAlignment="Center"
+                       Text="{Binding Artist.MonthlyListeners, ElementName=Root, StringFormat={}{0:N0} monthly}" />
         </StackPanel>
     </Button>
 </UserControl>

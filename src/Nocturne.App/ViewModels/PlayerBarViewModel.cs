@@ -8,17 +8,20 @@ namespace Nocturne.App.ViewModels;
 public sealed class PlayerBarViewModel : ViewModelBase
 {
     private readonly IPlaybackService _playbackService;
+    private readonly IQueueService _queueService;
     private readonly ILibraryService _libraryService;
     private readonly INavigationService _navigationService;
     private readonly IDownloadService _downloadService;
 
     public PlayerBarViewModel(
         IPlaybackService playbackService,
+        IQueueService queueService,
         ILibraryService libraryService,
         INavigationService navigationService,
         IDownloadService downloadService)
     {
         _playbackService = playbackService;
+        _queueService = queueService;
         _libraryService = libraryService;
         _navigationService = navigationService;
         _downloadService = downloadService;
@@ -43,6 +46,23 @@ public sealed class PlayerBarViewModel : ViewModelBase
     public TimeSpan Position => _playbackService.State.Position;
 
     public TimeSpan Duration => _playbackService.State.Duration;
+
+    public int QueueCount => _queueService.Items.Count;
+
+    public bool HasQueue => QueueCount > 0;
+
+    public string CurrentSourceLabel => CurrentTrack?.SourceLabel ?? "Idle";
+
+    public string AvailabilityLabel => CurrentTrack?.AvailabilityLabel ?? "Select a track";
+
+    public bool IsCurrentTrackMetadataOnly => CurrentTrack?.IsMetadataOnly ?? false;
+
+    public string PlaybackMessage =>
+        IsCurrentTrackMetadataOnly
+            ? "Metadata only - open externally or switch to a playable source."
+            : CurrentTrack is null
+                ? "Queue a track to start listening."
+                : "Ready";
 
     public double Progress
     {
@@ -78,10 +98,7 @@ public sealed class PlayerBarViewModel : ViewModelBase
 
     public IAsyncRelayCommand OpenAlbumCommand { get; }
 
-    public Task SeekAsync(double progress)
-    {
-        return _playbackService.SeekAsync(progress);
-    }
+    public Task SeekAsync(double progress) => _playbackService.SeekAsync(progress);
 
     private async Task ToggleLikeAsync()
     {
@@ -146,7 +163,22 @@ public sealed class PlayerBarViewModel : ViewModelBase
 
     private void RefreshState()
     {
-        RaiseAll(nameof(CurrentTrack), nameof(IsPlaying), nameof(Position), nameof(Duration), nameof(Progress), nameof(Volume), nameof(IsShuffleEnabled), nameof(RepeatMode));
+        RaiseAll(
+            nameof(CurrentTrack),
+            nameof(IsPlaying),
+            nameof(Position),
+            nameof(Duration),
+            nameof(Progress),
+            nameof(Volume),
+            nameof(IsShuffleEnabled),
+            nameof(RepeatMode),
+            nameof(QueueCount),
+            nameof(HasQueue),
+            nameof(CurrentSourceLabel),
+            nameof(AvailabilityLabel),
+            nameof(IsCurrentTrackMetadataOnly),
+            nameof(PlaybackMessage));
+
         ToggleLikeCommand.NotifyCanExecuteChanged();
         DownloadCurrentTrackCommand.NotifyCanExecuteChanged();
         OpenArtistCommand.NotifyCanExecuteChanged();

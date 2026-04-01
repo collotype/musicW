@@ -41,4 +41,6 @@ public sealed partial class Artist : ObservableObject
     public List<Album> Albums { get; set; } = [];
 
     public List<Artist> RelatedArtists { get; set; } = [];
+
+    public string CountryLabel => string.IsNullOrWhiteSpace(Country) ? "Global" : Country;
 }

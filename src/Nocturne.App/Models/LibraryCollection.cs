@@ -19,4 +19,6 @@ public sealed partial class LibraryCollection : ObservableObject
     public required CollectionType Type { get; init; }
 
     public string Glyph { get; init; } = "\uE8D2";
+
+    public bool IsPlaylist => Type == CollectionType.Playlist;
 }

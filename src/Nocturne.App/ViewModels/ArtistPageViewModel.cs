@@ -36,7 +36,13 @@ public sealed class ArtistPageViewModel : PageViewModelBase
     public Artist? Artist
     {
         get => _artist;
-        private set => SetProperty(ref _artist, value);
+        private set
+        {
+            if (SetProperty(ref _artist, value))
+            {
+                RaiseArtistProperties();
+            }
+        }
     }
 
     public bool IsLoading
@@ -50,6 +56,16 @@ public sealed class ArtistPageViewModel : PageViewModelBase
     public ObservableCollection<Album> Albums { get; } = [];
 
     public ObservableCollection<Artist> RelatedArtists { get; } = [];
+
+    public string AboutText => Artist?.About ?? string.Empty;
+
+    public string MonthlyListenersLabel => $"{Artist?.MonthlyListeners ?? 0:N0}";
+
+    public string FollowersLabel => $"{Artist?.Followers ?? 0:N0}";
+
+    public string TrackCountLabel => Tracks.Count.ToString("N0");
+
+    public string CountryLabel => Artist?.CountryLabel ?? "Global";
 
     public IAsyncRelayCommand PlayAllCommand { get; }
 
@@ -90,6 +106,7 @@ public sealed class ArtistPageViewModel : PageViewModelBase
         finally
         {
             IsLoading = false;
+            RaiseArtistProperties();
             PlayAllCommand.NotifyCanExecuteChanged();
             ShuffleCommand.NotifyCanExecuteChanged();
         }
@@ -112,8 +129,8 @@ public sealed class ArtistPageViewModel : PageViewModelBase
             return;
         }
 
-        var randomTrack = Tracks[Random.Shared.Next(0, Tracks.Count)];
-        await _playbackService.PlayQueueAsync(Tracks.OrderBy(_ => Random.Shared.Next()).ToList(), randomTrack, "artist");
+        var shuffled = Tracks.OrderBy(_ => Random.Shared.Next()).ToList();
+        await _playbackService.PlayQueueAsync(shuffled, shuffled[0], "artist");
     }
 
     private async Task PlayTrackAsync(Track? track)
@@ -131,6 +148,15 @@ public sealed class ArtistPageViewModel : PageViewModelBase
 
     private Task OpenRelatedArtistAsync(Artist? artist) =>
         artist is null ? Task.CompletedTask : _navigationService.NavigateAsync<ArtistPageViewModel>(artist);
+
+    private void RaiseArtistProperties()
+    {
+        OnPropertyChanged(nameof(AboutText));
+        OnPropertyChanged(nameof(MonthlyListenersLabel));
+        OnPropertyChanged(nameof(FollowersLabel));
+        OnPropertyChanged(nameof(TrackCountLabel));
+        OnPropertyChanged(nameof(CountryLabel));
+    }
 
     private static void ReplaceCollection<T>(ObservableCollection<T> target, IEnumerable<T> source)
     {

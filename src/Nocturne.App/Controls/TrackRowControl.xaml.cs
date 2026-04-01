@@ -8,6 +8,9 @@ public partial class TrackRowControl : UserControl
     public static readonly DependencyProperty PlayCommandProperty =
         DependencyProperty.Register(nameof(PlayCommand), typeof(ICommand), typeof(TrackRowControl));
 
+    public static readonly DependencyProperty ActiveTrackIdProperty =
+        DependencyProperty.Register(nameof(ActiveTrackId), typeof(string), typeof(TrackRowControl), new PropertyMetadata(string.Empty));
+
     public TrackRowControl()
     {
         InitializeComponent();
@@ -23,5 +26,11 @@ public partial class TrackRowControl : UserControl
     {
         get => (ICommand?)GetValue(PlayCommandProperty);
         set => SetValue(PlayCommandProperty, value);
+    }
+
+    public string ActiveTrackId
+    {
+        get => (string)GetValue(ActiveTrackIdProperty);
+        set => SetValue(ActiveTrackIdProperty, value);
     }
 }

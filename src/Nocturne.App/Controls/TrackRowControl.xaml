@@ -8,44 +8,97 @@
             BorderThickness="0"
             Padding="0"
             HorizontalContentAlignment="Stretch">
-        <Border Background="{StaticResource Brush.PanelBackground}"
+        <Border x:Name="RowBorder"
+                Margin="0,0,0,8"
+                Padding="12"
+                Background="{StaticResource Brush.PanelBackground}"
                 BorderBrush="{StaticResource Brush.Border}"
                 BorderThickness="1"
-                CornerRadius="18"
-                Padding="14"
-                Margin="0,0,0,8">
+                CornerRadius="{StaticResource Radius.Medium}">
+            <Border.Style>
+                <Style TargetType="Border">
+                    <Setter Property="Background" Value="{StaticResource Brush.PanelBackground}" />
+                    <Setter Property="BorderBrush" Value="{StaticResource Brush.Border}" />
+                    <Style.Triggers>
+                        <DataTrigger Binding="{Binding IsMouseOver, RelativeSource={RelativeSource AncestorType=Button}}" Value="True">
+                            <Setter Property="Background" Value="{StaticResource Brush.PanelHover}" />
+                            <Setter Property="BorderBrush" Value="{StaticResource Brush.BorderStrong}" />
+                        </DataTrigger>
+                        <DataTrigger Binding="{Binding Tag, RelativeSource={RelativeSource Self}}" Value="True">
+                            <Setter Property="Background" Value="{StaticResource Brush.NavSelection}" />
+                            <Setter Property="BorderBrush" Value="{StaticResource Brush.Accent}" />
+                        </DataTrigger>
+                    </Style.Triggers>
+                </Style>
+            </Border.Style>
+            <Border.Tag>
+                <MultiBinding Converter="{StaticResource StringEqualsMultiConverter}">
+                    <Binding Path="Track.Id" ElementName="Root" />
+                    <Binding Path="ActiveTrackId" ElementName="Root" />
+                </MultiBinding>
+            </Border.Tag>
+
             <Grid>
                 <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="48" />
+                    <ColumnDefinition Width="58" />
                     <ColumnDefinition Width="*" />
-                    <ColumnDefinition Width="120" />
-                    <ColumnDefinition Width="72" />
+                    <ColumnDefinition Width="136" />
+                    <ColumnDefinition Width="74" />
                 </Grid.ColumnDefinitions>
-                <Border Width="42"
-                        Height="42"
-                        CornerRadius="12"
+
+                <Border Width="46"
+                        Height="46"
+                        Background="{StaticResource Brush.PanelContrast}"
+                        BorderBrush="{StaticResource Brush.Border}"
+                        BorderThickness="1"
+                        CornerRadius="{StaticResource Radius.Medium}"
                         ClipToBounds="True">
-                    <Image Source="{Binding Track.CoverArtUrl, ElementName=Root}"
-                           Stretch="UniformToFill" />
+                    <Grid>
+                        <Image Source="{Binding Track.CoverArtUrl, ElementName=Root}"
+                               Stretch="UniformToFill" />
+                        <Rectangle Fill="{StaticResource Brush.CardImageOverlay}" />
+                        <TextBlock HorizontalAlignment="Center"
+                                   VerticalAlignment="Center"
+                                   FontFamily="{StaticResource Font.Icon}"
+                                   Foreground="{StaticResource Brush.TextPrimary}"
+                                   Text="&#xE768;" />
+                    </Grid>
                 </Border>
+
                 <StackPanel Grid.Column="1"
-                            Margin="14,0,0,0">
-                    <TextBlock Text="{Binding Track.Title, ElementName=Root}"
-                               Foreground="{StaticResource Brush.TextPrimary}"
-                               FontWeight="SemiBold"
+                            Margin="14,0,0,0"
+                            VerticalAlignment="Center">
+                    <TextBlock Style="{StaticResource Text.CardTitle}"
+                               Text="{Binding Track.Title, ElementName=Root}"
                                TextTrimming="CharacterEllipsis" />
-                    <TextBlock Margin="0,4,0,0"
-                               Style="{StaticResource Text.Caption}"
-                               Text="{Binding Track.ArtistName, ElementName=Root}" />
+                    <TextBlock Margin="0,5,0,0"
+                               Style="{StaticResource Text.BodyMuted}"
+                               Text="{Binding Track.Subtitle, ElementName=Root}"
+                               TextTrimming="CharacterEllipsis" />
                 </StackPanel>
-                <TextBlock Grid.Column="2"
-                           VerticalAlignment="Center"
-                           Style="{StaticResource Text.Caption}"
-                           Text="{Binding Track.Source, ElementName=Root}" />
+
+                <StackPanel Grid.Column="2"
+                            VerticalAlignment="Center">
+                    <Border HorizontalAlignment="Left"
+                            Padding="10,6"
+                            Background="#10000000"
+                            BorderBrush="{StaticResource Brush.BorderStrong}"
+                            BorderThickness="1"
+                            CornerRadius="{StaticResource Radius.Pill}">
+                        <TextBlock Style="{StaticResource Text.Caption}"
+                                   Foreground="{StaticResource Brush.TextSecondary}"
+                                   Text="{Binding Track.SourceLabel, ElementName=Root}" />
+                    </Border>
+                    <TextBlock Margin="0,6,0,0"
+                               Style="{StaticResource Text.Caption}"
+                               Text="{Binding Track.AvailabilityLabel, ElementName=Root}" />
+                </StackPanel>
+
                 <TextBlock Grid.Column="3"
                            VerticalAlignment="Center"
                            HorizontalAlignment="Right"
                            Style="{StaticResource Text.Caption}"
+                           Foreground="{StaticResource Brush.TextSecondary}"
                            Text="{Binding Track.DisplayDuration, ElementName=Root}" />
             </Grid>
         </Border>

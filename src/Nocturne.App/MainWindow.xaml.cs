@@ -1,6 +1,8 @@
 using Nocturne.App.ViewModels;
 using System.ComponentModel;
 using System.Windows.Input;
+using System.Windows.Controls.Primitives;
+using System.Windows.Media;
 using System.Windows.Media.Animation;
 
 namespace Nocturne.App;
@@ -53,6 +55,17 @@ public partial class MainWindow : Window
 
     private void Window_PreviewKeyDown(object sender, KeyEventArgs e)
     {
+        if (Keyboard.FocusedElement is TextBoxBase)
+        {
+            if (Keyboard.Modifiers == ModifierKeys.Control && e.Key == Key.F && _viewModel.PrimaryNavigation.Count > 1)
+            {
+                _viewModel.SelectNavigationCommand.Execute(_viewModel.PrimaryNavigation[1]);
+                e.Handled = true;
+            }
+
+            return;
+        }
+
         if (e.Key == Key.Space)
         {
             _viewModel.PlayerBar.PlayPauseCommand.Execute(null);
@@ -91,12 +104,20 @@ public partial class MainWindow : Window
 
     private void AnimatePageHost()
     {
-        var animation = new DoubleAnimation(0, 1, TimeSpan.FromMilliseconds(240))
+        PageHost.RenderTransform = new TranslateTransform(0, 18);
+
+        var opacityAnimation = new DoubleAnimation(0.72, 1, TimeSpan.FromMilliseconds(280))
         {
             EasingFunction = new QuadraticEase { EasingMode = EasingMode.EaseOut }
         };
 
-        PageHost.BeginAnimation(OpacityProperty, animation);
+        var translateAnimation = new DoubleAnimation(18, 0, TimeSpan.FromMilliseconds(320))
+        {
+            EasingFunction = new QuadraticEase { EasingMode = EasingMode.EaseOut }
+        };
+
+        PageHost.BeginAnimation(OpacityProperty, opacityAnimation);
+        ((TranslateTransform)PageHost.RenderTransform).BeginAnimation(TranslateTransform.YProperty, translateAnimation);
     }
 
     private void ToggleWindowState()

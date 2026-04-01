@@ -6,7 +6,7 @@
         <StackPanel>
             <controls:HeroHeader ImageSource="{Binding Artist.HeaderImageUrl}"
                                  CoverArtUrl="{Binding Artist.AvatarUrl}"
-                                 Kicker="Artist"
+                                 Kicker="ARTIST"
                                  Title="{Binding Artist.Name}"
                                  Subtitle="{Binding Artist.Subtitle}"
                                  Meta="{Binding Artist.MonthlyListeners, StringFormat={}{0:N0} monthly listeners}"
@@ -17,6 +17,7 @@
                         <controls:PrimaryPlayButton Content="Play All"
                                                     Command="{Binding PlayAllCommand}" />
                         <Button Margin="10,0,0,0"
+                                Style="{StaticResource Button.GhostPill}"
                                 Content="Shuffle"
                                 Command="{Binding ShuffleCommand}" />
                         <controls:FavoriteToggleButton Margin="10,0,0,0"
@@ -26,14 +27,87 @@
                 </controls:HeroHeader.ActionsContent>
             </controls:HeroHeader>
 
-            <Grid Margin="0,28,0,0"
+            <Grid Margin="0,24,0,30"
                   Visibility="{Binding IsLoading, Converter={StaticResource InverseBooleanToVisibilityConverter}}">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="1.15*" />
+                    <ColumnDefinition Width="0.85*" />
+                </Grid.ColumnDefinitions>
+
+                <Border Grid.Column="0"
+                        Style="{StaticResource Surface.CardElevated}"
+                        Padding="22">
+                    <StackPanel>
+                        <TextBlock Style="{StaticResource Text.Overline}"
+                                   Text="ABOUT" />
+                        <TextBlock Margin="0,10,0,0"
+                                   Style="{StaticResource Text.SectionTitle}"
+                                   Text="Artist profile" />
+                        <TextBlock Margin="0,12,0,0"
+                                   Style="{StaticResource Text.Body}"
+                                   Text="{Binding AboutText}"
+                                   TextWrapping="Wrap" />
+                    </StackPanel>
+                </Border>
+
+                <UniformGrid Grid.Column="1"
+                             Margin="18,0,0,0"
+                             Columns="2">
+                    <Border Margin="0,0,10,10"
+                            Style="{StaticResource Surface.CardElevated}"
+                            Padding="18">
+                        <StackPanel>
+                            <TextBlock Style="{StaticResource Text.MetricValue}"
+                                       Text="{Binding MonthlyListenersLabel}" />
+                            <TextBlock Margin="0,6,0,0"
+                                       Style="{StaticResource Text.MetricLabel}"
+                                       Text="Monthly listeners" />
+                        </StackPanel>
+                    </Border>
+                    <Border Margin="10,0,0,10"
+                            Style="{StaticResource Surface.CardElevated}"
+                            Padding="18">
+                        <StackPanel>
+                            <TextBlock Style="{StaticResource Text.MetricValue}"
+                                       Text="{Binding FollowersLabel}" />
+                            <TextBlock Margin="0,6,0,0"
+                                       Style="{StaticResource Text.MetricLabel}"
+                                       Text="Followers" />
+                        </StackPanel>
+                    </Border>
+                    <Border Margin="0,10,10,0"
+                            Style="{StaticResource Surface.CardElevated}"
+                            Padding="18">
+                        <StackPanel>
+                            <TextBlock Style="{StaticResource Text.MetricValue}"
+                                       Text="{Binding TrackCountLabel}" />
+                            <TextBlock Margin="0,6,0,0"
+                                       Style="{StaticResource Text.MetricLabel}"
+                                       Text="Tracks" />
+                        </StackPanel>
+                    </Border>
+                    <Border Margin="10,10,0,0"
+                            Style="{StaticResource Surface.CardElevated}"
+                            Padding="18">
+                        <StackPanel>
+                            <TextBlock Style="{StaticResource Text.MetricValue}"
+                                       Text="{Binding CountryLabel}" />
+                            <TextBlock Margin="0,6,0,0"
+                                       Style="{StaticResource Text.MetricLabel}"
+                                       Text="Country" />
+                        </StackPanel>
+                    </Border>
+                </UniformGrid>
+            </Grid>
+
+            <Border Style="{StaticResource Surface.CardElevated}"
+                    Padding="20"
+                    Margin="0,0,0,28">
                 <StackPanel>
                     <controls:SectionHeader Title="Tracks"
                                             ActionText="Show all" />
                     <ScrollViewer HorizontalScrollBarVisibility="Auto"
-                                  VerticalScrollBarVisibility="Disabled"
-                                  Margin="0,0,0,28">
+                                  VerticalScrollBarVisibility="Disabled">
                         <ItemsControl ItemsSource="{Binding Tracks}">
                             <ItemsControl.ItemsPanel>
                                 <ItemsPanelTemplate>
@@ -42,19 +116,24 @@
                             </ItemsControl.ItemsPanel>
                             <ItemsControl.ItemTemplate>
                                 <DataTemplate>
-                                    <controls:TrackCard Margin="0,0,14,0"
+                                    <controls:TrackCard Margin="0,0,16,0"
                                                         Track="{Binding}"
                                                         Command="{Binding DataContext.PlayTrackCommand, RelativeSource={RelativeSource AncestorType=UserControl}}" />
                                 </DataTemplate>
                             </ItemsControl.ItemTemplate>
                         </ItemsControl>
                     </ScrollViewer>
+                </StackPanel>
+            </Border>
 
+            <Border Style="{StaticResource Surface.CardElevated}"
+                    Padding="20"
+                    Margin="0,0,0,28">
+                <StackPanel>
                     <controls:SectionHeader Title="Albums"
                                             ActionText="Show all" />
                     <ScrollViewer HorizontalScrollBarVisibility="Auto"
-                                  VerticalScrollBarVisibility="Disabled"
-                                  Margin="0,0,0,28">
+                                  VerticalScrollBarVisibility="Disabled">
                         <ItemsControl ItemsSource="{Binding Albums}">
                             <ItemsControl.ItemsPanel>
                                 <ItemsPanelTemplate>
@@ -63,14 +142,19 @@
                             </ItemsControl.ItemsPanel>
                             <ItemsControl.ItemTemplate>
                                 <DataTemplate>
-                                    <controls:AlbumCard Margin="0,0,14,0"
+                                    <controls:AlbumCard Margin="0,0,16,0"
                                                         Album="{Binding}"
                                                         Command="{Binding DataContext.OpenAlbumCommand, RelativeSource={RelativeSource AncestorType=UserControl}}" />
                                 </DataTemplate>
                             </ItemsControl.ItemTemplate>
                         </ItemsControl>
                     </ScrollViewer>
+                </StackPanel>
+            </Border>
 
+            <Border Style="{StaticResource Surface.CardElevated}"
+                    Padding="20">
+                <StackPanel>
                     <controls:SectionHeader Title="Related Artists"
                                             ActionText="Explore" />
                     <ScrollViewer HorizontalScrollBarVisibility="Auto"
@@ -91,7 +175,7 @@
                         </ItemsControl>
                     </ScrollViewer>
                 </StackPanel>
-            </Grid>
+            </Border>
         </StackPanel>
     </ScrollViewer>
 </UserControl>

@@ -50,7 +50,13 @@ public sealed class SearchPageViewModel : PageViewModelBase
     public SearchSourceFilter SelectedSourceFilter
     {
         get => _selectedSourceFilter;
-        set => SetProperty(ref _selectedSourceFilter, value);
+        set
+        {
+            if (SetProperty(ref _selectedSourceFilter, value) && (!string.IsNullOrWhiteSpace(Query) || !Results.IsEmpty))
+            {
+                _ = ExecuteSearchAsync();
+            }
+        }
     }
 
     public SearchResults Results { get; private set; } = new();
@@ -66,6 +72,16 @@ public sealed class SearchPageViewModel : PageViewModelBase
         get => _statusMessage;
         private set => SetProperty(ref _statusMessage, value);
     }
+
+    public int TrackCount => Results.Tracks.Count;
+
+    public int ArtistCount => Results.Artists.Count;
+
+    public int AlbumCount => Results.Albums.Count;
+
+    public int PlaylistCount => Results.Playlists.Count;
+
+    public bool HasResults => !Results.IsEmpty;
 
     public IAsyncRelayCommand SearchCommand { get; }
 
@@ -88,18 +104,20 @@ public sealed class SearchPageViewModel : PageViewModelBase
     private async Task ExecuteSearchAsync()
     {
         _searchCancellationTokenSource?.Cancel();
+        _searchCancellationTokenSource?.Dispose();
         _searchCancellationTokenSource = new CancellationTokenSource();
 
         try
         {
             IsSearching = true;
-            StatusMessage = "Searching...";
+            StatusMessage = "Scanning your library and online providers...";
 
             Results = await _searchService.SearchAsync(Query, SelectedSourceFilter, _searchCancellationTokenSource.Token);
-            OnPropertyChanged(nameof(Results));
+            RaiseResultProperties();
+
             StatusMessage = Results.IsEmpty
                 ? "Nothing matched that query."
-                : $"{Results.Tracks.Count + Results.Artists.Count + Results.Albums.Count + Results.Playlists.Count} results.";
+                : $"{TrackCount + ArtistCount + AlbumCount + PlaylistCount} curated results ready.";
         }
         catch (OperationCanceledException)
         {
@@ -128,4 +146,14 @@ public sealed class SearchPageViewModel : PageViewModelBase
 
     private Task OpenPlaylistAsync(Playlist? playlist) =>
         playlist is null ? Task.CompletedTask : _navigationService.NavigateAsync<PlaylistPageViewModel>(playlist);
+
+    private void RaiseResultProperties()
+    {
+        OnPropertyChanged(nameof(Results));
+        OnPropertyChanged(nameof(TrackCount));
+        OnPropertyChanged(nameof(ArtistCount));
+        OnPropertyChanged(nameof(AlbumCount));
+        OnPropertyChanged(nameof(PlaylistCount));
+        OnPropertyChanged(nameof(HasResults));
+    }
 }

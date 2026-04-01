@@ -34,5 +34,13 @@ public sealed partial class Playlist : ObservableObject
 
     public ObservableCollection<Track> Tracks { get; set; } = [];
 
-    public string Subtitle => $"{OwnerName} • {Tracks.Count} tracks";
+    public int TrackCount => Tracks.Count;
+
+    public TimeSpan Duration => TimeSpan.FromSeconds(Tracks.Sum(track => track.Duration.TotalSeconds));
+
+    public string DurationLabel => Duration.TotalHours >= 1
+        ? Duration.ToString(@"h\:mm\:ss")
+        : Duration.ToString(@"m\:ss");
+
+    public string Subtitle => $"{OwnerName} - {TrackCount} tracks";
 }

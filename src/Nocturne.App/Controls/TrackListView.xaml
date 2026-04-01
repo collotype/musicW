@@ -3,17 +3,52 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:controls="clr-namespace:Nocturne.App.Controls"
              x:Name="Root">
-    <ListBox ItemsSource="{Binding ItemsSource, ElementName=Root}">
-        <ListBox.ItemsPanel>
-            <ItemsPanelTemplate>
-                <VirtualizingStackPanel />
-            </ItemsPanelTemplate>
-        </ListBox.ItemsPanel>
-        <ListBox.ItemTemplate>
-            <DataTemplate>
-                <controls:TrackRowControl Track="{Binding}"
-                                          PlayCommand="{Binding PlayCommand, ElementName=Root}" />
-            </DataTemplate>
-        </ListBox.ItemTemplate>
-    </ListBox>
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+
+        <Border Grid.Row="0"
+                Padding="10,0,10,10"
+                Background="Transparent">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="70" />
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="136" />
+                    <ColumnDefinition Width="74" />
+                </Grid.ColumnDefinitions>
+                <TextBlock Style="{StaticResource Text.Overline}"
+                           Text="TRACK" />
+                <TextBlock Grid.Column="1"
+                           Style="{StaticResource Text.Overline}"
+                           Text="DETAILS" />
+                <TextBlock Grid.Column="2"
+                           Style="{StaticResource Text.Overline}"
+                           HorizontalAlignment="Left"
+                           Text="SOURCE" />
+                <TextBlock Grid.Column="3"
+                           Style="{StaticResource Text.Overline}"
+                           HorizontalAlignment="Right"
+                           Text="TIME" />
+            </Grid>
+        </Border>
+
+        <ListBox Grid.Row="1"
+                 ItemsSource="{Binding ItemsSource, ElementName=Root}">
+            <ListBox.ItemsPanel>
+                <ItemsPanelTemplate>
+                    <VirtualizingStackPanel />
+                </ItemsPanelTemplate>
+            </ListBox.ItemsPanel>
+            <ListBox.ItemTemplate>
+                <DataTemplate>
+                    <controls:TrackRowControl Track="{Binding}"
+                                              ActiveTrackId="{Binding ActiveTrackId, ElementName=Root}"
+                                              PlayCommand="{Binding PlayCommand, ElementName=Root}" />
+                </DataTemplate>
+            </ListBox.ItemTemplate>
+        </ListBox>
+    </Grid>
 </UserControl>
