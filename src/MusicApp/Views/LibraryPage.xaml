@@ -13,7 +13,9 @@
                        Margin="32,32,32,24"/>
 
             <!-- Stats Row -->
-            <StackPanel Orientation="Horizontal" Margin="32,0,32,24">
+            <StackPanel Orientation="Horizontal"
+                        Margin="32,0,32,24"
+                        Visibility="{Binding HasLibrarySummary, Converter={StaticResource BooleanToVisibilityConverter}}">
                 <Border Background="{StaticResource CardBackgroundBrush}"
                         CornerRadius="12"
                         Padding="24"
@@ -110,8 +112,27 @@
                 </StackPanel>
             </StackPanel>
 
+            <Border Margin="32,0,32,32"
+                    Padding="28"
+                    CornerRadius="16"
+                    Background="{StaticResource CardBackgroundBrush}"
+                    Visibility="{Binding ShowEmptyState, Converter={StaticResource BooleanToVisibilityConverter}}">
+                <StackPanel Width="420"
+                            HorizontalAlignment="Center">
+                    <TextBlock Text="{Binding EmptyStateTitle}"
+                               Style="{StaticResource TitleTextStyle}"
+                               TextAlignment="Center"/>
+                    <TextBlock Text="{Binding EmptyStateMessage}"
+                               Style="{StaticResource SubtitleTextStyle}"
+                               TextAlignment="Center"
+                               TextWrapping="Wrap"
+                               Margin="0,12,0,0"/>
+                </StackPanel>
+            </Border>
+
             <!-- Recent Tracks -->
-            <StackPanel Margin="32,0,32,32">
+            <StackPanel Margin="32,0,32,32"
+                        Visibility="{Binding HasRecentTracks, Converter={StaticResource BooleanToVisibilityConverter}}">
                 <TextBlock Text="Recently Played"
                            Style="{StaticResource TitleTextStyle}"
                            Margin="0,0,0,16"/>
@@ -130,7 +151,8 @@
             </StackPanel>
 
             <!-- Recent Albums -->
-            <StackPanel Margin="32,0,32,32">
+            <StackPanel Margin="32,0,32,32"
+                        Visibility="{Binding HasRecentAlbums, Converter={StaticResource BooleanToVisibilityConverter}}">
                 <Grid Margin="0,0,0,16">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="*"/>
@@ -168,7 +190,8 @@
             </StackPanel>
 
             <!-- Recent Artists -->
-            <StackPanel Margin="32,0,32,32">
+            <StackPanel Margin="32,0,32,32"
+                        Visibility="{Binding HasRecentArtists, Converter={StaticResource BooleanToVisibilityConverter}}">
                 <TextBlock Text="Your Artists"
                            Style="{StaticResource TitleTextStyle}"
                            Margin="0,0,0,16"/>

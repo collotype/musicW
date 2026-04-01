@@ -162,7 +162,6 @@ public class SearchService : ISearchService
         {
             SearchResultType.Local => "Local",
             SearchResultType.SoundCloud => "SoundCloud",
-            SearchResultType.Spotify => "Spotify",
             _ => string.Empty
         };
     }

@@ -26,7 +26,7 @@
                         <Border x:Name="coverPlaceholder"
                                 Background="{StaticResource BorderLightBrush}"
                                 CornerRadius="12">
-                            <TextBlock Text="📋"
+                            <TextBlock Text="ðŸ“‹"
                                        FontSize="64"
                                        HorizontalAlignment="Center"
                                        VerticalAlignment="Center"
@@ -38,21 +38,22 @@
                     <StackPanel Grid.Column="1"
                                 VerticalAlignment="Bottom"
                                 Margin="32,0,0,20">
-                        <TextBlock Text="PLAYLIST"
+                        <TextBlock Text="{Binding CollectionLabel}"
                                    Style="{StaticResource LabelTextStyle}"
                                    Margin="0,0,0,8"/>
-                        <TextBlock Text="{Binding Playlist.Title, FallbackValue='Playlist Title'}"
+                        <TextBlock Text="{Binding Playlist.Title, FallbackValue='Collection'}"
                                    Style="{StaticResource HeroTextStyle}"
                                    TextWrapping="Wrap"/>
-                        <TextBlock Text="{Binding Playlist.OwnerName, FallbackValue='Owner'}"
+                        <TextBlock Text="{Binding CollectionSubtitle}"
                                    Style="{StaticResource SubtitleTextStyle}"
-                                   Margin="0,8,0,0"/>
+                                   Margin="0,8,0,0"
+                                   TextWrapping="Wrap"/>
                         <StackPanel Orientation="Horizontal" Margin="0,16,0,0">
                             <TextBlock Text="{Binding Playlist.TotalTracks, FallbackValue='0'}"
                                        Style="{StaticResource CaptionTextStyle}"/>
                             <TextBlock Text=" tracks"
                                        Style="{StaticResource CaptionTextStyle}"/>
-                            <TextBlock Text=" • "
+                            <TextBlock Text=" â€¢ "
                                        Style="{StaticResource CaptionTextStyle}"/>
                             <TextBlock Text="{Binding Playlist.TotalDurationFormatted, FallbackValue='0 min'}"
                                        Style="{StaticResource CaptionTextStyle}"/>
@@ -64,29 +65,79 @@
                                     Style="{StaticResource PrimaryButtonStyle}"
                                     Command="{Binding PlayAllCommand}"
                                     Margin="0,0,12,0"/>
-                            <Button Content="Search"
-                                    Style="{StaticResource SecondaryButtonStyle}"
-                                    Margin="0,0,12,0"/>
                             <Button Content="Edit"
                                     Style="{StaticResource GhostButtonStyle}"
                                     Command="{Binding ToggleEditCommand}"
+                                    Margin="0,0,12,0"
                                     Visibility="{Binding Playlist.IsSystemPlaylist, Converter={StaticResource BooleanToVisibilityConverter}, ConverterParameter=invert}"/>
                             <controls:OverflowButton/>
                         </StackPanel>
                     </StackPanel>
                 </Grid>
 
-                <!-- Search in Playlist (when editing) -->
+                <!-- Scoped Collection Filter -->
                 <Border Margin="32,24,32,0"
-                        Visibility="{Binding IsEditing, Converter={StaticResource BooleanToVisibilityConverter}}">
-                    <TextBox Style="{StaticResource SearchBoxStyle}"
-                             Text="{Binding SearchQuery, UpdateSourceTrigger=PropertyChanged}"
-                             Margin="0,0,100,0"/>
+                        Visibility="{Binding Playlist, Converter={StaticResource NullToVisibilityConverter}}">
+                    <StackPanel>
+                        <TextBlock Text="{Binding SearchScopeTitle}"
+                                   Style="{StaticResource LabelTextStyle}"
+                                   Margin="0,0,0,8"/>
+                        <Grid>
+                            <TextBox Style="{StaticResource SearchBoxStyle}"
+                                     Text="{Binding SearchQuery, UpdateSourceTrigger=PropertyChanged}"
+                                     Margin="0,0,100,0"/>
+                            <Button Content="Clear"
+                                    Style="{StaticResource GhostButtonStyle}"
+                                    HorizontalAlignment="Right"
+                                    VerticalAlignment="Center"
+                                    Command="{Binding ClearSearchCommand}"
+                                    Visibility="{Binding SearchQuery, Converter={StaticResource NullToVisibilityConverter}}"/>
+                        </Grid>
+                    </StackPanel>
+                </Border>
+
+                <!-- Empty Collection State -->
+                <Border Margin="32,24,32,0"
+                        Padding="28"
+                        CornerRadius="16"
+                        Background="{StaticResource CardBackgroundBrush}"
+                        Visibility="{Binding ShowEmptyCollectionState, Converter={StaticResource BooleanToVisibilityConverter}}">
+                    <StackPanel Width="420"
+                                HorizontalAlignment="Center">
+                        <TextBlock Text="{Binding EmptyStateTitle}"
+                                   Style="{StaticResource TitleTextStyle}"
+                                   TextAlignment="Center"/>
+                        <TextBlock Text="{Binding EmptyStateMessage}"
+                                   Style="{StaticResource SubtitleTextStyle}"
+                                   TextAlignment="Center"
+                                   TextWrapping="Wrap"
+                                   Margin="0,12,0,0"/>
+                    </StackPanel>
+                </Border>
+
+                <!-- No Search Matches -->
+                <Border Margin="32,24,32,0"
+                        Padding="24"
+                        CornerRadius="16"
+                        Background="{StaticResource CardBackgroundBrush}"
+                        Visibility="{Binding ShowNoSearchMatchesState, Converter={StaticResource BooleanToVisibilityConverter}}">
+                    <StackPanel Width="420"
+                                HorizontalAlignment="Center">
+                        <TextBlock Text="No matching tracks"
+                                   Style="{StaticResource TitleTextStyle}"
+                                   TextAlignment="Center"/>
+                        <TextBlock Text="{Binding NoSearchMatchesMessage}"
+                                   Style="{StaticResource SubtitleTextStyle}"
+                                   TextAlignment="Center"
+                                   TextWrapping="Wrap"
+                                   Margin="0,12,0,0"/>
+                    </StackPanel>
                 </Border>
 
                 <!-- Track List -->
-                <StackPanel Margin="0,24,0,32">
-                    <ItemsControl ItemsSource="{Binding Playlist.Tracks}">
+                <StackPanel Margin="0,24,0,32"
+                            Visibility="{Binding HasFilteredTracks, Converter={StaticResource BooleanToVisibilityConverter}}">
+                    <ItemsControl ItemsSource="{Binding DisplayedTracks}">
                         <ItemsControl.ItemTemplate>
                             <DataTemplate>
                                 <Grid Margin="32,0,32,8">
@@ -100,7 +151,9 @@
                                                               Album="{Binding AlbumTitle}"
                                                               Duration="{Binding DurationFormatted}"
                                                               CoverArtUrl="{Binding CoverArtUrl}"
-                                                              IsLiked="{Binding IsLiked}"/>
+                                                              IsLiked="{Binding IsLiked}"
+                                                              Command="{Binding DataContext.PlayTrackCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                                              CommandParameter="{Binding}"/>
                                     <Button Grid.Column="1"
                                             Content="Remove"
                                             Style="{StaticResource GhostButtonStyle}"

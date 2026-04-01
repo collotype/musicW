@@ -3,7 +3,6 @@ using System.Windows.Threading;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using MusicApp.Audio;
-using MusicApp.Data;
 using MusicApp.Diagnostics;
 using MusicApp.Persistence;
 using MusicApp.Providers;
@@ -69,7 +68,6 @@ public partial class App : Application
 
         services.AddSingleton<IMusicProvider, LocalLibraryProvider>();
         services.AddSingleton<IMusicProvider, SoundCloudProvider>();
-        services.AddSingleton<IMusicProvider, SpotifyProvider>();
 
         services.AddSingleton<AudioPlayer>();
 
@@ -190,13 +188,6 @@ public partial class App : Application
         var libraryService = Services.GetRequiredService<ILibraryService>();
         await libraryService.InitializeAsync();
         StartupDiagnostics.LogInfo("Library initialized.");
-
-        if (libraryService.AllTracks.Count == 0)
-        {
-            await UpdateStartupStatusAsync("Seeding sample library...");
-            await MockDataSeeder.SeedAsync(libraryService);
-            StartupDiagnostics.LogInfo("Sample library seeded.");
-        }
 
         await UpdateStartupStatusAsync("Scanning local music library...");
         var localScanner = Services.GetRequiredService<ILocalMusicScannerService>();

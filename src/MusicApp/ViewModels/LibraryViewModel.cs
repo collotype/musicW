@@ -41,6 +41,17 @@ public partial class LibraryViewModel : ObservableObject
     [ObservableProperty]
     private string _selectedPlaylistId = string.Empty;
 
+    public bool HasLibrarySummary => TotalTracks > 0 || TotalAlbums > 0 || TotalArtists > 0 || LikedCount > 0 || OfflineCount > 0;
+    public bool HasRecentTracks => RecentTracks.Count > 0;
+    public bool HasRecentAlbums => RecentAlbums.Count > 0;
+    public bool HasRecentArtists => RecentArtists.Count > 0;
+    public bool HasPlaylists => Playlists.Count > 0;
+    public bool ShowEmptyState => !HasLibrarySummary;
+    public string EmptyStateTitle => HasPlaylists ? "No tracks in your library yet" : "Your library is empty";
+    public string EmptyStateMessage => HasPlaylists
+        ? "You have playlists ready, but no real tracks have been added to your library yet."
+        : "Add a music folder, like some tracks, or create your first playlist to start building your collection.";
+
     public LibraryViewModel(
         ILibraryService libraryService,
         IPlaybackService playbackService,
@@ -72,6 +83,8 @@ public partial class LibraryViewModel : ObservableObject
         RecentTracks = _libraryService.AllTracks.OrderByDescending(t => t.PlayCount ?? 0).Take(10).ToList();
         RecentAlbums = _libraryService.AllAlbums.OrderByDescending(a => a.ReleaseDate).Take(10).ToList();
         RecentArtists = _libraryService.AllArtists.Take(10).ToList();
+
+        NotifyLibraryStateChanged();
     }
 
     [RelayCommand]
@@ -117,5 +130,17 @@ public partial class LibraryViewModel : ObservableObject
     {
         _navigationService.NavigateToPlaylist("offline");
         SelectedPlaylistId = "offline";
+    }
+
+    private void NotifyLibraryStateChanged()
+    {
+        OnPropertyChanged(nameof(HasLibrarySummary));
+        OnPropertyChanged(nameof(HasRecentTracks));
+        OnPropertyChanged(nameof(HasRecentAlbums));
+        OnPropertyChanged(nameof(HasRecentArtists));
+        OnPropertyChanged(nameof(HasPlaylists));
+        OnPropertyChanged(nameof(ShowEmptyState));
+        OnPropertyChanged(nameof(EmptyStateTitle));
+        OnPropertyChanged(nameof(EmptyStateMessage));
     }
 }

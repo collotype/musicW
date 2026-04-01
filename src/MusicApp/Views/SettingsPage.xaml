@@ -250,24 +250,6 @@
                                   VerticalAlignment="Center"/>
                     </Grid>
 
-                    <Grid Margin="0,8,0,0">
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="*"/>
-                            <ColumnDefinition Width="Auto"/>
-                        </Grid.ColumnDefinitions>
-                        <StackPanel Grid.Column="0">
-                            <TextBlock Text="Spotify"
-                                       FontSize="14"
-                                       Foreground="{StaticResource PrimaryTextBrush}"/>
-                            <TextBlock Text="Enable Spotify metadata (search only)"
-                                       Style="{StaticResource CaptionTextStyle}"
-                                       Margin="0,4,0,0"/>
-                        </StackPanel>
-                        <CheckBox Grid.Column="1"
-                                  Style="{StaticResource ToggleSwitchStyle}"
-                                  IsChecked="{Binding EnableSpotify}"
-                                  VerticalAlignment="Center"/>
-                    </Grid>
                 </StackPanel>
             </Border>
         </StackPanel>

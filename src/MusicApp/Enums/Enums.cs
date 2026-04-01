@@ -36,8 +36,7 @@ public enum SearchResultType
 {
     All = 0,
     Local = 1,
-    SoundCloud = 2,
-    Spotify = 3
+    SoundCloud = 2
 }
 
 public enum PlaybackStatus

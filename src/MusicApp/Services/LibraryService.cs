@@ -1,3 +1,4 @@
+using MusicApp.Enums;
 using MusicApp.Models;
 using MusicApp.Persistence;
 
@@ -5,6 +6,21 @@ namespace MusicApp.Services;
 
 public class LibraryService : ILibraryService
 {
+    private static readonly StringComparer TextComparer = StringComparer.OrdinalIgnoreCase;
+    private static readonly HashSet<string> LegacySeedPlaylistTitles = new(TextComparer)
+    {
+        "Chill Vibes",
+        "Workout Mix",
+        "Focus Mode"
+    };
+
+    private static readonly HashSet<string> LegacySeedPlaylistDescriptions = new(TextComparer)
+    {
+        "Perfect for relaxing",
+        "High energy tracks",
+        "Deep work music"
+    };
+
     private readonly AppDataStore _dataStore;
     private readonly List<Track> _tracks = new();
     private readonly List<Artist> _artists = new();
@@ -25,23 +41,30 @@ public class LibraryService : ILibraryService
         _dataStore = dataStore;
     }
 
-    public Task InitializeAsync()
+    public async Task InitializeAsync()
     {
-        // Load from data store
-        var storedTracks = _dataStore.Tracks;
-        var storedPlaylists = _dataStore.Playlists;
+        var storedTracks = _dataStore.Tracks.ToList();
+        var storedPlaylists = _dataStore.Playlists.ToList();
+        var sanitizedTracks = SanitizeStoredTracks(storedTracks);
+        var sanitizedPlaylists = SanitizeStoredPlaylists(storedPlaylists, sanitizedTracks, out var playlistsChanged);
+        var librarySanitized = sanitizedTracks.Count != storedTracks.Count || playlistsChanged;
 
         _tracks.Clear();
-        _tracks.AddRange(storedTracks);
+        _tracks.AddRange(sanitizedTracks);
 
         _playlists.Clear();
-        _playlists.AddRange(storedPlaylists);
+        _playlists.AddRange(sanitizedPlaylists);
 
-        // Build artist and album collections from tracks
         RebuildArtistsAndAlbums();
 
+        if (librarySanitized)
+        {
+            _dataStore.Tracks = _tracks.ToList();
+            _dataStore.Playlists = _playlists.ToList();
+            await _dataStore.SaveAllAsync();
+        }
+
         LibraryChanged?.Invoke(this, EventArgs.Empty);
-        return Task.CompletedTask;
     }
 
     public Task AddTrackAsync(Track track)
@@ -200,5 +223,74 @@ public class LibraryService : ILibraryService
             };
             _albums.Add(album);
         }
+    }
+
+    private static List<Track> SanitizeStoredTracks(IEnumerable<Track> tracks)
+    {
+        return tracks
+            .Where(track => !IsLegacySeedTrack(track))
+            .ToList();
+    }
+
+    private static List<Playlist> SanitizeStoredPlaylists(
+        IEnumerable<Playlist> playlists,
+        IReadOnlyCollection<Track> validTracks,
+        out bool playlistsChanged)
+    {
+        var validTrackIds = validTracks.Select(track => track.Id).ToHashSet(StringComparer.Ordinal);
+        var sanitizedPlaylists = new List<Playlist>();
+        playlistsChanged = false;
+
+        foreach (var playlist in playlists)
+        {
+            var originalTrackCount = playlist.Tracks.Count;
+            var cleanedTracks = playlist.Tracks
+                .Where(track => validTrackIds.Contains(track.Id) && !IsLegacySeedTrack(track))
+                .ToList();
+
+            var isLegacySeedPlaylist =
+                LegacySeedPlaylistTitles.Contains(playlist.Title) &&
+                !string.IsNullOrWhiteSpace(playlist.Description) &&
+                LegacySeedPlaylistDescriptions.Contains(playlist.Description);
+
+            if (isLegacySeedPlaylist && cleanedTracks.Count == 0)
+            {
+                playlistsChanged = true;
+                continue;
+            }
+
+            playlist.Tracks = cleanedTracks;
+            sanitizedPlaylists.Add(playlist);
+
+            if (cleanedTracks.Count != originalTrackCount)
+            {
+                playlistsChanged = true;
+            }
+        }
+
+        if (sanitizedPlaylists.Count != playlists.Count())
+        {
+            playlistsChanged = true;
+        }
+
+        return sanitizedPlaylists;
+    }
+
+    private static bool IsLegacySeedTrack(Track track)
+    {
+        if (track.Source != TrackSource.Local)
+        {
+            return false;
+        }
+
+        if (!string.IsNullOrWhiteSpace(track.LocalFilePath))
+        {
+            return false;
+        }
+
+        return string.IsNullOrWhiteSpace(track.ProviderTrackId) &&
+               string.IsNullOrWhiteSpace(track.RemotePageUrl) &&
+               !string.IsNullOrWhiteSpace(track.CoverArtUrl) &&
+               track.CoverArtUrl.StartsWith("https://picsum.photos/seed/", StringComparison.OrdinalIgnoreCase);
     }
 }

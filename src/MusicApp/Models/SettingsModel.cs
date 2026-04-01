@@ -32,7 +32,7 @@ public class SettingsModel
 
     // Providers
     public bool EnableSoundCloud { get; set; } = true;
-    public bool EnableSpotify { get; set; } = true;
+    public bool EnableSpotify { get; set; } = false;
     public string? SoundCloudClientId { get; set; }
     public string? SpotifyClientId { get; set; }
     public string? SpotifyClientSecret { get; set; }

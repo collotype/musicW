@@ -34,6 +34,8 @@ public class SettingsService : ISettingsService
                     _settings = loaded;
                 }
             }
+
+            _settings.EnableSpotify = false;
         }
         catch (Exception ex)
         {
