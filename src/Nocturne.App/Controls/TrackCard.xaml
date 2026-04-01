@@ -1,0 +1,33 @@
+<UserControl x:Class="Nocturne.App.Controls.TrackCard"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             x:Name="Root">
+    <Button Command="{Binding Command, ElementName=Root}"
+            CommandParameter="{Binding Track, ElementName=Root}"
+            Background="Transparent"
+            BorderThickness="0"
+            Padding="0"
+            Width="206">
+        <Border Background="{StaticResource Brush.PanelBackground}"
+                BorderBrush="{StaticResource Brush.Border}"
+                BorderThickness="1"
+                CornerRadius="24"
+                Padding="14">
+            <StackPanel>
+                <Border Height="146"
+                        CornerRadius="18"
+                        ClipToBounds="True">
+                    <Image Source="{Binding Track.CoverArtUrl, ElementName=Root}" Stretch="UniformToFill" />
+                </Border>
+                <TextBlock Margin="0,14,0,0"
+                           Foreground="{StaticResource Brush.TextPrimary}"
+                           FontWeight="SemiBold"
+                           Text="{Binding Track.Title, ElementName=Root}"
+                           TextTrimming="CharacterEllipsis" />
+                <TextBlock Margin="0,6,0,0"
+                           Style="{StaticResource Text.Caption}"
+                           Text="{Binding Track.Subtitle, ElementName=Root}" />
+            </StackPanel>
+        </Border>
+    </Button>
+</UserControl>

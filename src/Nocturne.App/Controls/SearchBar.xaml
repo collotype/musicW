@@ -1,0 +1,51 @@
+<UserControl x:Class="Nocturne.App.Controls.SearchBar"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             x:Name="Root">
+    <Border Background="{StaticResource Brush.PanelRaised}"
+            BorderBrush="{StaticResource Brush.Border}"
+            BorderThickness="1"
+            CornerRadius="18"
+            Padding="14,6">
+        <Grid>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="Auto" />
+            </Grid.ColumnDefinitions>
+            <TextBlock Grid.Column="0"
+                       Margin="0,0,12,0"
+                       VerticalAlignment="Center"
+                       FontFamily="{StaticResource Font.Icon}"
+                       Foreground="{StaticResource Brush.TextMuted}"
+                       Text="&#xE721;" />
+            <Grid Grid.Column="1">
+                <TextBox Background="Transparent"
+                         BorderThickness="0"
+                         Text="{Binding Text, ElementName=Root, UpdateSourceTrigger=PropertyChanged}"
+                         VerticalContentAlignment="Center" />
+                <TextBlock IsHitTestVisible="False"
+                           Margin="2,0,0,0"
+                           VerticalAlignment="Center"
+                           Foreground="{StaticResource Brush.TextMuted}"
+                           Text="{Binding Placeholder, ElementName=Root}">
+                    <TextBlock.Style>
+                        <Style TargetType="TextBlock">
+                            <Setter Property="Visibility" Value="Collapsed" />
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding Text, ElementName=Root}" Value="">
+                                    <Setter Property="Visibility" Value="Visible" />
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </TextBlock.Style>
+                </TextBlock>
+            </Grid>
+            <Button Grid.Column="2"
+                    Margin="12,0,0,0"
+                    Padding="10,8"
+                    Command="{Binding SearchCommand, ElementName=Root}"
+                    Content="Search" />
+        </Grid>
+    </Border>
+</UserControl>

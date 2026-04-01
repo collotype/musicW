@@ -1,0 +1,38 @@
+<UserControl x:Class="Nocturne.App.Controls.NowPlayingMiniCard"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:controls="clr-namespace:Nocturne.App.Controls">
+    <Border Background="{StaticResource Brush.PanelBackground}"
+            BorderBrush="{StaticResource Brush.Border}"
+            BorderThickness="1"
+            CornerRadius="20"
+            Padding="12">
+        <Grid>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="52" />
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="Auto" />
+            </Grid.ColumnDefinitions>
+            <Border Width="44"
+                    Height="44"
+                    CornerRadius="14"
+                    ClipToBounds="True">
+                <Image Source="{Binding CurrentTrack.CoverArtUrl}" Stretch="UniformToFill" />
+            </Border>
+            <StackPanel Grid.Column="1"
+                        Margin="12,0,0,0"
+                        VerticalAlignment="Center">
+                <TextBlock Foreground="{StaticResource Brush.TextPrimary}"
+                           FontWeight="SemiBold"
+                           Text="{Binding CurrentTrack.Title}" />
+                <TextBlock Margin="0,3,0,0"
+                           Style="{StaticResource Text.Caption}"
+                           Text="{Binding CurrentTrack.ArtistName}" />
+            </StackPanel>
+            <controls:FavoriteToggleButton Grid.Column="2"
+                                           Margin="12,0,0,0"
+                                           IsChecked="{Binding CurrentTrack.IsLiked}"
+                                           Command="{Binding ToggleLikeCommand}" />
+        </Grid>
+    </Border>
+</UserControl>

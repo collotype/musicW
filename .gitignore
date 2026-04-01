@@ -1,0 +1,22 @@
+# Visual Studio / WPF
+.vs/
+*.user
+*.suo
+*.cache
+*.pdb
+
+# Build output
+bin/
+obj/
+
+# Rider / ReSharper
+.idea/
+_ReSharper*/
+*.DotSettings.user
+
+# Local reference material
+_ios_reference/
+
+# OS files
+Thumbs.db
+Desktop.ini

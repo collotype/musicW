@@ -1,0 +1,36 @@
+<UserControl x:Class="Nocturne.App.Controls.LibrarySidebar"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:controls="clr-namespace:Nocturne.App.Controls">
+    <Border Background="{StaticResource Brush.PanelBackground}"
+            BorderBrush="{StaticResource Brush.Border}"
+            BorderThickness="1"
+            CornerRadius="28"
+            Padding="18">
+        <DockPanel LastChildFill="True">
+            <StackPanel DockPanel.Dock="Top">
+                <TextBlock Style="{StaticResource Text.SectionTitle}"
+                           Text="Library" />
+                <TextBlock Margin="0,6,0,20"
+                           Style="{StaticResource Text.Body}"
+                           Text="Pinned collections and playlists" />
+            </StackPanel>
+
+            <Button DockPanel.Dock="Bottom"
+                    Margin="0,18,0,0"
+                    Command="{Binding CreatePlaylistCommand}"
+                    Content="+ Add Playlist" />
+
+            <ScrollViewer VerticalScrollBarVisibility="Auto">
+                <ItemsControl ItemsSource="{Binding SidebarCollections}">
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate>
+                            <controls:SidebarCollectionItem Item="{Binding}"
+                                                            Command="{Binding DataContext.SelectSidebarItemCommand, RelativeSource={RelativeSource AncestorType=controls:LibrarySidebar}}" />
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+            </ScrollViewer>
+        </DockPanel>
+    </Border>
+</UserControl>
