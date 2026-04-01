@@ -14,7 +14,7 @@ public sealed partial class ShellViewModel : ViewModelBase
     private readonly ISettingsService _settingsService;
 
     private object? _currentPageViewModel;
-    private SidebarCollectionItem? _selectedSidebarItem;
+    private LibraryCollection? _selectedSidebarItem;
 
     public ShellViewModel(
         INavigationService navigationService,
@@ -43,7 +43,7 @@ public sealed partial class ShellViewModel : ViewModelBase
         ];
 
         SelectNavigationCommand = new AsyncRelayCommand<NavigationItem?>(SelectNavigationAsync);
-        SelectSidebarItemCommand = new AsyncRelayCommand<SidebarCollectionItem?>(SelectSidebarAsync);
+        SelectSidebarItemCommand = new AsyncRelayCommand<LibraryCollection?>(SelectSidebarAsync);
         CreatePlaylistCommand = new AsyncRelayCommand(CreatePlaylistAsync);
 
         _navigationService.CurrentViewModelChanged += (_, _) =>
@@ -66,7 +66,7 @@ public sealed partial class ShellViewModel : ViewModelBase
 
     public ObservableCollection<NavigationItem> FooterNavigation { get; }
 
-    public ObservableCollection<SidebarCollectionItem> SidebarCollections { get; } = [];
+    public ObservableCollection<LibraryCollection> SidebarCollections { get; } = [];
 
     public PlayerBarViewModel PlayerBar { get; }
 
@@ -82,7 +82,7 @@ public sealed partial class ShellViewModel : ViewModelBase
         }
     }
 
-    public SidebarCollectionItem? SelectedSidebarItem
+    public LibraryCollection? SelectedSidebarItem
     {
         get => _selectedSidebarItem;
         private set => SetProperty(ref _selectedSidebarItem, value);
@@ -94,7 +94,7 @@ public sealed partial class ShellViewModel : ViewModelBase
 
     public IAsyncRelayCommand<NavigationItem?> SelectNavigationCommand { get; }
 
-    public IAsyncRelayCommand<SidebarCollectionItem?> SelectSidebarItemCommand { get; }
+    public IAsyncRelayCommand<LibraryCollection?> SelectSidebarItemCommand { get; }
 
     public IAsyncRelayCommand CreatePlaylistCommand { get; }
 
@@ -114,7 +114,7 @@ public sealed partial class ShellViewModel : ViewModelBase
         await NavigateAsync(navigationItem.Target);
     }
 
-    private async Task SelectSidebarAsync(SidebarCollectionItem? sidebarItem)
+    private async Task SelectSidebarAsync(LibraryCollection? sidebarItem)
     {
         if (sidebarItem is null)
         {

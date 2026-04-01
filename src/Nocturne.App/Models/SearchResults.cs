@@ -21,4 +21,14 @@ public sealed class SearchResults
         Artists.Count == 0 &&
         Albums.Count == 0 &&
         Playlists.Count == 0;
+
+    public int GetCount(SearchResultType resultType) =>
+        resultType switch
+        {
+            SearchResultType.Track => Tracks.Count,
+            SearchResultType.Artist => Artists.Count,
+            SearchResultType.Album => Albums.Count,
+            SearchResultType.Playlist => Playlists.Count,
+            _ => 0
+        };
 }

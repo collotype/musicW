@@ -40,15 +40,7 @@ This document is the canonical map for the WPF desktop codebase in this reposito
   - `Text.*`
 - `App.xaml` owns the global resource merge and the view-model-to-view data templates.
 - `App.xaml.cs` owns DI registration and startup sequencing.
-
-### Intentional naming edge case
-
-There is both a model and a control named `SidebarCollectionItem`.
-
-- Model: `Nocturne.App.Models.SidebarCollectionItem`
-- Control: `Nocturne.App.Controls.SidebarCollectionItem`
-
-This is currently valid and build-safe because the namespaces differ, but future edits should keep the namespace explicit when ambiguity is possible.
+- Sidebar data uses the domain model `LibraryCollection`, while the reusable WPF control remains `SidebarCollectionItem`.
 
 ## Runtime composition
 
@@ -281,9 +273,9 @@ src/
       Playlist.cs
       QueueItem.cs
       ResolvedPlaybackStream.cs
+      LibraryCollection.cs
       SearchResults.cs
       SettingsModel.cs
-      SidebarCollectionItem.cs
       Track.cs
       UserLibrary.cs
       Enums/
@@ -399,7 +391,7 @@ This is the stable order to follow when extending or recreating the project from
 - `src/Nocturne.App/Models/ResolvedPlaybackStream.cs`
 - `src/Nocturne.App/Models/NotificationMessage.cs`
 - `src/Nocturne.App/Models/NavigationItem.cs`
-- `src/Nocturne.App/Models/SidebarCollectionItem.cs`
+- `src/Nocturne.App/Models/LibraryCollection.cs`
 
 ### 5. Persistence and service contracts
 

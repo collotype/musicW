@@ -42,6 +42,14 @@ public enum CollectionType
     Albums
 }
 
+public enum SearchResultType
+{
+    Track,
+    Artist,
+    Album,
+    Playlist
+}
+
 public enum SearchSourceFilter
 {
     All,

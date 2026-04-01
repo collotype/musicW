@@ -36,5 +36,5 @@ public interface ILibraryService
 
     Track? FindTrack(string trackId);
 
-    IReadOnlyList<SidebarCollectionItem> BuildSidebarCollections();
+    IReadOnlyList<LibraryCollection> BuildSidebarCollections();
 }

@@ -63,7 +63,7 @@ public sealed partial class Track : ObservableObject
     public DateTimeOffset? LastPlayedAt { get; set; }
 
     public string Subtitle =>
-        string.IsNullOrWhiteSpace(AlbumTitle) ? ArtistName : $"{ArtistName} • {AlbumTitle}";
+        string.IsNullOrWhiteSpace(AlbumTitle) ? ArtistName : string.Concat(ArtistName, " - ", AlbumTitle);
 
     public string DisplayDuration => Duration.TotalHours >= 1
         ? Duration.ToString(@"h\:mm\:ss")

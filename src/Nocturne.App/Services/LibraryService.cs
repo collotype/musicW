@@ -95,9 +95,9 @@ public sealed class LibraryService(
 
     public Track? FindTrack(string trackId) => Library.Tracks.FirstOrDefault(track => track.Id == trackId);
 
-    public IReadOnlyList<SidebarCollectionItem> BuildSidebarCollections()
+    public IReadOnlyList<LibraryCollection> BuildSidebarCollections()
     {
-        var items = new List<SidebarCollectionItem>
+        var items = new List<LibraryCollection>
         {
             new() { Id = "library", Title = "Library", Subtitle = "Overview", Type = CollectionType.Library, Glyph = "\uE8F1" },
             new() { Id = "favorites", Title = "Favorites", Subtitle = $"{GetFavorites().Count} liked", Type = CollectionType.Favorites, Glyph = "\uEB51" },
@@ -105,7 +105,7 @@ public sealed class LibraryService(
         };
 
         items.AddRange(
-            Library.Playlists.Select(playlist => new SidebarCollectionItem
+            Library.Playlists.Select(playlist => new LibraryCollection
             {
                 Id = playlist.Id,
                 Title = playlist.Title,

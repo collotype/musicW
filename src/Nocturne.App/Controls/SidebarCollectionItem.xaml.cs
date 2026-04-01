@@ -3,7 +3,7 @@ namespace Nocturne.App.Controls;
 public partial class SidebarCollectionItem : UserControl
 {
     public static readonly DependencyProperty ItemProperty =
-        DependencyProperty.Register(nameof(Item), typeof(Models.SidebarCollectionItem), typeof(SidebarCollectionItem), new PropertyMetadata(null));
+        DependencyProperty.Register(nameof(Item), typeof(Models.LibraryCollection), typeof(SidebarCollectionItem), new PropertyMetadata(null));
 
     public static readonly DependencyProperty CommandProperty =
         DependencyProperty.Register(nameof(Command), typeof(ICommand), typeof(SidebarCollectionItem));
@@ -13,9 +13,9 @@ public partial class SidebarCollectionItem : UserControl
         InitializeComponent();
     }
 
-    public Models.SidebarCollectionItem? Item
+    public Models.LibraryCollection? Item
     {
-        get => (Models.SidebarCollectionItem?)GetValue(ItemProperty);
+        get => (Models.LibraryCollection?)GetValue(ItemProperty);
         set => SetValue(ItemProperty, value);
     }
 

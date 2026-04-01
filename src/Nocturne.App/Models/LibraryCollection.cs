@@ -3,7 +3,7 @@ using Nocturne.App.Models.Enums;
 
 namespace Nocturne.App.Models;
 
-public sealed partial class SidebarCollectionItem : ObservableObject
+public sealed partial class LibraryCollection : ObservableObject
 {
     [ObservableProperty]
     private bool isSelected;
