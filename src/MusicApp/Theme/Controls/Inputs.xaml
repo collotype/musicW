@@ -69,6 +69,13 @@
         </Setter>
     </Style>
 
+    <!-- Slider Style -->
+    <Style x:Key="SliderStyle" TargetType="Slider">
+        <Setter Property="Foreground" Value="{StaticResource AccentPrimaryBrush}"/>
+        <Setter Property="Background" Value="{StaticResource BorderLightBrush}"/>
+        <Setter Property="Height" Value="20"/>
+    </Style>
+
     <!-- Toggle Switch Style -->
     <Style x:Key="ToggleSwitchStyle" TargetType="CheckBox">
         <Setter Property="Background" Value="{StaticResource BorderLightBrush}"/>

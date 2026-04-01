@@ -9,6 +9,7 @@ public partial class PlaylistViewModel : ObservableObject
 {
     private readonly ILibraryService _libraryService;
     private readonly IPlaybackService _playbackService;
+    private readonly IMusicProviderService _providerService;
 
     [ObservableProperty]
     private Playlist? _playlist;
@@ -22,42 +23,50 @@ public partial class PlaylistViewModel : ObservableObject
     [ObservableProperty]
     private bool _isEditing;
 
-    public PlaylistViewModel(ILibraryService libraryService, IPlaybackService playbackService)
+    public PlaylistViewModel(
+        ILibraryService libraryService,
+        IPlaybackService playbackService,
+        IMusicProviderService providerService)
     {
         _libraryService = libraryService;
         _playbackService = playbackService;
+        _providerService = providerService;
     }
 
-    public Task LoadPlaylistAsync(string playlistId)
+    public async Task LoadPlaylistAsync(string playlistId, string providerName = "Local")
     {
-        Playlist = _libraryService.Playlists.FirstOrDefault(p => p.Id == playlistId);
-
-        if (Playlist == null)
+        if (string.Equals(providerName, "Local", StringComparison.OrdinalIgnoreCase))
         {
-            // Check for system playlists
-            if (playlistId == "favorites")
+            Playlist = _libraryService.Playlists.FirstOrDefault(p => p.Id == playlistId);
+
+            if (Playlist == null)
             {
-                Playlist = new Playlist
+                if (playlistId == "favorites")
                 {
-                    Id = "favorites",
-                    Title = "Liked Songs",
-                    Tracks = _libraryService.LikedTracks,
-                    IsSystemPlaylist = true
-                };
-            }
-            else if (playlistId == "offline")
-            {
-                Playlist = new Playlist
+                    Playlist = new Playlist
+                    {
+                        Id = "favorites",
+                        Title = "Liked Songs",
+                        Tracks = _libraryService.LikedTracks,
+                        IsSystemPlaylist = true
+                    };
+                }
+                else if (playlistId == "offline")
                 {
-                    Id = "offline",
-                    Title = "Offline Tracks",
-                    Tracks = _libraryService.OfflineTracks,
-                    IsSystemPlaylist = true
-                };
+                    Playlist = new Playlist
+                    {
+                        Id = "offline",
+                        Title = "Offline Tracks",
+                        Tracks = _libraryService.OfflineTracks,
+                        IsSystemPlaylist = true
+                    };
+                }
             }
+
+            return;
         }
 
-        return Task.CompletedTask;
+        Playlist = await _providerService.GetPlaylistAsync(playlistId, providerName);
     }
 
     [RelayCommand]
@@ -99,7 +108,6 @@ public partial class PlaylistViewModel : ObservableObject
     private async Task SaveChanges()
     {
         IsEditing = false;
-        // Save changes to library
         await Task.CompletedTask;
     }
 

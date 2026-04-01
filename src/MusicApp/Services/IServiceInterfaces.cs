@@ -87,7 +87,7 @@ public interface ILibraryService
 
 public interface ISearchService
 {
-    Task<SearchResults> SearchAsync(string query, CancellationToken cancellationToken = default);
+    Task<SearchResults> SearchAsync(string query, SearchResultType filter = SearchResultType.All, CancellationToken cancellationToken = default);
     Task<SearchResults> SearchLocalAsync(string query);
     Task<SearchResults> SearchOnlineAsync(string query, CancellationToken cancellationToken = default);
 }

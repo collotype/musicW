@@ -292,7 +292,7 @@
                                                Foreground="{StaticResource SecondaryTextBrush}"/>
                                 </Border>
                             </Border>
-                            <TextBlock Text="{TemplateBinding Name}"
+                            <TextBlock Text="{TemplateBinding ArtistName}"
                                        FontSize="14"
                                        FontWeight="Medium"
                                        Foreground="{TemplateBinding Foreground}"

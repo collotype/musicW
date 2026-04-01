@@ -1,63 +1,78 @@
 using System.Windows;
+using System.Windows.Threading;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using MusicApp.Audio;
 using MusicApp.Data;
+using MusicApp.Diagnostics;
 using MusicApp.Persistence;
 using MusicApp.Providers;
 using MusicApp.Services;
 using MusicApp.ViewModels;
 using MusicApp.Views;
-using Serilog;
 
 namespace MusicApp;
 
 public partial class App : Application
 {
-    public static IHost Host { get; private set; } = default!;
+    private IHost? _host;
+    private MainViewModel? _mainViewModel;
+    private bool _isShuttingDown;
+    private bool _startupCompleted;
+
+    public static IHost Host => ((App)Current)._host ?? throw new InvalidOperationException("The application host is not available.");
+
     public static IServiceProvider Services => Host.Services;
 
     public App()
     {
-        Host = Microsoft.Extensions.Hosting.Host.CreateDefaultBuilder()
-            .UseContentRoot(AppContext.BaseDirectory)
-            .ConfigureServices(ConfigureServices)
-            .Build();
+        try
+        {
+            ShutdownMode = ShutdownMode.OnMainWindowClose;
 
-        Log.Information("Application starting...");
+            StartupDiagnostics.BeginSession();
+            StartupDiagnostics.LogInfo("Application instance created.");
+
+            RegisterGlobalExceptionHandlers();
+
+            StartupDiagnostics.LogInfo("Creating host.");
+            _host = Microsoft.Extensions.Hosting.Host.CreateDefaultBuilder()
+                .UseContentRoot(AppContext.BaseDirectory)
+                .ConfigureServices(ConfigureServices)
+                .Build();
+            StartupDiagnostics.LogInfo("Host created.");
+        }
+        catch (Exception ex)
+        {
+            StartupDiagnostics.LogException("Application construction failed.", ex);
+            StartupDiagnostics.ShowErrorDialog("MusicApp startup error", "Application construction failed.", ex);
+            throw;
+        }
     }
 
-    private void ConfigureServices(HostBuilderContext context, IServiceCollection services)
+    private void ConfigureServices(HostBuilderContext _, IServiceCollection services)
     {
-        // Logging
-        Log.Logger = new LoggerConfiguration()
-            .WriteTo.File("logs/musicapp-.txt", rollingInterval: RollingInterval.Day)
-            .CreateLogger();
+        StartupDiagnostics.LogInfo("Configuring services.");
 
-        // Persistence
         services.AddSingleton<AppDataStore>();
 
-        // Services
-        services.AddSingleton<SettingsService>();
-        services.AddSingleton<ImageCacheService>();
-        services.AddSingleton<LocalMusicScannerService>();
-        services.AddSingleton<NavigationService>();
-        services.AddSingleton<QueueService>();
-        services.AddSingleton<PlaybackService>();
-        services.AddSingleton<LibraryService>();
-        services.AddSingleton<SearchService>();
-        services.AddSingleton<DownloadService>();
+        services.AddSingleton<ISettingsService, SettingsService>();
+        services.AddSingleton<IImageCacheService, ImageCacheService>();
+        services.AddSingleton<ILocalMusicScannerService, LocalMusicScannerService>();
+        services.AddSingleton<INavigationService, NavigationService>();
+        services.AddSingleton<IQueueService, QueueService>();
+        services.AddSingleton<ILibraryService, LibraryService>();
+        services.AddSingleton<IMusicProviderService, MusicProviderService>();
+        services.AddSingleton<IPlaybackService, PlaybackService>();
+        services.AddSingleton<ISearchService, SearchService>();
+        services.AddSingleton<IDownloadService, DownloadService>();
 
-        // Providers
         services.AddSingleton<IMusicProvider, LocalLibraryProvider>();
         services.AddSingleton<IMusicProvider, SoundCloudProvider>();
         services.AddSingleton<IMusicProvider, SpotifyProvider>();
-        services.AddSingleton<MusicProviderService>();
 
-        // Audio
         services.AddSingleton<AudioPlayer>();
 
-        // ViewModels
         services.AddSingleton<MainViewModel>();
         services.AddSingleton<ArtistViewModel>();
         services.AddSingleton<AlbumViewModel>();
@@ -67,7 +82,6 @@ public partial class App : Application
         services.AddSingleton<SettingsViewModel>();
         services.AddSingleton<NowPlayingViewModel>();
 
-        // Views
         services.AddTransient<MainWindow>();
         services.AddTransient<ArtistPage>();
         services.AddTransient<AlbumPage>();
@@ -75,52 +89,220 @@ public partial class App : Application
         services.AddTransient<LibraryPage>();
         services.AddTransient<SearchPage>();
         services.AddTransient<SettingsPage>();
+
+        StartupDiagnostics.LogInfo("Service configuration complete.");
     }
 
     protected override async void OnStartup(StartupEventArgs e)
     {
-        await Host.StartAsync();
-
-        // Load persistence
-        var appDataStore = Services.GetRequiredService<AppDataStore>();
-        await appDataStore.LoadAllAsync();
-
-        var settingsService = Services.GetRequiredService<SettingsService>();
-        await settingsService.LoadSettingsAsync();
-
-        // Initialize library
-        var libraryService = Services.GetRequiredService<LibraryService>();
-        await libraryService.InitializeAsync();
-
-        // Seed mock data if library is empty
-        if (libraryService.AllTracks.Count == 0)
-        {
-            await MockDataSeeder.SeedAsync(libraryService);
-        }
-
-        var localScanner = Services.GetRequiredService<LocalMusicScannerService>();
-        await localScanner.InitializeAsync();
-
-        // Initialize main view model and navigate to library
-        var mainViewModel = Services.GetRequiredService<MainViewModel>();
-        var navigationService = Services.GetRequiredService<NavigationService>();
-        navigationService.NavigateToLibrary();
-
-        var mainWindow = Services.GetRequiredService<MainWindow>();
-        mainWindow.Show();
-
         base.OnStartup(e);
+
+        try
+        {
+            StartupDiagnostics.LogInfo("Startup entered.");
+
+            await UpdateStartupStatusAsync("Resolving shell view model...");
+            _mainViewModel = Services.GetRequiredService<MainViewModel>();
+            StartupDiagnostics.LogInfo("Shell view model initialized.");
+
+            await UpdateStartupStatusAsync("Creating main window...");
+            var mainWindow = Services.GetRequiredService<MainWindow>();
+            MainWindow = mainWindow;
+            StartupDiagnostics.LogInfo("Main window created.");
+
+            await UpdateStartupStatusAsync("Opening main window...");
+            mainWindow.Show();
+            StartupDiagnostics.LogInfo("Main window shown.");
+
+            await Dispatcher.Yield(DispatcherPriority.ApplicationIdle);
+            await StartApplicationAsync();
+
+            _startupCompleted = true;
+            _mainViewModel.CompleteStartup();
+            StartupDiagnostics.LogInfo("Startup completed successfully.");
+        }
+        catch (Exception ex)
+        {
+            HandleStartupFailure("Application startup failed.", ex);
+        }
     }
 
     protected override async void OnExit(ExitEventArgs e)
     {
+        try
+        {
+            StartupDiagnostics.LogInfo("Application exit started.");
+
+            if (_host != null)
+            {
+                try
+                {
+                    StartupDiagnostics.LogInfo("Saving persistence.");
+                    var appDataStore = _host.Services.GetRequiredService<AppDataStore>();
+                    await appDataStore.SaveAllAsync();
+                    StartupDiagnostics.LogInfo("Persistence saved.");
+                }
+                catch (Exception ex)
+                {
+                    StartupDiagnostics.LogException("Saving application data during exit failed.", ex);
+                }
+
+                try
+                {
+                    StartupDiagnostics.LogInfo("Stopping host.");
+                    await _host.StopAsync();
+                    StartupDiagnostics.LogInfo("Host stopped.");
+                }
+                catch (Exception ex)
+                {
+                    StartupDiagnostics.LogException("Stopping host during exit failed.", ex);
+                }
+                finally
+                {
+                    _host.Dispose();
+                    _host = null;
+                }
+            }
+        }
+        finally
+        {
+            base.OnExit(e);
+        }
+    }
+
+    private async Task StartApplicationAsync()
+    {
+        await UpdateStartupStatusAsync("Starting host...");
+        await Host.StartAsync();
+        StartupDiagnostics.LogInfo("Host started.");
+
+        await UpdateStartupStatusAsync("Loading saved data...");
         var appDataStore = Services.GetRequiredService<AppDataStore>();
-        await appDataStore.SaveAllAsync();
+        await appDataStore.LoadAllAsync();
+        StartupDiagnostics.LogInfo("Persistence loaded.");
 
-        await Host.StopAsync();
-        Log.Information("Application exited.");
-        Log.CloseAndFlush();
+        await UpdateStartupStatusAsync("Loading settings...");
+        var settingsService = Services.GetRequiredService<ISettingsService>();
+        await settingsService.LoadSettingsAsync();
+        StartupDiagnostics.LogInfo("Settings initialized.");
 
-        base.OnExit(e);
+        await UpdateStartupStatusAsync("Initializing library...");
+        var libraryService = Services.GetRequiredService<ILibraryService>();
+        await libraryService.InitializeAsync();
+        StartupDiagnostics.LogInfo("Library initialized.");
+
+        if (libraryService.AllTracks.Count == 0)
+        {
+            await UpdateStartupStatusAsync("Seeding sample library...");
+            await MockDataSeeder.SeedAsync(libraryService);
+            StartupDiagnostics.LogInfo("Sample library seeded.");
+        }
+
+        await UpdateStartupStatusAsync("Scanning local music library...");
+        var localScanner = Services.GetRequiredService<ILocalMusicScannerService>();
+        await localScanner.InitializeAsync();
+        StartupDiagnostics.LogInfo("Local music scanner initialized.");
+
+        await UpdateStartupStatusAsync("Navigating to library...");
+        var navigationService = Services.GetRequiredService<INavigationService>();
+        navigationService.NavigateToLibrary();
+        StartupDiagnostics.LogInfo("First navigation completed.");
+    }
+
+    private async Task UpdateStartupStatusAsync(string message)
+    {
+        StartupDiagnostics.LogInfo(message);
+
+        if (_mainViewModel != null)
+        {
+            _mainViewModel.SetStartupStatus(message);
+        }
+
+        await Dispatcher.Yield(DispatcherPriority.Background);
+    }
+
+    private void RegisterGlobalExceptionHandlers()
+    {
+        DispatcherUnhandledException += OnDispatcherUnhandledException;
+        AppDomain.CurrentDomain.UnhandledException += OnCurrentDomainUnhandledException;
+        TaskScheduler.UnobservedTaskException += OnTaskSchedulerUnobservedTaskException;
+
+        StartupDiagnostics.LogInfo("Global exception handlers registered.");
+    }
+
+    private void OnDispatcherUnhandledException(object sender, DispatcherUnhandledExceptionEventArgs e)
+    {
+        HandleUnhandledException("An unhandled UI exception occurred.", e.Exception, shutdown: true);
+        e.Handled = true;
+    }
+
+    private void OnCurrentDomainUnhandledException(object? sender, UnhandledExceptionEventArgs e)
+    {
+        var exception = e.ExceptionObject as Exception
+            ?? new Exception($"Non-exception object thrown: {e.ExceptionObject}");
+
+        HandleUnhandledException("A fatal application exception occurred.", exception, shutdown: e.IsTerminating);
+    }
+
+    private void OnTaskSchedulerUnobservedTaskException(object? sender, UnobservedTaskExceptionEventArgs e)
+    {
+        HandleUnhandledException("An unobserved task exception occurred.", e.Exception, shutdown: false);
+        e.SetObserved();
+    }
+
+    private void HandleStartupFailure(string context, Exception exception)
+    {
+        StartupDiagnostics.LogException(context, exception);
+        ReportStartupFailureToShell(exception);
+        StartupDiagnostics.ShowErrorDialog("MusicApp startup error", context, exception);
+        RequestShutdown();
+    }
+
+    private void HandleUnhandledException(string context, Exception exception, bool shutdown)
+    {
+        StartupDiagnostics.LogException(context, exception);
+        ReportStartupFailureToShell(exception);
+        StartupDiagnostics.ShowErrorDialog("MusicApp error", context, exception);
+
+        if (shutdown)
+        {
+            RequestShutdown();
+        }
+    }
+
+    private void ReportStartupFailureToShell(Exception exception)
+    {
+        if (_mainViewModel == null || _startupCompleted)
+        {
+            return;
+        }
+
+        void UpdateShell() => _mainViewModel.ReportStartupFailure($"{exception.GetType().Name}: {exception.Message}");
+
+        if (Dispatcher.CheckAccess())
+        {
+            UpdateShell();
+            return;
+        }
+
+        Dispatcher.Invoke(UpdateShell);
+    }
+
+    private void RequestShutdown()
+    {
+        if (_isShuttingDown)
+        {
+            return;
+        }
+
+        _isShuttingDown = true;
+
+        if (Dispatcher.CheckAccess())
+        {
+            Shutdown(-1);
+            return;
+        }
+
+        Dispatcher.BeginInvoke(() => Shutdown(-1));
     }
 }

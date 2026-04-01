@@ -187,10 +187,10 @@
                         </Grid>
                     </Grid>
                     <ControlTemplate.Triggers>
-                        <DataTrigger Binding="{TemplateBinding BackgroundImageUrl}" Value="">
+                        <DataTrigger Binding="{Binding BackgroundImageUrl, RelativeSource={RelativeSource TemplatedParent}}" Value="">
                             <Setter TargetName="bgImage" Property="Visibility" Value="Collapsed"/>
                         </DataTrigger>
-                        <DataTrigger Binding="{TemplateBinding BackgroundImageUrl}" Value="{x:Null}">
+                        <DataTrigger Binding="{Binding BackgroundImageUrl, RelativeSource={RelativeSource TemplatedParent}}" Value="{x:Null}">
                             <Setter TargetName="bgImage" Property="Visibility" Value="Collapsed"/>
                         </DataTrigger>
                     </ControlTemplate.Triggers>
@@ -408,17 +408,17 @@
                         </Button>
                     </StackPanel>
                     <ControlTemplate.Triggers>
-                        <DataTrigger Binding="{TemplateBinding IsPlaying}" Value="True">
+                        <DataTrigger Binding="{Binding IsPlaying, RelativeSource={RelativeSource TemplatedParent}}" Value="True">
                             <Setter TargetName="playIcon" Property="Text" Value="⏸"/>
                         </DataTrigger>
-                        <DataTrigger Binding="{TemplateBinding IsShuffle}" Value="True">
+                        <DataTrigger Binding="{Binding IsShuffle, RelativeSource={RelativeSource TemplatedParent}}" Value="True">
                             <Setter TargetName="shuffleBtn" Property="Foreground" Value="{StaticResource AccentPrimaryBrush}"/>
                         </DataTrigger>
-                        <DataTrigger Binding="{TemplateBinding RepeatMode}" Value="1">
+                        <DataTrigger Binding="{Binding RepeatMode, RelativeSource={RelativeSource TemplatedParent}}" Value="1">
                             <Setter TargetName="repeatBtn" Property="Foreground" Value="{StaticResource AccentPrimaryBrush}"/>
                             <Setter TargetName="repeatIcon" Property="Opacity" Value="1"/>
                         </DataTrigger>
-                        <DataTrigger Binding="{TemplateBinding RepeatMode}" Value="2">
+                        <DataTrigger Binding="{Binding RepeatMode, RelativeSource={RelativeSource TemplatedParent}}" Value="2">
                             <Setter TargetName="repeatBtn" Property="Foreground" Value="{StaticResource AccentPrimaryBrush}"/>
                             <Setter TargetName="repeatIcon" Property="Text" Value="🔂"/>
                             <Setter TargetName="repeatIcon" Property="Opacity" Value="1"/>

@@ -35,10 +35,9 @@ public enum CollectionType
 public enum SearchResultType
 {
     All = 0,
-    Tracks = 1,
-    Artists = 2,
-    Albums = 3,
-    Playlists = 4
+    Local = 1,
+    SoundCloud = 2,
+    Spotify = 3
 }
 
 public enum PlaybackStatus

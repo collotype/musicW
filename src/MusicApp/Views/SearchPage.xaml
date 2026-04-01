@@ -24,7 +24,7 @@
                                 HorizontalAlignment="Right"
                                 VerticalAlignment="Center"
                                 Command="{Binding ClearSearchCommand}"
-                                Visibility="{Binding SearchQuery, Converter={StaticResource NullToVisibilityConverter}, ConverterParameter=invert}"/>
+                                Visibility="{Binding CanClearSearch, Converter={StaticResource BooleanToVisibilityConverter}}"/>
                     </Grid>
 
                     <!-- Filter Chips -->
@@ -62,10 +62,12 @@
 
                     <!-- Error State -->
                     <StackPanel HorizontalAlignment="Center"
-                                Visibility="{Binding ErrorMessage, Converter={StaticResource NullToVisibilityConverter}}">
+                                Visibility="{Binding HasError, Converter={StaticResource BooleanToVisibilityConverter}}">
                         <TextBlock Text="{Binding ErrorMessage}"
                                    Foreground="{StaticResource ErrorBrush}"
-                                   FontSize="16"/>
+                                   FontSize="16"
+                                   TextWrapping="Wrap"
+                                   TextAlignment="Center"/>
                     </StackPanel>
 
                     <!-- Results Content -->
@@ -73,7 +75,7 @@
 
                         <!-- Tracks Section -->
                         <StackPanel Margin="0,0,0,32"
-                                    Visibility="{Binding Results.Tracks.Count, Converter={StaticResource NullToVisibilityConverter}}">
+                                    Visibility="{Binding HasTrackResults, Converter={StaticResource BooleanToVisibilityConverter}}">
                             <TextBlock Text="Tracks"
                                        Style="{StaticResource TitleTextStyle}"
                                        Margin="0,0,0,16"/>
@@ -85,6 +87,8 @@
                                                                   Album="{Binding AlbumTitle}"
                                                                   Duration="{Binding DurationFormatted}"
                                                                   CoverArtUrl="{Binding CoverArtUrl}"
+                                                                  Command="{Binding DataContext.PlayTrackCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                                                  CommandParameter="{Binding}"
                                                                   Margin="0,0,0,8"/>
                                     </DataTemplate>
                                 </ItemsControl.ItemTemplate>
@@ -93,7 +97,7 @@
 
                         <!-- Artists Section -->
                         <StackPanel Margin="0,0,0,32"
-                                    Visibility="{Binding Results.Artists.Count, Converter={StaticResource NullToVisibilityConverter}}">
+                                    Visibility="{Binding HasArtistResults, Converter={StaticResource BooleanToVisibilityConverter}}">
                             <TextBlock Text="Artists"
                                        Style="{StaticResource TitleTextStyle}"
                                        Margin="0,0,0,16"/>
@@ -110,6 +114,8 @@
                                             <DataTemplate>
                                                 <controls:ArtistCircleCard ArtistName="{Binding Name}"
                                                                            ImageUrl="{Binding ImageUrl}"
+                                                                           Command="{Binding DataContext.NavigateToArtistCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                                                           CommandParameter="{Binding Id}"
                                                                            Margin="0,0,16,0"/>
                                             </DataTemplate>
                                         </ItemsControl.ItemTemplate>
@@ -120,7 +126,7 @@
 
                         <!-- Albums Section -->
                         <StackPanel Margin="0,0,0,32"
-                                    Visibility="{Binding Results.Albums.Count, Converter={StaticResource NullToVisibilityConverter}}">
+                                    Visibility="{Binding HasAlbumResults, Converter={StaticResource BooleanToVisibilityConverter}}">
                             <TextBlock Text="Albums"
                                        Style="{StaticResource TitleTextStyle}"
                                        Margin="0,0,0,16"/>
@@ -139,6 +145,8 @@
                                                                     Artist="{Binding ArtistName}"
                                                                     CoverArtUrl="{Binding CoverArtUrl}"
                                                                     Year="{Binding ReleaseYear}"
+                                                                    Command="{Binding DataContext.NavigateToAlbumCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                                                    CommandParameter="{Binding Id}"
                                                                     Margin="0,0,16,0"/>
                                             </DataTemplate>
                                         </ItemsControl.ItemTemplate>
@@ -149,7 +157,7 @@
 
                         <!-- Playlists Section -->
                         <StackPanel Margin="0,0,0,32"
-                                    Visibility="{Binding Results.Playlists.Count, Converter={StaticResource NullToVisibilityConverter}}">
+                                    Visibility="{Binding HasPlaylistResults, Converter={StaticResource BooleanToVisibilityConverter}}">
                             <TextBlock Text="Playlists"
                                        Style="{StaticResource TitleTextStyle}"
                                        Margin="0,0,0,16"/>
@@ -167,12 +175,28 @@
                                                 <controls:PlaylistCard Title="{Binding Title}"
                                                                        Subtitle="{Binding OwnerName}"
                                                                        CoverArtUrl="{Binding CoverArtUrl}"
+                                                                       Command="{Binding DataContext.NavigateToPlaylistCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                                                       CommandParameter="{Binding Id}"
                                                                        Margin="0,0,16,0"/>
                                             </DataTemplate>
                                         </ItemsControl.ItemTemplate>
                                     </ItemsControl>
                                 </StackPanel>
                             </ScrollViewer>
+                        </StackPanel>
+
+                        <!-- No Results -->
+                        <StackPanel HorizontalAlignment="Center"
+                                    Margin="0,48,0,0"
+                                    Visibility="{Binding HasNoResults, Converter={StaticResource BooleanToVisibilityConverter}}">
+                            <TextBlock Text="No results found"
+                                       Style="{StaticResource TitleTextStyle}"
+                                       HorizontalAlignment="Center"/>
+                            <TextBlock Text="Try a different search term or provider filter"
+                                       Style="{StaticResource SubtitleTextStyle}"
+                                       HorizontalAlignment="Center"
+                                       TextAlignment="Center"
+                                       Margin="0,12,0,0"/>
                         </StackPanel>
                     </StackPanel>
                 </StackPanel>
@@ -181,7 +205,7 @@
                 <StackPanel HorizontalAlignment="Center"
                             Margin="0,100,0,0"
                             Visibility="{Binding HasSearched, Converter={StaticResource BooleanToVisibilityConverter}, ConverterParameter=invert}">
-                    <TextBlock Text="🔍"
+                    <TextBlock Text="ðŸ”"
                                FontSize="64"
                                HorizontalAlignment="Center"
                                Foreground="{StaticResource TertiaryTextBrush}"/>

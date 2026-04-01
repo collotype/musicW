@@ -34,25 +34,26 @@ public class SoundCloudProvider : IMusicProvider
 
             if (string.IsNullOrEmpty(_clientId))
             {
+                results.ErrorMessage = "SoundCloud search is unavailable because a client ID could not be resolved.";
                 return results;
             }
 
             // Search tracks
             var tracksUrl = $"https://api-v2.soundcloud.com/search/tracks?q={Uri.EscapeDataString(query)}&limit=20&client_id={_clientId}";
             var tracksJson = await _httpClient.GetStringAsync(tracksUrl, cancellationToken);
-            var tracksData = JArray.Parse(tracksJson);
+            var tracksData = ParseCollectionArray(tracksJson);
             results.Tracks = ParseTracks(tracksData).ToList();
 
             // Search users (artists)
             var usersUrl = $"https://api-v2.soundcloud.com/search/users?q={Uri.EscapeDataString(query)}&limit=10&client_id={_clientId}";
             var usersJson = await _httpClient.GetStringAsync(usersUrl, cancellationToken);
-            var usersData = JArray.Parse(usersJson);
+            var usersData = ParseCollectionArray(usersJson);
             results.Artists = ParseArtists(usersData).ToList();
 
             // Search playlists
             var playlistsUrl = $"https://api-v2.soundcloud.com/search/playlists?q={Uri.EscapeDataString(query)}&limit=10&client_id={_clientId}";
             var playlistsJson = await _httpClient.GetStringAsync(playlistsUrl, cancellationToken);
-            var playlistsData = JArray.Parse(playlistsJson);
+            var playlistsData = ParseCollectionArray(playlistsJson);
             results.Playlists = ParsePlaylists(playlistsData).ToList();
         }
         catch (Exception ex)
@@ -102,7 +103,7 @@ public class SoundCloudProvider : IMusicProvider
 
             var url = $"https://api-v2.soundcloud.com/users/{artistId}/tracks?limit=50&client_id={_clientId}";
             var json = await _httpClient.GetStringAsync(url, cancellationToken);
-            var data = JArray.Parse(json);
+            var data = ParseCollectionArray(json);
             tracks = ParseTracks(data).ToList();
         }
         catch (Exception ex)
@@ -129,7 +130,7 @@ public class SoundCloudProvider : IMusicProvider
             // SoundCloud uses playlists as albums
             var url = $"https://api-v2.soundcloud.com/users/{artistId}/playlists?limit=50&client_id={_clientId}";
             var json = await _httpClient.GetStringAsync(url, cancellationToken);
-            var data = JArray.Parse(json);
+            var data = ParseCollectionArray(json);
             albums = ParseAlbums(data).ToList();
         }
         catch (Exception ex)
@@ -227,6 +228,18 @@ public class SoundCloudProvider : IMusicProvider
     {
         // SoundCloud download would require additional handling
         return Task.FromResult<byte[]?>(null);
+    }
+
+    private static JArray ParseCollectionArray(string json)
+    {
+        var token = JToken.Parse(json);
+
+        return token switch
+        {
+            JArray array => array,
+            JObject obj when obj["collection"] is JArray collection => collection,
+            _ => new JArray()
+        };
     }
 
     private async Task EnsureClientIdAsync(CancellationToken cancellationToken = default)

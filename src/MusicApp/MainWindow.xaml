@@ -265,5 +265,37 @@
                 </StackPanel>
             </Grid>
         </Border>
+
+        <Grid Background="#D9101113"
+              Visibility="{Binding IsStartupBusy, Converter={StaticResource BooleanToVisibilityConverter}}">
+            <Border Width="360"
+                    Padding="28"
+                    CornerRadius="16"
+                    Background="{StaticResource ElevatedSurfaceBrush}"
+                    BorderBrush="{StaticResource BorderLightBrush}"
+                    BorderThickness="1"
+                    HorizontalAlignment="Center"
+                    VerticalAlignment="Center">
+                <StackPanel>
+                    <TextBlock Text="Starting MusicApp"
+                               Style="{StaticResource TitleTextStyle}"
+                               HorizontalAlignment="Center"/>
+                    <TextBlock Text="{Binding StartupStatusMessage}"
+                               Style="{StaticResource SubtitleTextStyle}"
+                               TextAlignment="Center"
+                               TextWrapping="Wrap"
+                               Margin="0,12,0,0"/>
+                    <ProgressBar IsIndeterminate="True"
+                                 Height="6"
+                                 Margin="0,20,0,0"/>
+                    <TextBlock Text="{Binding StartupErrorMessage}"
+                               Foreground="{StaticResource ErrorBrush}"
+                               TextAlignment="Center"
+                               TextWrapping="Wrap"
+                               Margin="0,16,0,0"
+                               Visibility="{Binding StartupErrorMessage, Converter={StaticResource NullToVisibilityConverter}}"/>
+                </StackPanel>
+            </Border>
+        </Grid>
     </Grid>
 </Window>
