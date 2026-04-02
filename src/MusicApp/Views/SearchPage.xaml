@@ -201,8 +201,9 @@
                 <StackPanel HorizontalAlignment="Center"
                             Margin="0,100,0,0"
                             Visibility="{Binding HasSearched, Converter={StaticResource BooleanToVisibilityConverter}, ConverterParameter=invert}">
-                    <TextBlock Text="ðŸ”"
-                               FontSize="64"
+                    <TextBlock Text="Search"
+                               FontSize="32"
+                               FontWeight="SemiBold"
                                HorizontalAlignment="Center"
                                Foreground="{StaticResource TertiaryTextBrush}"/>
                     <TextBlock Text="Search your library or SoundCloud"
