@@ -1,6 +1,7 @@
 <ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-                    xmlns:controls="clr-namespace:MusicApp.Controls">
+                    xmlns:controls="clr-namespace:MusicApp.Controls"
+                    xmlns:enums="clr-namespace:MusicApp.Enums">
 
     <!-- TrackRowControl Style -->
     <Style TargetType="controls:TrackRowControl">
@@ -347,6 +348,7 @@
                         <!-- Like Button -->
                         <controls:FavoriteButton Grid.Column="2"
                                                  IsChecked="{TemplateBinding IsLiked}"
+                                                 Command="{TemplateBinding LikeCommand}"
                                                  HorizontalAlignment="Right"
                                                  VerticalAlignment="Center"/>
                     </Grid>
@@ -365,6 +367,7 @@
                         <!-- Shuffle -->
                         <Button x:Name="shuffleBtn"
                                 Style="{StaticResource IconButtonStyle}"
+                                Command="{Binding ToggleShuffleCommand, RelativeSource={RelativeSource TemplatedParent}}"
                                 ToolTip="Shuffle">
                             <TextBlock Text="🔀" FontSize="16" Opacity="0.6"/>
                         </Button>
@@ -372,6 +375,7 @@
                         <!-- Previous -->
                         <Button x:Name="prevBtn"
                                 Style="{StaticResource IconButtonStyle}"
+                                Command="{Binding PreviousCommand, RelativeSource={RelativeSource TemplatedParent}}"
                                 ToolTip="Previous">
                             <TextBlock Text="⏮" FontSize="18"/>
                         </Button>
@@ -382,6 +386,7 @@
                                 Width="48"
                                 Height="48"
                                 Margin="8,0"
+                                Command="{Binding PlayPauseCommand, RelativeSource={RelativeSource TemplatedParent}}"
                                 ToolTip="Play/Pause">
                             <TextBlock x:Name="playIcon"
                                        Text="▶"
@@ -393,6 +398,7 @@
                         <!-- Next -->
                         <Button x:Name="nextBtn"
                                 Style="{StaticResource IconButtonStyle}"
+                                Command="{Binding NextCommand, RelativeSource={RelativeSource TemplatedParent}}"
                                 ToolTip="Next">
                             <TextBlock Text="⏭" FontSize="18"/>
                         </Button>
@@ -400,6 +406,7 @@
                         <!-- Repeat -->
                         <Button x:Name="repeatBtn"
                                 Style="{StaticResource IconButtonStyle}"
+                                Command="{Binding CycleRepeatModeCommand, RelativeSource={RelativeSource TemplatedParent}}"
                                 ToolTip="Repeat">
                             <TextBlock x:Name="repeatIcon"
                                        Text="🔁"
@@ -414,11 +421,11 @@
                         <DataTrigger Binding="{Binding IsShuffle, RelativeSource={RelativeSource TemplatedParent}}" Value="True">
                             <Setter TargetName="shuffleBtn" Property="Foreground" Value="{StaticResource AccentPrimaryBrush}"/>
                         </DataTrigger>
-                        <DataTrigger Binding="{Binding RepeatMode, RelativeSource={RelativeSource TemplatedParent}}" Value="1">
+                        <DataTrigger Binding="{Binding RepeatMode, RelativeSource={RelativeSource TemplatedParent}}" Value="{x:Static enums:RepeatMode.All}">
                             <Setter TargetName="repeatBtn" Property="Foreground" Value="{StaticResource AccentPrimaryBrush}"/>
                             <Setter TargetName="repeatIcon" Property="Opacity" Value="1"/>
                         </DataTrigger>
-                        <DataTrigger Binding="{Binding RepeatMode, RelativeSource={RelativeSource TemplatedParent}}" Value="2">
+                        <DataTrigger Binding="{Binding RepeatMode, RelativeSource={RelativeSource TemplatedParent}}" Value="{x:Static enums:RepeatMode.One}">
                             <Setter TargetName="repeatBtn" Property="Foreground" Value="{StaticResource AccentPrimaryBrush}"/>
                             <Setter TargetName="repeatIcon" Property="Text" Value="🔂"/>
                             <Setter TargetName="repeatIcon" Property="Opacity" Value="1"/>

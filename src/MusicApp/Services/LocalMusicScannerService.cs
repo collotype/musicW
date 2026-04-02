@@ -2,6 +2,8 @@ using MusicApp.Enums;
 using MusicApp.Models;
 using NAudio.Wave;
 using System.IO;
+using System.Security.Cryptography;
+using System.Text;
 
 namespace MusicApp.Services;
 
@@ -70,6 +72,19 @@ public class LocalMusicScannerService : ILocalMusicScannerService
         }
     }
 
+    public async Task ImportFilesAsync(IEnumerable<string> filePaths)
+    {
+        foreach (var filePath in filePaths
+                     .Where(File.Exists)
+                     .Where(f => _supportedExtensions.Contains(Path.GetExtension(f).ToLowerInvariant()))
+                     .Distinct(StringComparer.OrdinalIgnoreCase))
+        {
+            await ScanFileAsync(filePath);
+        }
+
+        ScanCompleted?.Invoke(this, EventArgs.Empty);
+    }
+
     private async Task ScanFileAsync(string filePath)
     {
         try
@@ -88,13 +103,14 @@ public class LocalMusicScannerService : ILocalMusicScannerService
 
     private Task<Track?> ParseAudioFileAsync(string filePath)
     {
+        var normalizedPath = Path.GetFullPath(filePath);
         var track = new Track
         {
-            Id = Guid.NewGuid().ToString(),
+            Id = CreateStableTrackId(normalizedPath),
             Source = TrackSource.Local,
             StorageLocation = StorageLocation.Library,
-            LocalFilePath = filePath,
-            Title = Path.GetFileNameWithoutExtension(filePath),
+            LocalFilePath = normalizedPath,
+            Title = Path.GetFileNameWithoutExtension(normalizedPath),
             IsLiked = false,
             IsDownloaded = true
         };
@@ -138,6 +154,12 @@ public class LocalMusicScannerService : ILocalMusicScannerService
         }
 
         return Task.FromResult<Track?>(track);
+    }
+
+    private static string CreateStableTrackId(string filePath)
+    {
+        var bytes = SHA256.HashData(Encoding.UTF8.GetBytes(filePath.ToLowerInvariant()));
+        return Convert.ToHexString(bytes).ToLowerInvariant();
     }
 
     private string? SaveArtworkToFile(byte[] artworkData, string trackId)

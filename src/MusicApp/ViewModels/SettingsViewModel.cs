@@ -8,36 +8,17 @@ public partial class SettingsViewModel : ObservableObject
 {
     private readonly ISettingsService _settingsService;
     private readonly IImageCacheService _imageCacheService;
-
-    [ObservableProperty]
-    private bool _useTransparency;
-
-    [ObservableProperty]
-    private bool _showAlbumArtInPlayer;
-
-    [ObservableProperty]
-    private bool _minimizeToTray;
+    private readonly IPlaybackService _playbackService;
+    private bool _isLoading;
 
     [ObservableProperty]
     private double _volume;
-
-    [ObservableProperty]
-    private bool _enableGapless;
-
-    [ObservableProperty]
-    private int _cacheSizeLimitMB;
-
-    [ObservableProperty]
-    private string? _downloadLocation;
 
     [ObservableProperty]
     private bool _autoScanOnStartup;
 
     [ObservableProperty]
     private bool _enableSoundCloud;
-
-    [ObservableProperty]
-    private bool _enableSpotify;
 
     [ObservableProperty]
     private long _cacheSizeBytes;
@@ -47,29 +28,26 @@ public partial class SettingsViewModel : ObservableObject
 
     public SettingsViewModel(
         ISettingsService settingsService,
-        IImageCacheService imageCacheService)
+        IImageCacheService imageCacheService,
+        IPlaybackService playbackService)
     {
         _settingsService = settingsService;
         _imageCacheService = imageCacheService;
+        _playbackService = playbackService;
 
         LoadSettings();
     }
 
     private void LoadSettings()
     {
-        var settings = _settingsService.Settings;
+        _isLoading = true;
 
-        UseTransparency = settings.UseTransparency;
-        ShowAlbumArtInPlayer = settings.ShowAlbumArtInPlayer;
-        MinimizeToTray = settings.MinimizeToTray;
+        var settings = _settingsService.Settings;
         Volume = settings.Volume;
-        EnableGapless = settings.EnableGapless;
-        CacheSizeLimitMB = settings.CacheSizeLimitMB;
-        DownloadLocation = settings.DownloadLocation;
         AutoScanOnStartup = settings.AutoScanOnStartup;
         EnableSoundCloud = settings.EnableSoundCloud;
-        EnableSpotify = settings.EnableSpotify;
 
+        _isLoading = false;
         _ = UpdateCacheSizeAsync();
     }
 
@@ -79,16 +57,36 @@ public partial class SettingsViewModel : ObservableObject
         CacheSizeFormatted = $"{CacheSizeBytes / (1024 * 1024)} MB";
     }
 
-    partial void OnUseTransparencyChanged(bool value) => SaveSetting(s => s.UseTransparency = value);
-    partial void OnShowAlbumArtInPlayerChanged(bool value) => SaveSetting(s => s.ShowAlbumArtInPlayer = value);
-    partial void OnMinimizeToTrayChanged(bool value) => SaveSetting(s => s.MinimizeToTray = value);
-    partial void OnVolumeChanged(double value) => SaveSetting(s => s.Volume = value);
-    partial void OnEnableGaplessChanged(bool value) => SaveSetting(s => s.EnableGapless = value);
-    partial void OnCacheSizeLimitMBChanged(int value) => SaveSetting(s => s.CacheSizeLimitMB = value);
-    partial void OnDownloadLocationChanged(string? value) => SaveSetting(s => s.DownloadLocation = value);
-    partial void OnAutoScanOnStartupChanged(bool value) => SaveSetting(s => s.AutoScanOnStartup = value);
-    partial void OnEnableSoundCloudChanged(bool value) => SaveSetting(s => s.EnableSoundCloud = value);
-    partial void OnEnableSpotifyChanged(bool value) => SaveSetting(s => s.EnableSpotify = value);
+    partial void OnVolumeChanged(double value)
+    {
+        if (_isLoading)
+        {
+            return;
+        }
+
+        SaveSetting(s => s.Volume = value);
+        _ = _playbackService.SetVolumeAsync(value);
+    }
+
+    partial void OnAutoScanOnStartupChanged(bool value)
+    {
+        if (_isLoading)
+        {
+            return;
+        }
+
+        SaveSetting(s => s.AutoScanOnStartup = value);
+    }
+
+    partial void OnEnableSoundCloudChanged(bool value)
+    {
+        if (_isLoading)
+        {
+            return;
+        }
+
+        SaveSetting(s => s.EnableSoundCloud = value);
+    }
 
     private void SaveSetting(Action<Models.SettingsModel> update)
     {
@@ -100,13 +98,6 @@ public partial class SettingsViewModel : ObservableObject
     {
         await _imageCacheService.ClearCacheAsync();
         await UpdateCacheSizeAsync();
-    }
-
-    [RelayCommand]
-    private async Task BrowseDownloadLocation()
-    {
-        // Would use folder picker dialog in real implementation
-        DownloadLocation = Environment.GetFolderPath(Environment.SpecialFolder.MyMusic);
     }
 
     [RelayCommand]

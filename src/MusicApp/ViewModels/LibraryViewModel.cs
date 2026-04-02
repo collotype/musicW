@@ -1,3 +1,4 @@
+using Microsoft.Win32;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using MusicApp.Models;
@@ -10,6 +11,7 @@ public partial class LibraryViewModel : ObservableObject
     private readonly ILibraryService _libraryService;
     private readonly IPlaybackService _playbackService;
     private readonly INavigationService _navigationService;
+    private readonly ILocalMusicScannerService _localMusicScannerService;
 
     [ObservableProperty]
     private List<Track> _recentTracks = new();
@@ -49,17 +51,19 @@ public partial class LibraryViewModel : ObservableObject
     public bool ShowEmptyState => !HasLibrarySummary;
     public string EmptyStateTitle => HasPlaylists ? "No tracks in your library yet" : "Your library is empty";
     public string EmptyStateMessage => HasPlaylists
-        ? "You have playlists ready, but no real tracks have been added to your library yet."
-        : "Add a music folder, like some tracks, or create your first playlist to start building your collection.";
+        ? "You have playlists ready, but no real tracks have been imported yet."
+        : "Import some audio files to start building your local library.";
 
     public LibraryViewModel(
         ILibraryService libraryService,
         IPlaybackService playbackService,
-        INavigationService navigationService)
+        INavigationService navigationService,
+        ILocalMusicScannerService localMusicScannerService)
     {
         _libraryService = libraryService;
         _playbackService = playbackService;
         _navigationService = navigationService;
+        _localMusicScannerService = localMusicScannerService;
 
         _libraryService.LibraryChanged += OnLibraryChanged;
     }
@@ -79,12 +83,44 @@ public partial class LibraryViewModel : ObservableObject
 
         Playlists = _libraryService.Playlists.ToList();
 
-        // Get recent items (last added/played)
-        RecentTracks = _libraryService.AllTracks.OrderByDescending(t => t.PlayCount ?? 0).Take(10).ToList();
-        RecentAlbums = _libraryService.AllAlbums.OrderByDescending(a => a.ReleaseDate).Take(10).ToList();
-        RecentArtists = _libraryService.AllArtists.Take(10).ToList();
+        RecentTracks = _libraryService.AllTracks
+            .OrderByDescending(t => t.PlayCount ?? 0)
+            .ThenBy(t => t.Title)
+            .Take(10)
+            .ToList();
+
+        RecentAlbums = _libraryService.AllAlbums
+            .OrderByDescending(a => a.ReleaseDate ?? DateTime.MinValue)
+            .ThenBy(a => a.Title)
+            .Take(10)
+            .ToList();
+
+        RecentArtists = _libraryService.AllArtists
+            .OrderByDescending(a => a.TrackCount)
+            .ThenBy(a => a.Name)
+            .Take(10)
+            .ToList();
 
         NotifyLibraryStateChanged();
+    }
+
+    [RelayCommand]
+    private async Task ImportTracks()
+    {
+        var dialog = new OpenFileDialog
+        {
+            Title = "Import Tracks",
+            Multiselect = true,
+            Filter = "Audio Files|*.mp3;*.wav;*.flac;*.m4a;*.wma;*.ogg;*.aac"
+        };
+
+        if (dialog.ShowDialog() != true || dialog.FileNames.Length == 0)
+        {
+            return;
+        }
+
+        await _localMusicScannerService.ImportFilesAsync(dialog.FileNames);
+        LoadLibrary();
     }
 
     [RelayCommand]

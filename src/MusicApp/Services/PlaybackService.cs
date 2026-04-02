@@ -1,9 +1,6 @@
 using MusicApp.Audio;
 using MusicApp.Enums;
 using MusicApp.Models;
-using MusicApp.Providers;
-using System.Net.Http;
-using System.IO;
 
 namespace MusicApp.Services;
 
@@ -13,6 +10,7 @@ public class PlaybackService : IPlaybackService
     private readonly IQueueService _queueService;
     private readonly IMusicProviderService _providerService;
     private readonly ILibraryService _libraryService;
+    private readonly ISettingsService _settingsService;
     private PlaybackState _currentState = new();
     private RepeatMode _repeatMode = RepeatMode.None;
     private bool _isShuffle;
@@ -26,12 +24,17 @@ public class PlaybackService : IPlaybackService
         AudioPlayer audioPlayer,
         IQueueService queueService,
         IMusicProviderService providerService,
-        ILibraryService libraryService)
+        ILibraryService libraryService,
+        ISettingsService settingsService)
     {
         _audioPlayer = audioPlayer;
         _queueService = queueService;
         _providerService = providerService;
         _libraryService = libraryService;
+        _settingsService = settingsService;
+
+        _currentState.Volume = _settingsService.Settings.Volume;
+        _audioPlayer.SetVolume((float)_currentState.Volume);
 
         _audioPlayer.PositionChanged += OnPositionChanged;
         _audioPlayer.PlaybackEnded += OnPlaybackEnded;
@@ -48,8 +51,13 @@ public class PlaybackService : IPlaybackService
 
             var queueItems = queue?.Select(t => QueueItem.FromTrack(t)).ToList()
                 ?? new List<QueueItem> { QueueItem.FromTrack(track) };
+            var startIndex = queueItems.FindIndex(item => IsSameTrack(item.Track, track));
+            if (startIndex < 0)
+            {
+                startIndex = 0;
+            }
 
-            _queueService.SetQueue(queueItems, 0);
+            _queueService.SetQueue(queueItems, startIndex);
 
             await PlayCurrentAsync();
         }
@@ -108,7 +116,7 @@ public class PlaybackService : IPlaybackService
         }
         else if (_queueService.CurrentItem != null)
         {
-            await ResumeAsync();
+            await PlayCurrentAsync();
         }
     }
 
@@ -174,8 +182,10 @@ public class PlaybackService : IPlaybackService
 
     public Task SetVolumeAsync(double volume)
     {
-        _audioPlayer.SetVolume((float)volume);
-        _currentState.Volume = volume;
+        var normalizedVolume = Math.Clamp(volume, 0d, 1d);
+        _audioPlayer.SetVolume((float)normalizedVolume);
+        _currentState.Volume = normalizedVolume;
+        _currentState.IsMuted = normalizedVolume <= 0;
         OnStateChanged();
         return Task.CompletedTask;
     }
@@ -215,8 +225,17 @@ public class PlaybackService : IPlaybackService
         var currentTrack = _queueService.CurrentItem?.Track;
         if (currentTrack != null)
         {
-            currentTrack.IsLiked = !currentTrack.IsLiked;
-            await _libraryService.ToggleLikeAsync(currentTrack.Id);
+            var targetLikeState = !currentTrack.IsLiked;
+
+            await _libraryService.AddTrackAsync(currentTrack);
+
+            var currentLibraryState = await _libraryService.IsLikedAsync(currentTrack.Id);
+            if (currentLibraryState != targetLikeState)
+            {
+                await _libraryService.ToggleLikeAsync(currentTrack.Id);
+            }
+
+            currentTrack.IsLiked = targetLikeState;
             OnStateChanged();
         }
     }
@@ -234,40 +253,29 @@ public class PlaybackService : IPlaybackService
 
         try
         {
-            string? playbackUrl = null;
+            string? playbackSource = null;
 
             if (track.Source == TrackSource.Local && !string.IsNullOrEmpty(track.LocalFilePath))
             {
-                playbackUrl = track.LocalFilePath;
+                playbackSource = track.LocalFilePath;
             }
             else
             {
-                // Try to resolve stream URL from provider
-                playbackUrl = await _providerService.ResolvePlaybackUrlAsync(track, CancellationToken.None);
+                playbackSource = await _providerService.ResolvePlaybackUrlAsync(track, CancellationToken.None);
             }
 
-            if (string.IsNullOrEmpty(playbackUrl))
+            if (string.IsNullOrEmpty(playbackSource))
             {
-                throw new Exception("Could not resolve playback URL");
+                throw new Exception("Playback is not available for this track yet.");
             }
 
-            if (track.Source == TrackSource.Local)
-            {
-                _audioPlayer.Play(playbackUrl);
-            }
-            else
-            {
-                // For remote streams, download to temp and play
-                var tempPath = Path.Combine(Path.GetTempPath(), $"music_{track.Id}.tmp");
-                using var client = new HttpClient();
-                var data = await client.GetByteArrayAsync(playbackUrl);
-                await File.WriteAllBytesAsync(tempPath, data);
-                _audioPlayer.Play(tempPath);
-            }
+            _audioPlayer.Play(playbackSource);
 
             _currentState.IsLoading = false;
             _currentState.TotalDuration = _audioPlayer.TotalDuration;
             _currentState.CurrentPosition = TimeSpan.Zero;
+            _audioPlayer.SetVolume(_currentState.IsMuted ? 0f : (float)_currentState.Volume);
+            await UpdateTrackPlayCountAsync(track);
             OnStateChanged();
         }
         catch (Exception ex)
@@ -303,6 +311,31 @@ public class PlaybackService : IPlaybackService
     private void OnStateChanged()
     {
         StateChanged?.Invoke(this, _currentState);
+    }
+
+    private async Task UpdateTrackPlayCountAsync(Track track)
+    {
+        var libraryTrack = _libraryService.AllTracks.FirstOrDefault(existing => IsSameTrack(existing, track));
+        if (libraryTrack == null)
+        {
+            return;
+        }
+
+        libraryTrack.PlayCount = (libraryTrack.PlayCount ?? 0) + 1;
+        track.PlayCount = libraryTrack.PlayCount;
+        await _libraryService.AddTrackAsync(libraryTrack);
+    }
+
+    private static bool IsSameTrack(Track left, Track right)
+    {
+        return left.Id == right.Id ||
+               (!string.IsNullOrWhiteSpace(left.LocalFilePath) &&
+                !string.IsNullOrWhiteSpace(right.LocalFilePath) &&
+                string.Equals(left.LocalFilePath, right.LocalFilePath, StringComparison.OrdinalIgnoreCase)) ||
+               (!string.IsNullOrWhiteSpace(left.ProviderTrackId) &&
+                !string.IsNullOrWhiteSpace(right.ProviderTrackId) &&
+                left.Source == right.Source &&
+                string.Equals(left.ProviderTrackId, right.ProviderTrackId, StringComparison.OrdinalIgnoreCase));
     }
 
     public void Dispose()

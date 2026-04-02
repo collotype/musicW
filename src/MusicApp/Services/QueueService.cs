@@ -71,7 +71,7 @@ public class QueueService : IQueueService
     {
         if (_currentIndex > 0)
         {
-            _currentIndex = 0;
+            _currentIndex--;
             QueueChanged?.Invoke(this, EventArgs.Empty);
         }
     }
@@ -80,7 +80,7 @@ public class QueueService : IQueueService
     {
         if (_queue.Count <= 1) return;
 
-        // Keep current track in place, shuffle the rest
+        // Keep the current track first and reshuffle the remainder around it.
         var current = CurrentItem;
         var remaining = _queue.Where((_, i) => i != _currentIndex).ToList();
 
@@ -93,7 +93,8 @@ public class QueueService : IQueueService
         _queue.Clear();
         if (current != null)
         {
-            _queue.Insert(_currentIndex, current);
+            _queue.Add(current);
+            _currentIndex = 0;
         }
         _queue.AddRange(remaining);
         QueueChanged?.Invoke(this, EventArgs.Empty);
@@ -112,7 +113,7 @@ public class QueueService : IQueueService
     {
         if (_currentIndex > 0)
         {
-            return _queue[0]; // Go to start of current context
+            return _queue[_currentIndex - 1];
         }
         return null;
     }

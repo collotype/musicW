@@ -1,7 +1,6 @@
 <UserControl x:Class="MusicApp.Views.SettingsPage"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             xmlns:controls="clr-namespace:MusicApp.Controls"
              Background="{StaticResource AppBackgroundBrush}">
 
     <ScrollViewer Style="{StaticResource ScrollViewerStyle}"
@@ -10,75 +9,6 @@
             <TextBlock Text="Settings"
                        Style="{StaticResource HeroTextStyle}"
                        Margin="0,0,0,32"/>
-
-            <!-- Appearance Section -->
-            <Border Background="{StaticResource CardBackgroundBrush}"
-                    CornerRadius="12"
-                    Padding="24"
-                    Margin="0,0,0,16">
-                <StackPanel>
-                    <TextBlock Text="Appearance"
-                               Style="{StaticResource TitleTextStyle}"
-                               Margin="0,0,0,16"/>
-
-                    <Grid Margin="0,8,0,16">
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="*"/>
-                            <ColumnDefinition Width="Auto"/>
-                        </Grid.ColumnDefinitions>
-                        <StackPanel Grid.Column="0">
-                            <TextBlock Text="Use Transparency"
-                                       FontSize="14"
-                                       Foreground="{StaticResource PrimaryTextBrush}"/>
-                            <TextBlock Text="Enable window transparency effects"
-                                       Style="{StaticResource CaptionTextStyle}"
-                                       Margin="0,4,0,0"/>
-                        </StackPanel>
-                        <CheckBox Grid.Column="1"
-                                  Style="{StaticResource ToggleSwitchStyle}"
-                                  IsChecked="{Binding UseTransparency}"
-                                  VerticalAlignment="Center"/>
-                    </Grid>
-
-                    <Grid Margin="0,8,0,16">
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="*"/>
-                            <ColumnDefinition Width="Auto"/>
-                        </Grid.ColumnDefinitions>
-                        <StackPanel Grid.Column="0">
-                            <TextBlock Text="Show Album Art in Player"
-                                       FontSize="14"
-                                       Foreground="{StaticResource PrimaryTextBrush}"/>
-                            <TextBlock Text="Display album artwork in the now playing card"
-                                       Style="{StaticResource CaptionTextStyle}"
-                                       Margin="0,4,0,0"/>
-                        </StackPanel>
-                        <CheckBox Grid.Column="1"
-                                  Style="{StaticResource ToggleSwitchStyle}"
-                                  IsChecked="{Binding ShowAlbumArtInPlayer}"
-                                  VerticalAlignment="Center"/>
-                    </Grid>
-
-                    <Grid Margin="0,8,0,0">
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="*"/>
-                            <ColumnDefinition Width="Auto"/>
-                        </Grid.ColumnDefinitions>
-                        <StackPanel Grid.Column="0">
-                            <TextBlock Text="Minimize to Tray"
-                                       FontSize="14"
-                                       Foreground="{StaticResource PrimaryTextBrush}"/>
-                            <TextBlock Text="Minimize to system tray instead of taskbar"
-                                       Style="{StaticResource CaptionTextStyle}"
-                                       Margin="0,4,0,0"/>
-                        </StackPanel>
-                        <CheckBox Grid.Column="1"
-                                  Style="{StaticResource ToggleSwitchStyle}"
-                                  IsChecked="{Binding MinimizeToTray}"
-                                  VerticalAlignment="Center"/>
-                    </Grid>
-                </StackPanel>
-            </Border>
 
             <!-- Audio Section -->
             <Border Background="{StaticResource CardBackgroundBrush}"
@@ -90,7 +20,7 @@
                                Style="{StaticResource TitleTextStyle}"
                                Margin="0,0,0,16"/>
 
-                    <Grid Margin="0,8,0,16">
+                    <Grid Margin="0,8,0,0">
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="*"/>
                             <ColumnDefinition Width="Auto"/>
@@ -99,7 +29,7 @@
                             <TextBlock Text="Default Volume"
                                        FontSize="14"
                                        Foreground="{StaticResource PrimaryTextBrush}"/>
-                            <TextBlock Text="{Binding Volume, StringFormat={}{0:F0}%}"
+                            <TextBlock Text="{Binding Volume, Converter={StaticResource DoubleToPercentConverter}, StringFormat={}{0:F0}%}"
                                        Style="{StaticResource CaptionTextStyle}"
                                        Margin="0,4,0,0"/>
                         </StackPanel>
@@ -108,26 +38,7 @@
                                 Width="150"
                                 Minimum="0"
                                 Maximum="100"
-                                Value="{Binding Volume, Converter={StaticResource DoubleToPercentConverter}}"/>
-                    </Grid>
-
-                    <Grid Margin="0,8,0,0">
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="*"/>
-                            <ColumnDefinition Width="Auto"/>
-                        </Grid.ColumnDefinitions>
-                        <StackPanel Grid.Column="0">
-                            <TextBlock Text="Gapless Playback"
-                                       FontSize="14"
-                                       Foreground="{StaticResource PrimaryTextBrush}"/>
-                            <TextBlock Text="Seamless transitions between tracks"
-                                       Style="{StaticResource CaptionTextStyle}"
-                                       Margin="0,4,0,0"/>
-                        </StackPanel>
-                        <CheckBox Grid.Column="1"
-                                  Style="{StaticResource ToggleSwitchStyle}"
-                                  IsChecked="{Binding EnableGapless}"
-                                  VerticalAlignment="Center"/>
+                                Value="{Binding Volume, Converter={StaticResource DoubleToPercentConverter}, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
                     </Grid>
                 </StackPanel>
             </Border>
@@ -142,13 +53,13 @@
                                Style="{StaticResource TitleTextStyle}"
                                Margin="0,0,0,16"/>
 
-                    <Grid Margin="0,8,0,16">
+                    <Grid Margin="0,8,0,0">
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="*"/>
                             <ColumnDefinition Width="Auto"/>
                         </Grid.ColumnDefinitions>
                         <StackPanel Grid.Column="0">
-                            <TextBlock Text="Cache Size"
+                            <TextBlock Text="Image Cache"
                                        FontSize="14"
                                        Foreground="{StaticResource PrimaryTextBrush}"/>
                             <TextBlock Text="{Binding CacheSizeFormatted}"
@@ -164,29 +75,6 @@
                                     Style="{StaticResource SecondaryButtonStyle}"
                                     Command="{Binding ClearCacheCommand}"/>
                         </StackPanel>
-                    </Grid>
-
-                    <Grid Margin="0,8,0,0">
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="*"/>
-                            <ColumnDefinition Width="Auto"/>
-                        </Grid.ColumnDefinitions>
-                        <StackPanel Grid.Column="0">
-                            <TextBlock Text="Cache Limit"
-                                       FontSize="14"
-                                       Foreground="{StaticResource PrimaryTextBrush}"/>
-                            <TextBlock Text="{Binding CacheSizeLimitMB, StringFormat={}{0} MB}"
-                                       Style="{StaticResource CaptionTextStyle}"
-                                       Margin="0,4,0,0"/>
-                        </StackPanel>
-                        <Slider Grid.Column="1"
-                                Style="{StaticResource SliderStyle}"
-                                Width="150"
-                                Minimum="128"
-                                Maximum="2048"
-                                Value="{Binding CacheSizeLimitMB}"
-                                TickFrequency="128"
-                                IsSnapToTickEnabled="True"/>
                     </Grid>
                 </StackPanel>
             </Border>
@@ -210,9 +98,10 @@
                             <TextBlock Text="Auto-Scan on Startup"
                                        FontSize="14"
                                        Foreground="{StaticResource PrimaryTextBrush}"/>
-                            <TextBlock Text="Automatically scan library folders on app launch"
+                            <TextBlock Text="When enabled, MusicApp scans your configured folders and default Music folder on startup."
                                        Style="{StaticResource CaptionTextStyle}"
-                                       Margin="0,4,0,0"/>
+                                       TextWrapping="Wrap"
+                                       Margin="0,4,16,0"/>
                         </StackPanel>
                         <CheckBox Grid.Column="1"
                                   Style="{StaticResource ToggleSwitchStyle}"
@@ -240,7 +129,7 @@
                             <TextBlock Text="SoundCloud"
                                        FontSize="14"
                                        Foreground="{StaticResource PrimaryTextBrush}"/>
-                            <TextBlock Text="Enable SoundCloud search and streaming"
+                            <TextBlock Text="Enable SoundCloud search and playback."
                                        Style="{StaticResource CaptionTextStyle}"
                                        Margin="0,4,0,0"/>
                         </StackPanel>
@@ -250,6 +139,13 @@
                                   VerticalAlignment="Center"/>
                     </Grid>
 
+                    <Border Background="{StaticResource BorderLightBrush}"
+                            CornerRadius="10"
+                            Padding="16">
+                        <TextBlock Text="Spotify is disabled in this build because search and playback are not implemented yet."
+                                   Style="{StaticResource CaptionTextStyle}"
+                                   TextWrapping="Wrap"/>
+                    </Border>
                 </StackPanel>
             </Border>
         </StackPanel>

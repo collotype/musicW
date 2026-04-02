@@ -1,3 +1,4 @@
+using System.Windows;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using MusicApp.Enums;
@@ -9,13 +10,13 @@ namespace MusicApp.ViewModels;
 public partial class NowPlayingViewModel : ObservableObject
 {
     private readonly IPlaybackService _playbackService;
-    private readonly ILibraryService _libraryService;
+    private bool _isApplyingPlaybackState;
 
     [ObservableProperty]
     private string _title = "Not Playing";
 
     [ObservableProperty]
-    private string _artist = "—";
+    private string _artist = "-";
 
     [ObservableProperty]
     private string _coverArtUrl = string.Empty;
@@ -53,16 +54,34 @@ public partial class NowPlayingViewModel : ObservableObject
     [ObservableProperty]
     private string _totalDurationFormatted = "0:00";
 
+    [ObservableProperty]
+    private string _errorMessage = string.Empty;
+
+    public bool HasError => !string.IsNullOrWhiteSpace(ErrorMessage);
+
     public NowPlayingViewModel(IPlaybackService playbackService, ILibraryService libraryService)
     {
         _playbackService = playbackService;
-        _libraryService = libraryService;
 
         _playbackService.StateChanged += OnPlaybackStateChanged;
+        ApplyState(_playbackService.CurrentState);
     }
 
     private void OnPlaybackStateChanged(object? sender, PlaybackState state)
     {
+        if (Application.Current.Dispatcher.CheckAccess())
+        {
+            ApplyState(state);
+            return;
+        }
+
+        Application.Current.Dispatcher.Invoke(() => ApplyState(state));
+    }
+
+    private void ApplyState(PlaybackState state)
+    {
+        _isApplyingPlaybackState = true;
+
         CurrentPosition = state.CurrentPosition;
         TotalDuration = state.TotalDuration;
         Progress = state.ProgressPercent;
@@ -73,6 +92,7 @@ public partial class NowPlayingViewModel : ObservableObject
         IsShuffle = state.IsShuffle;
         CurrentPositionFormatted = state.CurrentPositionFormatted;
         TotalDurationFormatted = state.TotalDurationFormatted;
+        ErrorMessage = state.ErrorMessage ?? string.Empty;
 
         if (state.CurrentTrack?.Track != null)
         {
@@ -85,10 +105,33 @@ public partial class NowPlayingViewModel : ObservableObject
         else
         {
             Title = "Not Playing";
-            Artist = "—";
+            Artist = "-";
             CoverArtUrl = string.Empty;
             IsLiked = false;
         }
+
+        _isApplyingPlaybackState = false;
+        OnPropertyChanged(nameof(HasError));
+    }
+
+    partial void OnVolumeChanged(double value)
+    {
+        if (_isApplyingPlaybackState)
+        {
+            return;
+        }
+
+        _ = _playbackService.SetVolumeAsync(value);
+    }
+
+    partial void OnProgressChanged(double value)
+    {
+        if (_isApplyingPlaybackState || TotalDuration.TotalSeconds <= 0)
+        {
+            return;
+        }
+
+        _ = Seek(value);
     }
 
     [RelayCommand]
@@ -131,6 +174,19 @@ public partial class NowPlayingViewModel : ObservableObject
     private async Task SetRepeatMode(int mode)
     {
         await _playbackService.SetRepeatModeAsync((RepeatMode)mode);
+    }
+
+    [RelayCommand]
+    private async Task CycleRepeatMode()
+    {
+        var nextMode = RepeatMode switch
+        {
+            RepeatMode.None => RepeatMode.All,
+            RepeatMode.All => RepeatMode.One,
+            _ => RepeatMode.None
+        };
+
+        await _playbackService.SetRepeatModeAsync(nextMode);
     }
 
     [RelayCommand]

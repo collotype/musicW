@@ -8,15 +8,13 @@
         <ScrollViewer Style="{StaticResource ScrollViewerStyle}"
                       VerticalScrollBarVisibility="Auto">
             <StackPanel>
-                <!-- Hero Header -->
                 <controls:HeroHeader Label="ARTIST"
                                      Title="{Binding Artist.Name, FallbackValue='Artist Name'}"
-                                     Subtitle="{Binding Artist.MonthlyListenersFormatted, FallbackValue='0 listeners'}"
+                                     Subtitle="{Binding Artist.MonthlyListenersFormatted, FallbackValue='Artist'}"
                                      ImageUrl="{Binding Artist.ImageUrl}"
                                      BackgroundImageUrl="{Binding Artist.BannerUrl}"
                                      Height="320"/>
 
-                <!-- Action Buttons -->
                 <StackPanel Orientation="Horizontal" Margin="32,24,32,0">
                     <Button Content="Play All"
                             Style="{StaticResource PrimaryButtonStyle}"
@@ -24,14 +22,11 @@
                             Margin="0,0,12,0"/>
                     <Button Content="Shuffle"
                             Style="{StaticResource SecondaryButtonStyle}"
-                            Margin="0,0,12,0"/>
-                    <Button Content="{Binding Artist.IsFollowed, Converter={StaticResource BooleanToVisibilityConverter}, FallbackValue='Follow'}"
-                            Style="{StaticResource GhostButtonStyle}"
-                            Command="{Binding ToggleFollowCommand}"/>
+                            Command="{Binding ShuffleCommand}"/>
                 </StackPanel>
 
-                <!-- Genre Tags -->
-                <WrapPanel Margin="32,16,32,0">
+                <WrapPanel Margin="32,16,32,0"
+                           Visibility="{Binding HasGenres, Converter={StaticResource BooleanToVisibilityConverter}}">
                     <ItemsControl ItemsSource="{Binding Artist.Genres}">
                         <ItemsControl.ItemsPanel>
                             <ItemsPanelTemplate>
@@ -46,8 +41,8 @@
                     </ItemsControl>
                 </WrapPanel>
 
-                <!-- Top Tracks Section -->
-                <StackPanel Margin="0,32,0,0">
+                <StackPanel Margin="0,32,0,0"
+                            Visibility="{Binding HasTopTracks, Converter={StaticResource BooleanToVisibilityConverter}}">
                     <TextBlock Text="Popular Tracks"
                                Style="{StaticResource TitleTextStyle}"
                                Margin="32,0,32,16"/>
@@ -60,27 +55,19 @@
                                                           Duration="{Binding DurationFormatted}"
                                                           CoverArtUrl="{Binding CoverArtUrl}"
                                                           IsLiked="{Binding IsLiked}"
+                                                          Command="{Binding DataContext.PlayTrackCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                                          CommandParameter="{Binding}"
                                                           Margin="32,0,32,8"/>
                             </DataTemplate>
                         </ItemsControl.ItemTemplate>
                     </ItemsControl>
                 </StackPanel>
 
-                <!-- Albums Section -->
-                <StackPanel Margin="0,32,0,0">
-                    <Grid Margin="32,0,32,16">
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="*"/>
-                            <ColumnDefinition Width="Auto"/>
-                        </Grid.ColumnDefinitions>
-                        <TextBlock Grid.Column="0"
-                                   Text="Discography"
-                                   Style="{StaticResource TitleTextStyle}"/>
-                        <Button Grid.Column="1"
-                                Content="Show all"
-                                Style="{StaticResource GhostButtonStyle}"
-                                VerticalAlignment="Center"/>
-                    </Grid>
+                <StackPanel Margin="0,32,0,0"
+                            Visibility="{Binding HasAlbums, Converter={StaticResource BooleanToVisibilityConverter}}">
+                    <TextBlock Text="Discography"
+                               Style="{StaticResource TitleTextStyle}"
+                               Margin="32,0,32,16"/>
 
                     <ScrollViewer HorizontalScrollBarVisibility="Auto"
                                   VerticalScrollBarVisibility="Disabled"
@@ -98,6 +85,8 @@
                                                             Artist="{Binding ArtistName}"
                                                             CoverArtUrl="{Binding CoverArtUrl}"
                                                             Year="{Binding ReleaseYear}"
+                                                            Command="{Binding DataContext.NavigateToAlbumCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                                            CommandParameter="{Binding Id}"
                                                             Margin="0,0,16,0"/>
                                     </DataTemplate>
                                 </ItemsControl.ItemTemplate>
@@ -106,8 +95,8 @@
                     </ScrollViewer>
                 </StackPanel>
 
-                <!-- Related Artists Section -->
-                <StackPanel Margin="0,32,0,32">
+                <StackPanel Margin="0,32,0,32"
+                            Visibility="{Binding HasRelatedArtists, Converter={StaticResource BooleanToVisibilityConverter}}">
                     <TextBlock Text="Related Artists"
                                Style="{StaticResource TitleTextStyle}"
                                Margin="32,0,32,16"/>
@@ -126,6 +115,8 @@
                                     <DataTemplate>
                                         <controls:ArtistCircleCard ArtistName="{Binding Name}"
                                                                    ImageUrl="{Binding ImageUrl}"
+                                                                   Command="{Binding DataContext.NavigateToArtistCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                                                   CommandParameter="{Binding Id}"
                                                                    Margin="0,0,16,0"/>
                                     </DataTemplate>
                                 </ItemsControl.ItemTemplate>
@@ -136,7 +127,6 @@
             </StackPanel>
         </ScrollViewer>
 
-        <!-- Loading Overlay -->
         <Border Background="{StaticResource AppBackgroundBrush}"
                 Visibility="{Binding IsLoading, Converter={StaticResource BooleanToVisibilityConverter}}">
             <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
@@ -146,7 +136,6 @@
             </StackPanel>
         </Border>
 
-        <!-- Error Overlay -->
         <Border Background="{StaticResource AppBackgroundBrush}"
                 Visibility="{Binding ErrorMessage, Converter={StaticResource NullToVisibilityConverter}}">
             <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">

@@ -3,6 +3,7 @@ using System.Windows.Controls;
 using System.Windows.Controls.Primitives;
 using System.Windows.Input;
 using System.Windows.Media.Imaging;
+using MusicApp.Enums;
 
 namespace MusicApp.Controls;
 
@@ -457,6 +458,9 @@ public class NowPlayingMiniCard : Control
     public static readonly DependencyProperty IsLikedProperty =
         DependencyProperty.Register(nameof(IsLiked), typeof(bool), typeof(NowPlayingMiniCard), new PropertyMetadata(false));
 
+    public static readonly DependencyProperty LikeCommandProperty =
+        DependencyProperty.Register(nameof(LikeCommand), typeof(ICommand), typeof(NowPlayingMiniCard), new PropertyMetadata(null));
+
     public string Title
     {
         get => (string)GetValue(TitleProperty);
@@ -486,6 +490,12 @@ public class NowPlayingMiniCard : Control
         get => (bool)GetValue(IsLikedProperty);
         set => SetValue(IsLikedProperty, value);
     }
+
+    public ICommand? LikeCommand
+    {
+        get => (ICommand?)GetValue(LikeCommandProperty);
+        set => SetValue(LikeCommandProperty, value);
+    }
 }
 
 public class PlaybackControls : Control
@@ -502,7 +512,22 @@ public class PlaybackControls : Control
         DependencyProperty.Register(nameof(IsShuffle), typeof(bool), typeof(PlaybackControls), new PropertyMetadata(false));
 
     public static readonly DependencyProperty RepeatModeProperty =
-        DependencyProperty.Register(nameof(RepeatMode), typeof(int), typeof(PlaybackControls), new PropertyMetadata(0));
+        DependencyProperty.Register(nameof(RepeatMode), typeof(RepeatMode), typeof(PlaybackControls), new PropertyMetadata(RepeatMode.None));
+
+    public static readonly DependencyProperty ToggleShuffleCommandProperty =
+        DependencyProperty.Register(nameof(ToggleShuffleCommand), typeof(ICommand), typeof(PlaybackControls), new PropertyMetadata(null));
+
+    public static readonly DependencyProperty PreviousCommandProperty =
+        DependencyProperty.Register(nameof(PreviousCommand), typeof(ICommand), typeof(PlaybackControls), new PropertyMetadata(null));
+
+    public static readonly DependencyProperty PlayPauseCommandProperty =
+        DependencyProperty.Register(nameof(PlayPauseCommand), typeof(ICommand), typeof(PlaybackControls), new PropertyMetadata(null));
+
+    public static readonly DependencyProperty NextCommandProperty =
+        DependencyProperty.Register(nameof(NextCommand), typeof(ICommand), typeof(PlaybackControls), new PropertyMetadata(null));
+
+    public static readonly DependencyProperty CycleRepeatModeCommandProperty =
+        DependencyProperty.Register(nameof(CycleRepeatModeCommand), typeof(ICommand), typeof(PlaybackControls), new PropertyMetadata(null));
 
     public bool IsPlaying
     {
@@ -516,10 +541,40 @@ public class PlaybackControls : Control
         set => SetValue(IsShuffleProperty, value);
     }
 
-    public int RepeatMode
+    public RepeatMode RepeatMode
     {
-        get => (int)GetValue(RepeatModeProperty);
+        get => (RepeatMode)GetValue(RepeatModeProperty);
         set => SetValue(RepeatModeProperty, value);
+    }
+
+    public ICommand? ToggleShuffleCommand
+    {
+        get => (ICommand?)GetValue(ToggleShuffleCommandProperty);
+        set => SetValue(ToggleShuffleCommandProperty, value);
+    }
+
+    public ICommand? PreviousCommand
+    {
+        get => (ICommand?)GetValue(PreviousCommandProperty);
+        set => SetValue(PreviousCommandProperty, value);
+    }
+
+    public ICommand? PlayPauseCommand
+    {
+        get => (ICommand?)GetValue(PlayPauseCommandProperty);
+        set => SetValue(PlayPauseCommandProperty, value);
+    }
+
+    public ICommand? NextCommand
+    {
+        get => (ICommand?)GetValue(NextCommandProperty);
+        set => SetValue(NextCommandProperty, value);
+    }
+
+    public ICommand? CycleRepeatModeCommand
+    {
+        get => (ICommand?)GetValue(CycleRepeatModeCommandProperty);
+        set => SetValue(CycleRepeatModeCommandProperty, value);
     }
 }
 

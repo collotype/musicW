@@ -25,6 +25,8 @@ public partial class AlbumViewModel : ObservableObject
     [ObservableProperty]
     private Track? _playingTrack;
 
+    public bool HasTracks => Album?.Tracks.Count > 0;
+
     public AlbumViewModel(
         IMusicProviderService providerService,
         IPlaybackService playbackService,
@@ -58,6 +60,7 @@ public partial class AlbumViewModel : ObservableObject
         finally
         {
             IsLoading = false;
+            OnPropertyChanged(nameof(HasTracks));
         }
     }
 
@@ -71,19 +74,20 @@ public partial class AlbumViewModel : ObservableObject
     }
 
     [RelayCommand]
+    private async Task Shuffle()
+    {
+        if (Album?.Tracks.Count > 0)
+        {
+            var shuffledTracks = Album.Tracks.OrderBy(_ => Guid.NewGuid()).ToList();
+            await _playbackService.PlayAsync(shuffledTracks[0], shuffledTracks);
+        }
+    }
+
+    [RelayCommand]
     private async Task PlayTrack(Track track)
     {
         await _playbackService.PlayAsync(track, Album?.Tracks);
         PlayingTrack = track;
-    }
-
-    [RelayCommand]
-    private async Task ToggleLike()
-    {
-        if (Album != null)
-        {
-            Album.IsLiked = !Album.IsLiked;
-        }
     }
 
     [RelayCommand]

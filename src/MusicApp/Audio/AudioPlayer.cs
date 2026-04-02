@@ -1,4 +1,5 @@
 using NAudio.Wave;
+using NAudio.Wave.SampleProviders;
 using MusicApp.Models;
 using System.IO;
 
@@ -9,6 +10,8 @@ public class AudioPlayer : IDisposable
     private IWavePlayer? _wavePlayer;
     private AudioFileReader? _audioFileReader;
     private MediaFoundationReader? _mediaReader;
+    private VolumeSampleProvider? _volumeSampleProvider;
+    private float _volume = 0.8f;
     private bool _disposed;
 
     public event EventHandler<PlaybackPositionEventArgs>? PositionChanged;
@@ -20,10 +23,14 @@ public class AudioPlayer : IDisposable
     public TimeSpan TotalDuration => _audioFileReader?.TotalTime ?? _mediaReader?.TotalTime ?? TimeSpan.Zero;
     public float Volume
     {
-        get => _audioFileReader?.Volume ?? 1f;
+        get => _volume;
         set
         {
-            if (_audioFileReader != null) _audioFileReader.Volume = value;
+            _volume = Math.Clamp(value, 0f, 1f);
+            if (_volumeSampleProvider != null)
+            {
+                _volumeSampleProvider.Volume = _volume;
+            }
         }
     }
 
@@ -33,29 +40,36 @@ public class AudioPlayer : IDisposable
 
         try
         {
-            if (!File.Exists(filePath))
+            var isRemoteSource = Uri.TryCreate(filePath, UriKind.Absolute, out var sourceUri) &&
+                                 (sourceUri.Scheme == Uri.UriSchemeHttp || sourceUri.Scheme == Uri.UriSchemeHttps);
+
+            if (!isRemoteSource && !File.Exists(filePath))
             {
                 ErrorOccurred?.Invoke(this, new PlaybackErrorEventArgs { Message = "File not found" });
                 return;
             }
 
-            var extension = Path.GetExtension(filePath).ToLowerInvariant();
+            var extension = isRemoteSource
+                ? string.Empty
+                : Path.GetExtension(filePath).ToLowerInvariant();
 
-            if (extension is ".wav" or ".aiff")
+            if (!isRemoteSource && extension is ".wav" or ".aiff")
             {
                 _audioFileReader = new AudioFileReader(filePath);
                 _wavePlayer = new WaveOutEvent();
-                _wavePlayer.Init(_audioFileReader);
+                _volumeSampleProvider = new VolumeSampleProvider(_audioFileReader) { Volume = _volume };
+                _wavePlayer.Init(_volumeSampleProvider);
             }
             else
             {
                 _mediaReader = new MediaFoundationReader(filePath);
                 _wavePlayer = new WaveOutEvent();
-                _wavePlayer.Init(_mediaReader);
+                _volumeSampleProvider = new VolumeSampleProvider(_mediaReader.ToSampleProvider()) { Volume = _volume };
+                _wavePlayer.Init(_volumeSampleProvider);
             }
 
-            _wavePlayer.Play();
             _wavePlayer.PlaybackStopped += OnPlaybackStopped;
+            _wavePlayer.Play();
 
             // Start position polling
             Task.Run(async () => await PollPositionAsync());
@@ -91,6 +105,8 @@ public class AudioPlayer : IDisposable
 
         _mediaReader?.Dispose();
         _mediaReader = null;
+
+        _volumeSampleProvider = null;
     }
 
     public void Seek(TimeSpan position)

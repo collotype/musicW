@@ -209,6 +209,7 @@
                                              Artist="{Binding NowPlaying.Artist}"
                                              CoverArtUrl="{Binding NowPlaying.CoverArtUrl}"
                                              IsLiked="{Binding NowPlaying.IsLiked}"
+                                             LikeCommand="{Binding NowPlaying.ToggleLikeCommand}"
                                              Margin="16,0,0,0"
                                              VerticalAlignment="Center"/>
 
@@ -217,6 +218,11 @@
                                            IsPlaying="{Binding NowPlaying.IsPlaying}"
                                            IsShuffle="{Binding NowPlaying.IsShuffle}"
                                            RepeatMode="{Binding NowPlaying.RepeatMode}"
+                                           ToggleShuffleCommand="{Binding NowPlaying.ToggleShuffleCommand}"
+                                           PreviousCommand="{Binding NowPlaying.PreviousCommand}"
+                                           PlayPauseCommand="{Binding NowPlaying.TogglePlayPauseCommand}"
+                                           NextCommand="{Binding NowPlaying.NextCommand}"
+                                           CycleRepeatModeCommand="{Binding NowPlaying.CycleRepeatModeCommand}"
                                            VerticalAlignment="Center"/>
 
                 <!-- Progress & Volume (Right) -->
@@ -238,7 +244,7 @@
                                 Style="{StaticResource SliderStyle}"
                                 Minimum="0"
                                 Maximum="100"
-                                Value="{Binding NowPlaying.Progress, Mode=TwoWay}"
+                                Value="{Binding NowPlaying.Progress, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                                 Margin="8,0"/>
                         <TextBlock Grid.Column="2"
                                    Text="{Binding NowPlaying.TotalDurationFormatted}"
@@ -259,9 +265,14 @@
                         </Button>
                         <controls:VolumeSlider Minimum="0"
                                                Maximum="100"
-                                               Value="{Binding NowPlaying.Volume, Converter={StaticResource DoubleToPercentConverter}}"
+                                               Value="{Binding NowPlaying.Volume, Converter={StaticResource DoubleToPercentConverter}, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                                                Margin="8,0,0,0"/>
                     </StackPanel>
+                    <TextBlock Text="{Binding NowPlaying.ErrorMessage}"
+                               Foreground="{StaticResource ErrorBrush}"
+                               Style="{StaticResource SmallCaptionTextStyle}"
+                               TextAlignment="Right"
+                               Visibility="{Binding NowPlaying.HasError, Converter={StaticResource BooleanToVisibilityConverter}}"/>
                 </StackPanel>
             </Grid>
         </Border>

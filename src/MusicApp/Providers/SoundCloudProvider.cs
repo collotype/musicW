@@ -198,24 +198,20 @@ public class SoundCloudProvider : IMusicProvider
         {
             await EnsureClientIdAsync(cancellationToken);
 
-            var url = $"https://api-v2.soundcloud.com/media/soundcloud:tracks:{track.ProviderTrackId}/stream/hls?client_id={_clientId}";
-            var json = await _httpClient.GetStringAsync(url, cancellationToken);
-            var data = JObject.Parse(json);
-
-            var streamUrl = data["url"]?.ToString();
-            if (!string.IsNullOrEmpty(streamUrl))
-            {
-                // For HLS streams, we need to get the actual media URL
-                return streamUrl;
-            }
-
             // Try progressive (direct MP3) URL
             var progressiveUrl = $"https://api.soundcloud.com/i1/tracks/{track.ProviderTrackId}/streams?client_id={_clientId}";
             var progJson = await _httpClient.GetStringAsync(progressiveUrl, cancellationToken);
             var progData = JObject.Parse(progJson);
             var mp3Url = progData["http_mp3_128"]?["url"]?.ToString();
+            if (!string.IsNullOrEmpty(mp3Url))
+            {
+                return mp3Url;
+            }
 
-            return mp3Url;
+            var url = $"https://api-v2.soundcloud.com/media/soundcloud:tracks:{track.ProviderTrackId}/stream/hls?client_id={_clientId}";
+            var json = await _httpClient.GetStringAsync(url, cancellationToken);
+            var data = JObject.Parse(json);
+            return data["url"]?.ToString();
         }
         catch (Exception ex)
         {

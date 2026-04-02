@@ -69,9 +69,14 @@ public class LibraryService : ILibraryService
 
     public Task AddTrackAsync(Track track)
     {
-        var existing = _tracks.FirstOrDefault(t => t.Id == track.Id);
+        var existing = FindExistingTrack(track);
         if (existing != null)
         {
+            track.Id = existing.Id;
+            track.IsLiked = track.IsLiked || existing.IsLiked;
+            track.IsDownloaded = track.IsDownloaded || existing.IsDownloaded;
+            track.PlayCount ??= existing.PlayCount;
+
             var index = _tracks.IndexOf(existing);
             _tracks[index] = track;
         }
@@ -184,6 +189,18 @@ public class LibraryService : ILibraryService
     {
         var album = _albums.FirstOrDefault(a => a.Id == albumId);
         return Task.FromResult(album);
+    }
+
+    private Track? FindExistingTrack(Track track)
+    {
+        return _tracks.FirstOrDefault(existing =>
+            existing.Id == track.Id ||
+            (!string.IsNullOrWhiteSpace(track.LocalFilePath) &&
+             !string.IsNullOrWhiteSpace(existing.LocalFilePath) &&
+             string.Equals(existing.LocalFilePath, track.LocalFilePath, StringComparison.OrdinalIgnoreCase)) ||
+            (!string.IsNullOrWhiteSpace(track.ProviderTrackId) &&
+             existing.Source == track.Source &&
+             string.Equals(existing.ProviderTrackId, track.ProviderTrackId, StringComparison.OrdinalIgnoreCase)));
     }
 
     private void RebuildArtistsAndAlbums()

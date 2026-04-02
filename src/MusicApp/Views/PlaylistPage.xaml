@@ -8,14 +8,12 @@
         <ScrollViewer Style="{StaticResource ScrollViewerStyle}"
                       VerticalScrollBarVisibility="Auto">
             <StackPanel>
-                <!-- Playlist Header -->
                 <Grid Margin="32,32,32,0">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="200"/>
                         <ColumnDefinition Width="*"/>
                     </Grid.ColumnDefinitions>
 
-                    <!-- Playlist Cover -->
                     <Border Grid.Column="0"
                             CornerRadius="12"
                             Width="200"
@@ -26,15 +24,14 @@
                         <Border x:Name="coverPlaceholder"
                                 Background="{StaticResource BorderLightBrush}"
                                 CornerRadius="12">
-                            <TextBlock Text="ðŸ“‹"
-                                       FontSize="64"
+                            <TextBlock Text="Playlist"
+                                       FontSize="28"
                                        HorizontalAlignment="Center"
                                        VerticalAlignment="Center"
                                        Foreground="{StaticResource SecondaryTextBrush}"/>
                         </Border>
                     </Border>
 
-                    <!-- Playlist Info -->
                     <StackPanel Grid.Column="1"
                                 VerticalAlignment="Bottom"
                                 Margin="32,0,0,20">
@@ -53,13 +50,12 @@
                                        Style="{StaticResource CaptionTextStyle}"/>
                             <TextBlock Text=" tracks"
                                        Style="{StaticResource CaptionTextStyle}"/>
-                            <TextBlock Text=" â€¢ "
+                            <TextBlock Text=" • "
                                        Style="{StaticResource CaptionTextStyle}"/>
                             <TextBlock Text="{Binding Playlist.TotalDurationFormatted, FallbackValue='0 min'}"
                                        Style="{StaticResource CaptionTextStyle}"/>
                         </StackPanel>
 
-                        <!-- Action Buttons -->
                         <StackPanel Orientation="Horizontal" Margin="0,24,0,0">
                             <Button Content="Play All"
                                     Style="{StaticResource PrimaryButtonStyle}"
@@ -70,12 +66,10 @@
                                     Command="{Binding ToggleEditCommand}"
                                     Margin="0,0,12,0"
                                     Visibility="{Binding Playlist.IsSystemPlaylist, Converter={StaticResource BooleanToVisibilityConverter}, ConverterParameter=invert}"/>
-                            <controls:OverflowButton/>
                         </StackPanel>
                     </StackPanel>
                 </Grid>
 
-                <!-- Scoped Collection Filter -->
                 <Border Margin="32,24,32,0"
                         Visibility="{Binding Playlist, Converter={StaticResource NullToVisibilityConverter}}">
                     <StackPanel>
@@ -96,7 +90,6 @@
                     </StackPanel>
                 </Border>
 
-                <!-- Empty Collection State -->
                 <Border Margin="32,24,32,0"
                         Padding="28"
                         CornerRadius="16"
@@ -115,7 +108,6 @@
                     </StackPanel>
                 </Border>
 
-                <!-- No Search Matches -->
                 <Border Margin="32,24,32,0"
                         Padding="24"
                         CornerRadius="16"
@@ -134,7 +126,6 @@
                     </StackPanel>
                 </Border>
 
-                <!-- Track List -->
                 <StackPanel Margin="0,24,0,32"
                             Visibility="{Binding HasFilteredTracks, Converter={StaticResource BooleanToVisibilityConverter}}">
                     <ItemsControl ItemsSource="{Binding DisplayedTracks}">

@@ -30,6 +30,11 @@ public partial class ArtistViewModel : ObservableObject
     [ObservableProperty]
     private string _errorMessage = string.Empty;
 
+    public bool HasTopTracks => TopTracks.Count > 0;
+    public bool HasAlbums => Albums.Count > 0;
+    public bool HasGenres => Artist?.Genres.Count > 0;
+    public bool HasRelatedArtists => RelatedArtists.Count > 0;
+
     public ArtistViewModel(
         IMusicProviderService providerService,
         IPlaybackService playbackService,
@@ -47,18 +52,12 @@ public partial class ArtistViewModel : ObservableObject
 
         try
         {
-            // Get artist details
             Artist = await _providerService.GetArtistAsync(artistId, providerName);
 
             if (Artist != null)
             {
-                // Get artist tracks
                 TopTracks = await _providerService.GetArtistTracksAsync(artistId, providerName);
-
-                // Get artist albums
                 Albums = await _providerService.GetArtistReleasesAsync(artistId, providerName);
-
-                // Generate related artists (mock for now)
                 RelatedArtists = new List<Artist>();
             }
             else
@@ -73,6 +72,7 @@ public partial class ArtistViewModel : ObservableObject
         finally
         {
             IsLoading = false;
+            NotifySectionStateChanged();
         }
     }
 
@@ -82,6 +82,16 @@ public partial class ArtistViewModel : ObservableObject
         if (TopTracks.Count > 0)
         {
             await _playbackService.PlayAsync(TopTracks[0], TopTracks);
+        }
+    }
+
+    [RelayCommand]
+    private async Task Shuffle()
+    {
+        if (TopTracks.Count > 0)
+        {
+            var shuffledTracks = TopTracks.OrderBy(_ => Guid.NewGuid()).ToList();
+            await _playbackService.PlayAsync(shuffledTracks[0], shuffledTracks);
         }
     }
 
@@ -103,12 +113,11 @@ public partial class ArtistViewModel : ObservableObject
         _navigationService.NavigateToArtist(artistId);
     }
 
-    [RelayCommand]
-    private async Task ToggleFollow()
+    private void NotifySectionStateChanged()
     {
-        if (Artist != null)
-        {
-            Artist.IsFollowed = !Artist.IsFollowed;
-        }
+        OnPropertyChanged(nameof(HasTopTracks));
+        OnPropertyChanged(nameof(HasAlbums));
+        OnPropertyChanged(nameof(HasGenres));
+        OnPropertyChanged(nameof(HasRelatedArtists));
     }
 }

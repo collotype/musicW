@@ -8,9 +8,19 @@
                   VerticalScrollBarVisibility="Auto">
         <StackPanel>
             <!-- Header -->
-            <TextBlock Text="Your Library"
-                       Style="{StaticResource HeroTextStyle}"
-                       Margin="32,32,32,24"/>
+            <Grid Margin="32,32,32,24">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+                <TextBlock Grid.Column="0"
+                           Text="Your Library"
+                           Style="{StaticResource HeroTextStyle}"/>
+                <Button Grid.Column="1"
+                        Content="Import Tracks"
+                        Style="{StaticResource SecondaryButtonStyle}"
+                        Command="{Binding ImportTracksCommand}"/>
+            </Grid>
 
             <!-- Stats Row -->
             <StackPanel Orientation="Horizontal"
@@ -97,8 +107,17 @@
                             Margin="0,0,12,0"
                             Command="{Binding NavigateToOfflineCommand}">
                         <StackPanel Orientation="Horizontal">
-                            <TextBlock Text="📥" FontSize="16" Margin="0,0,8,0"/>
+                            <TextBlock Text="⬇" FontSize="16" Margin="0,0,8,0"/>
                             <TextBlock Text="Offline"/>
+                        </StackPanel>
+                    </Button>
+                    <Button Style="{StaticResource SecondaryButtonStyle}"
+                            Padding="20,12"
+                            Margin="0,0,12,0"
+                            Command="{Binding ImportTracksCommand}">
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="+" FontSize="16" Margin="0,0,8,0"/>
+                            <TextBlock Text="Import Tracks"/>
                         </StackPanel>
                     </Button>
                     <Button Style="{StaticResource SecondaryButtonStyle}"
@@ -127,6 +146,11 @@
                                TextAlignment="Center"
                                TextWrapping="Wrap"
                                Margin="0,12,0,0"/>
+                    <Button Content="Import Tracks"
+                            Style="{StaticResource PrimaryButtonStyle}"
+                            Command="{Binding ImportTracksCommand}"
+                            Margin="0,20,0,0"
+                            HorizontalAlignment="Center"/>
                 </StackPanel>
             </Border>
 
@@ -144,6 +168,8 @@
                                                       Album="{Binding AlbumTitle}"
                                                       Duration="{Binding DurationFormatted}"
                                                       CoverArtUrl="{Binding CoverArtUrl}"
+                                                      Command="{Binding DataContext.PlayTrackCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                                      CommandParameter="{Binding}"
                                                       Margin="0,0,0,8"/>
                         </DataTemplate>
                     </ItemsControl.ItemTemplate>
@@ -153,18 +179,9 @@
             <!-- Recent Albums -->
             <StackPanel Margin="32,0,32,32"
                         Visibility="{Binding HasRecentAlbums, Converter={StaticResource BooleanToVisibilityConverter}}">
-                <Grid Margin="0,0,0,16">
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="*"/>
-                        <ColumnDefinition Width="Auto"/>
-                    </Grid.ColumnDefinitions>
-                    <TextBlock Grid.Column="0"
-                               Text="New Releases"
-                               Style="{StaticResource TitleTextStyle}"/>
-                    <Button Grid.Column="1"
-                            Content="Show all"
-                            Style="{StaticResource GhostButtonStyle}"/>
-                </Grid>
+                <TextBlock Text="New Releases"
+                           Style="{StaticResource TitleTextStyle}"
+                           Margin="0,0,0,16"/>
 
                 <ScrollViewer HorizontalScrollBarVisibility="Auto"
                               VerticalScrollBarVisibility="Disabled">
@@ -181,6 +198,8 @@
                                                         Artist="{Binding ArtistName}"
                                                         CoverArtUrl="{Binding CoverArtUrl}"
                                                         Year="{Binding ReleaseYear}"
+                                                        Command="{Binding DataContext.NavigateToAlbumCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                                        CommandParameter="{Binding Id}"
                                                         Margin="0,0,16,0"/>
                                 </DataTemplate>
                             </ItemsControl.ItemTemplate>
@@ -209,6 +228,8 @@
                                 <DataTemplate>
                                     <controls:ArtistCircleCard ArtistName="{Binding Name}"
                                                                ImageUrl="{Binding ImageUrl}"
+                                                               Command="{Binding DataContext.NavigateToArtistCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                                               CommandParameter="{Binding Id}"
                                                                Margin="0,0,16,0"/>
                                 </DataTemplate>
                             </ItemsControl.ItemTemplate>

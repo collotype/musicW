@@ -133,6 +133,7 @@ public interface ILocalMusicScannerService
     Task InitializeAsync();
     Task ScanLibraryAsync();
     Task ScanFolderAsync(string path);
+    Task ImportFilesAsync(IEnumerable<string> filePaths);
     Task RefreshMetadataAsync(string trackId);
 }
 
