@@ -11,6 +11,8 @@ public class Playlist
     public List<Track> Tracks { get; set; } = new();
     public bool IsPublic { get; set; } = true;
     public bool IsSystemPlaylist { get; set; } = false;
+    public bool IsPinned { get; set; }
+    public bool IsDownloaded { get; set; }
     public DateTime CreatedDate { get; set; } = DateTime.Now;
     public DateTime? LastModifiedDate { get; set; }
     public int TotalTracks => Tracks.Count;

@@ -111,8 +111,10 @@ public class LocalMusicScannerService : ILocalMusicScannerService
             StorageLocation = StorageLocation.Library,
             LocalFilePath = normalizedPath,
             Title = Path.GetFileNameWithoutExtension(normalizedPath),
+            ArtistName = "Unknown Artist",
             IsLiked = false,
-            IsDownloaded = true
+            IsDownloaded = true,
+            DateAdded = DateTime.UtcNow
         };
 
         try
@@ -152,6 +154,11 @@ public class LocalMusicScannerService : ILocalMusicScannerService
             // Return basic track info even if tag reading fails
             track.Duration = TimeSpan.Zero;
         }
+
+        track.ArtistId = CreateStableTrackId(track.ArtistName.ToLowerInvariant());
+        track.AlbumId = string.IsNullOrWhiteSpace(track.AlbumTitle)
+            ? string.Empty
+            : CreateStableTrackId($"{track.ArtistName.ToLowerInvariant()}::{track.AlbumTitle.ToLowerInvariant()}");
 
         return Task.FromResult<Track?>(track);
     }

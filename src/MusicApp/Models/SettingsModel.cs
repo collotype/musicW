@@ -24,6 +24,7 @@ public class SettingsModel
     public string? DownloadLocation { get; set; }
     public bool DownloadHighQuality { get; set; } = true;
     public bool AutoDownloadLiked { get; set; } = false;
+    public bool EnableSmartDownloads { get; set; } = true;
 
     // Library
     public List<string> LibraryFolders { get; set; } = new();
@@ -36,6 +37,26 @@ public class SettingsModel
     public string? SoundCloudClientId { get; set; }
     public string? SpotifyClientId { get; set; }
     public string? SpotifyClientSecret { get; set; }
+
+    // Discovery
+    public bool PreferFamiliarRecommendations { get; set; } = false;
+    public double DiscoveryBalance { get; set; } = 0.58;
+    public double PopularityBalance { get; set; } = 0.46;
+    public double ArtistVariety { get; set; } = 0.68;
+    public double EnergyBalance { get; set; } = 0.52;
+    public string WaveMood { get; set; } = "Fluid";
+    public string WaveActivity { get; set; } = "Any";
+    public string WaveLanguage { get; set; } = "Any";
+    public bool SmartQueueEnabled { get; set; } = true;
+
+    // Lyrics
+    public bool PreferSyncedLyrics { get; set; } = true;
+    public bool AutoScrollLyrics { get; set; } = true;
+
+    // Interface
+    public bool ShowContextPanelByDefault { get; set; } = true;
+    public bool CompactSidebar { get; set; } = false;
+    public bool UseRightPanelForQueue { get; set; } = true;
 
     // Session
     public bool ResumeLastSession { get; set; } = true;

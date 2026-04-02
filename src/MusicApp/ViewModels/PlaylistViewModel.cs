@@ -1,5 +1,6 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using MusicApp.Enums;
 using MusicApp.Models;
 using MusicApp.Services;
 
@@ -10,6 +11,8 @@ public partial class PlaylistViewModel : ObservableObject
     private readonly ILibraryService _libraryService;
     private readonly IPlaybackService _playbackService;
     private readonly IMusicProviderService _providerService;
+    private readonly INavigationService _navigationService;
+    private readonly IRecommendationService _recommendationService;
 
     private string _currentPlaylistId = string.Empty;
     private string _currentProviderName = "Local";
@@ -39,15 +42,20 @@ public partial class PlaylistViewModel : ObservableObject
     public string EmptyStateTitle => GetEmptyStateTitle();
     public string EmptyStateMessage => GetEmptyStateMessage();
     public string NoSearchMatchesMessage => GetNoSearchMatchesMessage();
+    public bool IsPinned => Playlist?.IsPinned == true;
 
     public PlaylistViewModel(
         ILibraryService libraryService,
         IPlaybackService playbackService,
-        IMusicProviderService providerService)
+        IMusicProviderService providerService,
+        INavigationService navigationService,
+        IRecommendationService recommendationService)
     {
         _libraryService = libraryService;
         _playbackService = playbackService;
         _providerService = providerService;
+        _navigationService = navigationService;
+        _recommendationService = recommendationService;
 
         _libraryService.LibraryChanged += OnLibraryChanged;
     }
@@ -75,29 +83,91 @@ public partial class PlaylistViewModel : ObservableObject
     }
 
     [RelayCommand]
-    private async Task PlayAll()
+    private Task PlayAll()
     {
-        if (DisplayedTracks.Count > 0)
+        return DisplayedTracks.Count > 0 ? _playbackService.PlayAsync(DisplayedTracks[0], DisplayedTracks) : Task.CompletedTask;
+    }
+
+    [RelayCommand]
+    private Task Shuffle()
+    {
+        if (DisplayedTracks.Count == 0)
         {
-            await _playbackService.PlayAsync(DisplayedTracks[0], DisplayedTracks);
+            return Task.CompletedTask;
+        }
+
+        var shuffledTracks = DisplayedTracks.OrderBy(_ => Guid.NewGuid()).ToList();
+        return _playbackService.PlayAsync(shuffledTracks[0], shuffledTracks);
+    }
+
+    [RelayCommand]
+    private Task SmartShuffle()
+    {
+        if (Playlist == null || Playlist.Tracks.Count == 0)
+        {
+            return Task.CompletedTask;
+        }
+
+        var queue = Playlist.Tracks
+            .Select(track => QueueItem.FromTrack(track, "Playlist", Playlist.Id))
+            .Concat(_recommendationService.GetSmartQueueTracks(Playlist.Tracks.FirstOrDefault(), 6, Playlist.Tracks.Select(track => track.Id)))
+            .ToList();
+
+        return _playbackService.PlayQueueAsync(queue, 0);
+    }
+
+    [RelayCommand]
+    private Task PlayTrack(Track? track)
+    {
+        if (track == null)
+        {
+            return Task.CompletedTask;
+        }
+
+        PlayingTrack = track;
+        return _playbackService.PlayAsync(track, DisplayedTracks);
+    }
+
+    [RelayCommand]
+    private async Task RemoveTrack(Track? track)
+    {
+        if (Playlist == null || track == null || Playlist.IsSystemPlaylist)
+        {
+            return;
+        }
+
+        await _libraryService.RemoveFromPlaylistAsync(Playlist.Id, track.Id);
+        Playlist.Tracks.RemoveAll(item => item.Id == track.Id);
+        ApplyTrackFilter();
+    }
+
+    [RelayCommand]
+    private async Task MoveTrackUp(Track? track)
+    {
+        if (Playlist == null || track == null || Playlist.IsSystemPlaylist)
+        {
+            return;
+        }
+
+        var index = Playlist.Tracks.FindIndex(item => item.Id == track.Id);
+        if (index > 0)
+        {
+            await _libraryService.ReorderPlaylistTrackAsync(Playlist.Id, index, index - 1);
         }
     }
 
     [RelayCommand]
-    private async Task PlayTrack(Track track)
+    private async Task MoveTrackDown(Track? track)
     {
-        await _playbackService.PlayAsync(track, DisplayedTracks);
-        PlayingTrack = track;
-    }
-
-    [RelayCommand]
-    private async Task RemoveTrack(Track track)
-    {
-        if (Playlist != null && !Playlist.IsSystemPlaylist)
+        if (Playlist == null || track == null || Playlist.IsSystemPlaylist)
         {
-            await _libraryService.RemoveFromPlaylistAsync(Playlist.Id, track.Id);
-            Playlist.Tracks.RemoveAll(t => t.Id == track.Id);
-            ApplyTrackFilter();
+            return;
+        }
+
+        var index = Playlist.Tracks.FindIndex(item => item.Id == track.Id);
+        if (index >= 0 && index < Playlist.Tracks.Count - 1)
+        {
+            await _libraryService.ReorderPlaylistTrackAsync(Playlist.Id, index, index + 1);
         }
     }
 
@@ -113,32 +183,52 @@ public partial class PlaylistViewModel : ObservableObject
     }
 
     [RelayCommand]
-    private Task SaveChanges()
+    private async Task TogglePin()
     {
-        IsEditing = false;
-        return Task.CompletedTask;
+        if (Playlist == null || Playlist.IsSystemPlaylist)
+        {
+            return;
+        }
+
+        await _libraryService.TogglePlaylistPinAsync(Playlist.Id);
     }
 
     [RelayCommand]
     private async Task DeletePlaylist()
     {
-        if (Playlist != null && !Playlist.IsSystemPlaylist)
+        if (Playlist == null || Playlist.IsSystemPlaylist)
         {
-            await _libraryService.DeletePlaylistAsync(Playlist.Id);
-            Playlist = null;
-            DisplayedTracks = new List<Track>();
-            SearchQuery = string.Empty;
-            IsEditing = false;
+            return;
         }
+
+        await _libraryService.DeletePlaylistAsync(Playlist.Id);
+        Playlist = null;
+        DisplayedTracks = new List<Track>();
+        SearchQuery = string.Empty;
+        IsEditing = false;
     }
 
     [RelayCommand]
     private void ClearSearch()
     {
-        if (!string.IsNullOrEmpty(SearchQuery))
+        SearchQuery = string.Empty;
+    }
+
+    [RelayCommand]
+    private void StartWave()
+    {
+        if (Playlist == null)
         {
-            SearchQuery = string.Empty;
+            return;
         }
+
+        _navigationService.NavigateToMyWave(new WaveSeed
+        {
+            Type = WaveSeedType.Playlist,
+            Id = Playlist.Id,
+            Title = Playlist.Title,
+            Subtitle = "Wave started from this playlist."
+        });
     }
 
     private async void OnLibraryChanged(object? sender, EventArgs e)
@@ -158,14 +248,9 @@ public partial class PlaylistViewModel : ObservableObject
         _currentProviderName = providerName;
         IsEditing = false;
 
-        if (string.Equals(providerName, "Local", StringComparison.OrdinalIgnoreCase))
-        {
-            Playlist = BuildLocalPlaylist(playlistId);
-        }
-        else
-        {
-            Playlist = await _providerService.GetPlaylistAsync(playlistId, providerName);
-        }
+        Playlist = string.Equals(providerName, "Local", StringComparison.OrdinalIgnoreCase)
+            ? BuildLocalPlaylist(playlistId)
+            : await _providerService.GetPlaylistAsync(playlistId, providerName);
 
         if (!preserveSearchQuery && !string.IsNullOrEmpty(SearchQuery))
         {
@@ -183,8 +268,8 @@ public partial class PlaylistViewModel : ObservableObject
             return new Playlist
             {
                 Id = "favorites",
-                Title = "Liked Songs",
-                Description = "Tracks you've marked as liked",
+                Title = "Liked Tracks",
+                Description = "Tracks you've marked as liked.",
                 OwnerName = "Your Library",
                 Tracks = _libraryService.LikedTracks.ToList(),
                 IsSystemPlaylist = true
@@ -196,15 +281,15 @@ public partial class PlaylistViewModel : ObservableObject
             return new Playlist
             {
                 Id = "offline",
-                Title = "Offline Tracks",
-                Description = "Tracks saved for offline playback",
+                Title = "Downloads",
+                Description = "Tracks currently available offline.",
                 OwnerName = "Your Library",
                 Tracks = _libraryService.OfflineTracks.ToList(),
                 IsSystemPlaylist = true
             };
         }
 
-        return _libraryService.Playlists.FirstOrDefault(p => p.Id == playlistId);
+        return _libraryService.Playlists.FirstOrDefault(playlist => playlist.Id == playlistId);
     }
 
     private void ApplyTrackFilter()
@@ -212,15 +297,9 @@ public partial class PlaylistViewModel : ObservableObject
         var sourceTracks = Playlist?.Tracks ?? new List<Track>();
         var query = SearchQuery.Trim();
 
-        if (string.IsNullOrWhiteSpace(query))
-        {
-            DisplayedTracks = sourceTracks.ToList();
-            return;
-        }
-
-        DisplayedTracks = sourceTracks
-            .Where(track => MatchesTrack(track, query))
-            .ToList();
+        DisplayedTracks = string.IsNullOrWhiteSpace(query)
+            ? sourceTracks.ToList()
+            : sourceTracks.Where(track => MatchesTrack(track, query)).ToList();
     }
 
     private static bool MatchesTrack(Track track, string query)
@@ -245,21 +324,18 @@ public partial class PlaylistViewModel : ObservableObject
             return string.Empty;
         }
 
-        if (!string.IsNullOrWhiteSpace(Playlist.Description))
-        {
-            return Playlist.Description;
-        }
-
-        return Playlist.IsSystemPlaylist ? "From your local library" : Playlist.OwnerName;
+        return !string.IsNullOrWhiteSpace(Playlist.Description)
+            ? Playlist.Description
+            : Playlist.IsSystemPlaylist ? "System collection from your library." : Playlist.OwnerName;
     }
 
     private string GetSearchScopeTitle()
     {
         return Playlist?.Id switch
         {
-            "favorites" => "Filter liked songs",
-            "offline" => "Filter offline tracks",
-            _ => "Filter tracks in this collection"
+            "favorites" => "Filter liked tracks",
+            "offline" => "Filter downloads",
+            _ => "Filter tracks in this playlist"
         };
     }
 
@@ -267,8 +343,8 @@ public partial class PlaylistViewModel : ObservableObject
     {
         return Playlist?.Id switch
         {
-            "favorites" => "No favorites yet",
-            "offline" => "No offline tracks yet",
+            "favorites" => "No liked tracks yet",
+            "offline" => "Nothing downloaded yet",
             _ when Playlist?.IsSystemPlaylist == true => "This collection is empty",
             _ => "This playlist is empty"
         };
@@ -278,10 +354,10 @@ public partial class PlaylistViewModel : ObservableObject
     {
         return Playlist?.Id switch
         {
-            "favorites" => "Tracks you like will appear here so you can find them quickly later.",
-            "offline" => "Downloaded tracks will appear here when offline playback is available for them.",
-            _ when Playlist?.IsSystemPlaylist == true => "This collection does not have any tracks yet.",
-            _ => "Add some tracks to this playlist to start building it."
+            "favorites" => "Like tracks from search, artists, or albums and they will appear here.",
+            "offline" => "Downloaded tracks, albums, and playlists will surface here.",
+            _ when Playlist?.IsSystemPlaylist == true => "This system collection does not contain any tracks yet.",
+            _ => "Add tracks from search, albums, or artist pages to build this playlist."
         };
     }
 
@@ -308,5 +384,6 @@ public partial class PlaylistViewModel : ObservableObject
         OnPropertyChanged(nameof(EmptyStateTitle));
         OnPropertyChanged(nameof(EmptyStateMessage));
         OnPropertyChanged(nameof(NoSearchMatchesMessage));
+        OnPropertyChanged(nameof(IsPinned));
     }
 }

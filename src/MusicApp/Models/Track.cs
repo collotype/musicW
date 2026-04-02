@@ -28,6 +28,11 @@ public class Track
     public int DiscNumber { get; set; } = 1;
     public long? PlayCount { get; set; }
     public string? Lyrics { get; set; }
+    public DateTime DateAdded { get; set; } = DateTime.UtcNow;
+    public DateTime? LastPlayedAt { get; set; }
+    public TimeSpan? LastPlaybackPosition { get; set; }
+    public string? Language { get; set; }
+    public string? MoodHint { get; set; }
 
     public string DurationFormatted => Duration.ToString(@"m\:ss");
 
@@ -58,7 +63,12 @@ public class Track
             TrackNumber = TrackNumber,
             DiscNumber = DiscNumber,
             PlayCount = PlayCount,
-            Lyrics = Lyrics
+            Lyrics = Lyrics,
+            DateAdded = DateAdded,
+            LastPlayedAt = LastPlayedAt,
+            LastPlaybackPosition = LastPlaybackPosition,
+            Language = Language,
+            MoodHint = MoodHint
         };
     }
 }

@@ -1,7 +1,7 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using MusicApp.Enums;
 using MusicApp.Models;
-using MusicApp.Providers;
 using MusicApp.Services;
 
 namespace MusicApp.ViewModels;
@@ -11,6 +11,9 @@ public partial class ArtistViewModel : ObservableObject
     private readonly IMusicProviderService _providerService;
     private readonly IPlaybackService _playbackService;
     private readonly INavigationService _navigationService;
+    private readonly ILibraryService _libraryService;
+
+    private string _providerName = "Local";
 
     [ObservableProperty]
     private Artist? _artist;
@@ -30,39 +33,55 @@ public partial class ArtistViewModel : ObservableObject
     [ObservableProperty]
     private string _errorMessage = string.Empty;
 
+    [ObservableProperty]
+    private string _selectedPlaylistId = string.Empty;
+
     public bool HasTopTracks => TopTracks.Count > 0;
     public bool HasAlbums => Albums.Count > 0;
     public bool HasGenres => Artist?.Genres.Count > 0;
     public bool HasRelatedArtists => RelatedArtists.Count > 0;
+    public bool HasBiography => !string.IsNullOrWhiteSpace(Artist?.Biography);
+    public bool IsFavoriteArtist => Artist?.IsFollowed == true;
+    public List<Playlist> AvailablePlaylists => _libraryService.Playlists;
 
     public ArtistViewModel(
         IMusicProviderService providerService,
         IPlaybackService playbackService,
-        INavigationService navigationService)
+        INavigationService navigationService,
+        ILibraryService libraryService)
     {
         _providerService = providerService;
         _playbackService = playbackService;
         _navigationService = navigationService;
+        _libraryService = libraryService;
     }
 
     public async Task LoadArtistAsync(string artistId, string providerName = "Local")
     {
         IsLoading = true;
         ErrorMessage = string.Empty;
+        _providerName = providerName;
 
         try
         {
             Artist = await _providerService.GetArtistAsync(artistId, providerName);
-
-            if (Artist != null)
+            if (Artist == null)
             {
-                TopTracks = await _providerService.GetArtistTracksAsync(artistId, providerName);
-                Albums = await _providerService.GetArtistReleasesAsync(artistId, providerName);
-                RelatedArtists = new List<Artist>();
+                ErrorMessage = "Artist not found.";
+                return;
             }
-            else
+
+            TopTracks = await _providerService.GetArtistTracksAsync(artistId, providerName);
+            Albums = await _providerService.GetArtistReleasesAsync(artistId, providerName);
+            RelatedArtists = _libraryService.AllArtists
+                .Where(item => item.Id != Artist.Id && item.Genres.Intersect(Artist.Genres, StringComparer.OrdinalIgnoreCase).Any())
+                .Take(8)
+                .ToList();
+
+            var localArtist = await _libraryService.GetArtistAsync(Artist.Id);
+            if (localArtist != null)
             {
-                ErrorMessage = "Artist not found";
+                Artist.IsFollowed = localArtist.IsFollowed;
             }
         }
         catch (Exception ex)
@@ -77,40 +96,86 @@ public partial class ArtistViewModel : ObservableObject
     }
 
     [RelayCommand]
-    private async Task PlayAll()
+    private Task PlayAll()
     {
-        if (TopTracks.Count > 0)
+        return TopTracks.Count == 0 ? Task.CompletedTask : _playbackService.PlayAsync(TopTracks[0], TopTracks);
+    }
+
+    [RelayCommand]
+    private Task Shuffle()
+    {
+        if (TopTracks.Count == 0)
         {
-            await _playbackService.PlayAsync(TopTracks[0], TopTracks);
+            return Task.CompletedTask;
+        }
+
+        var shuffledTracks = TopTracks.OrderBy(_ => Guid.NewGuid()).ToList();
+        return _playbackService.PlayAsync(shuffledTracks[0], shuffledTracks);
+    }
+
+    [RelayCommand]
+    private Task PlayTrack(Track? track)
+    {
+        return track == null ? Task.CompletedTask : _playbackService.PlayAsync(track, TopTracks);
+    }
+
+    [RelayCommand]
+    private void NavigateToAlbum(string? albumId)
+    {
+        if (!string.IsNullOrWhiteSpace(albumId))
+        {
+            _navigationService.NavigateToAlbum(albumId, _providerName);
         }
     }
 
     [RelayCommand]
-    private async Task Shuffle()
+    private void NavigateToArtist(string? artistId)
     {
-        if (TopTracks.Count > 0)
+        if (!string.IsNullOrWhiteSpace(artistId))
         {
-            var shuffledTracks = TopTracks.OrderBy(_ => Guid.NewGuid()).ToList();
-            await _playbackService.PlayAsync(shuffledTracks[0], shuffledTracks);
+            _navigationService.NavigateToArtist(artistId, _providerName);
         }
     }
 
     [RelayCommand]
-    private async Task PlayTrack(Track track)
+    private void StartWave()
     {
-        await _playbackService.PlayAsync(track, TopTracks);
+        if (Artist == null)
+        {
+            return;
+        }
+
+        _navigationService.NavigateToMyWave(new WaveSeed
+        {
+            Type = WaveSeedType.Artist,
+            Id = Artist.Id,
+            Title = Artist.Name,
+            Subtitle = "Wave tuned from this artist."
+        });
     }
 
     [RelayCommand]
-    private void NavigateToAlbum(string albumId)
+    private async Task ToggleFavoriteArtist()
     {
-        _navigationService.NavigateToAlbum(albumId);
+        if (Artist == null)
+        {
+            return;
+        }
+
+        await _libraryService.ToggleFavoriteArtistAsync(Artist.Id);
+        Artist.IsFollowed = !Artist.IsFollowed;
+        OnPropertyChanged(nameof(IsFavoriteArtist));
     }
 
     [RelayCommand]
-    private void NavigateToArtist(string artistId)
+    private async Task AddTrackToSelectedPlaylist(Track? track)
     {
-        _navigationService.NavigateToArtist(artistId);
+        if (track == null || string.IsNullOrWhiteSpace(SelectedPlaylistId))
+        {
+            return;
+        }
+
+        await _libraryService.AddToPlaylistAsync(SelectedPlaylistId, track);
     }
 
     private void NotifySectionStateChanged()
@@ -119,5 +184,8 @@ public partial class ArtistViewModel : ObservableObject
         OnPropertyChanged(nameof(HasAlbums));
         OnPropertyChanged(nameof(HasGenres));
         OnPropertyChanged(nameof(HasRelatedArtists));
+        OnPropertyChanged(nameof(HasBiography));
+        OnPropertyChanged(nameof(IsFavoriteArtist));
+        OnPropertyChanged(nameof(AvailablePlaylists));
     }
 }

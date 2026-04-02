@@ -7,20 +7,32 @@ namespace MusicApp.Services;
 public interface INavigationService
 {
     event EventHandler<NavigationEventArgs>? Navigated;
-    void NavigateToArtist(string artistId);
-    void NavigateToAlbum(string albumId);
-    void NavigateToPlaylist(string playlistId);
-    void NavigateToLibrary();
-    void NavigateToSearch();
+    NavigationRequest CurrentRequest { get; }
+    void NavigateToHome();
+    void NavigateToMyWave(WaveSeed? seed = null);
+    void NavigateToArtist(string artistId, string providerName = "Local");
+    void NavigateToAlbum(string albumId, string providerName = "Local");
+    void NavigateToPlaylist(string playlistId, string providerName = "Local");
+    void NavigateToLibrary(LibrarySection section = LibrarySection.Overview);
+    void NavigateToSearch(string? query = null);
+    void NavigateToQueue();
     void NavigateToSettings();
     void GoBack();
 }
 
+public class NavigationRequest
+{
+    public NavigationPage Page { get; set; } = NavigationPage.Home;
+    public string? ItemId { get; set; }
+    public string ProviderName { get; set; } = "Local";
+    public LibrarySection LibrarySection { get; set; } = LibrarySection.Overview;
+    public string? Query { get; set; }
+    public WaveSeed? WaveSeed { get; set; }
+}
+
 public class NavigationEventArgs : EventArgs
 {
-    public string PageType { get; set; } = string.Empty;
-    public string? ItemId { get; set; }
-    public object? Parameter { get; set; }
+    public required NavigationRequest Request { get; init; }
 }
 
 public interface IPlaybackService
@@ -50,6 +62,7 @@ public interface IQueueService
     List<QueueItem> Queue { get; }
     int CurrentIndex { get; }
     QueueItem? CurrentItem { get; }
+    bool SmartQueueEnabled { get; set; }
     void SetQueue(List<QueueItem> queue, int startIndex = 0);
     void AddToQueue(Track track);
     void AddToQueueNext(Track track);
@@ -57,7 +70,10 @@ public interface IQueueService
     void ClearQueue();
     void MoveToNext();
     void MoveToPrevious();
+    void MoveItem(int oldIndex, int newIndex);
+    void SetCurrentIndex(int index);
     void Shuffle();
+    void AppendRecommendations(IEnumerable<QueueItem> recommendations);
     QueueItem? GetNextTrack();
     QueueItem? GetPreviousTrack();
 }
@@ -69,6 +85,9 @@ public interface ILibraryService
     List<Artist> AllArtists { get; }
     List<Album> AllAlbums { get; }
     List<Playlist> Playlists { get; }
+    List<Artist> FavoriteArtists { get; }
+    List<Album> SavedAlbums { get; }
+    List<Playlist> PinnedPlaylists { get; }
     List<Track> LikedTracks { get; }
     List<Track> OfflineTracks { get; }
     Task InitializeAsync();
@@ -79,10 +98,14 @@ public interface ILibraryService
     Task CreatePlaylistAsync(string title, string? description = null);
     Task AddToPlaylistAsync(string playlistId, Track track);
     Task RemoveFromPlaylistAsync(string playlistId, string trackId);
+    Task ReorderPlaylistTrackAsync(string playlistId, int fromIndex, int toIndex);
+    Task TogglePlaylistPinAsync(string playlistId);
     Task DeletePlaylistAsync(string playlistId);
     Task<Playlist?> GetPlaylistAsync(string playlistId);
     Task<Artist?> GetArtistAsync(string artistId);
     Task<Album?> GetAlbumAsync(string albumId);
+    Task ToggleFavoriteArtistAsync(string artistId);
+    Task ToggleSaveAlbumAsync(string albumId);
 }
 
 public interface ISearchService
@@ -135,6 +158,34 @@ public interface ILocalMusicScannerService
     Task ScanFolderAsync(string path);
     Task ImportFilesAsync(IEnumerable<string> filePaths);
     Task RefreshMetadataAsync(string trackId);
+}
+
+public interface ILyricsService
+{
+    Task<LyricsDocument> GetLyricsAsync(Track? track);
+}
+
+public interface ITimedCommentService
+{
+    event EventHandler<string>? CommentsChanged;
+    Task<List<TimedComment>> GetCommentsAsync(string trackId);
+    Task AddCommentAsync(string trackId, TimeSpan timestamp, string text, string authorName = "You");
+    Task DeleteCommentAsync(string commentId);
+    Task ToggleFavoriteMomentAsync(string commentId);
+}
+
+public interface IRecommendationService
+{
+    WaveTunerSettings CreateTunerFromSettings();
+    Task SaveTunerAsync(WaveTunerSettings tuner);
+    List<Track> GetContinueListening(int count = 8);
+    List<Album> GetSuggestedAlbums(int count = 8);
+    List<Artist> GetFavoriteArtistSuggestions(int count = 8);
+    List<Playlist> GetHighlightedPlaylists(int count = 6);
+    List<Track> GetDiscoveryTracks(int count = 12);
+    List<WaveRecommendation> CreateWave(WaveSeed seed, WaveTunerSettings tuner, int count = 24);
+    List<SnippetMoment> CreateSnippets(WaveSeed seed, WaveTunerSettings tuner, int count = 8);
+    List<QueueItem> GetSmartQueueTracks(Track? currentTrack, int count = 6, IEnumerable<string>? excludeTrackIds = null);
 }
 
 public interface IMusicProviderService

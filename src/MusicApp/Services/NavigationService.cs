@@ -1,75 +1,140 @@
+using MusicApp.Enums;
+using MusicApp.Models;
+
 namespace MusicApp.Services;
 
 public class NavigationService : INavigationService
 {
     public event EventHandler<NavigationEventArgs>? Navigated;
 
-    private readonly Stack<NavigationState> _history = new();
-    private NavigationState? _currentState;
+    private readonly Stack<NavigationRequest> _history = new();
 
-    private class NavigationState
+    public NavigationRequest CurrentRequest { get; private set; } = new()
     {
-        public string PageType { get; set; } = string.Empty;
-        public string? ItemId { get; set; }
-        public object? Parameter { get; set; }
+        Page = NavigationPage.Home
+    };
+
+    public void NavigateToHome()
+    {
+        Navigate(new NavigationRequest
+        {
+            Page = NavigationPage.Home
+        });
     }
 
-    public void NavigateToArtist(string artistId)
+    public void NavigateToMyWave(WaveSeed? seed = null)
     {
-        PushState("Artist", artistId);
-        Navigated?.Invoke(this, new NavigationEventArgs { PageType = "Artist", ItemId = artistId });
+        Navigate(new NavigationRequest
+        {
+            Page = NavigationPage.MyWave,
+            WaveSeed = seed ?? WaveSeed.Home()
+        });
     }
 
-    public void NavigateToAlbum(string albumId)
+    public void NavigateToArtist(string artistId, string providerName = "Local")
     {
-        PushState("Album", albumId);
-        Navigated?.Invoke(this, new NavigationEventArgs { PageType = "Album", ItemId = albumId });
+        Navigate(new NavigationRequest
+        {
+            Page = NavigationPage.Artist,
+            ItemId = artistId,
+            ProviderName = providerName
+        });
     }
 
-    public void NavigateToPlaylist(string playlistId)
+    public void NavigateToAlbum(string albumId, string providerName = "Local")
     {
-        PushState("Playlist", playlistId);
-        Navigated?.Invoke(this, new NavigationEventArgs { PageType = "Playlist", ItemId = playlistId });
+        Navigate(new NavigationRequest
+        {
+            Page = NavigationPage.Album,
+            ItemId = albumId,
+            ProviderName = providerName
+        });
     }
 
-    public void NavigateToLibrary()
+    public void NavigateToPlaylist(string playlistId, string providerName = "Local")
     {
-        PushState("Library", null);
-        Navigated?.Invoke(this, new NavigationEventArgs { PageType = "Library" });
+        Navigate(new NavigationRequest
+        {
+            Page = NavigationPage.Playlist,
+            ItemId = playlistId,
+            ProviderName = providerName
+        });
     }
 
-    public void NavigateToSearch()
+    public void NavigateToLibrary(LibrarySection section = LibrarySection.Overview)
     {
-        PushState("Search", null);
-        Navigated?.Invoke(this, new NavigationEventArgs { PageType = "Search" });
+        Navigate(new NavigationRequest
+        {
+            Page = NavigationPage.Library,
+            LibrarySection = section
+        });
+    }
+
+    public void NavigateToSearch(string? query = null)
+    {
+        Navigate(new NavigationRequest
+        {
+            Page = NavigationPage.Search,
+            Query = query
+        });
+    }
+
+    public void NavigateToQueue()
+    {
+        Navigate(new NavigationRequest
+        {
+            Page = NavigationPage.Queue
+        });
     }
 
     public void NavigateToSettings()
     {
-        PushState("Settings", null);
-        Navigated?.Invoke(this, new NavigationEventArgs { PageType = "Settings" });
+        Navigate(new NavigationRequest
+        {
+            Page = NavigationPage.Settings
+        });
     }
 
     public void GoBack()
     {
-        if (_history.Count > 0)
+        if (_history.Count == 0)
         {
-            _currentState = _history.Pop();
-            Navigated?.Invoke(this, new NavigationEventArgs
-            {
-                PageType = _currentState.PageType,
-                ItemId = _currentState.ItemId,
-                Parameter = _currentState.Parameter
-            });
+            return;
         }
+
+        CurrentRequest = _history.Pop();
+        Navigated?.Invoke(this, new NavigationEventArgs { Request = CurrentRequest });
     }
 
-    private void PushState(string pageType, string? itemId)
+    private void Navigate(NavigationRequest request)
     {
-        if (_currentState != null)
+        if (CurrentRequest != null)
         {
-            _history.Push(_currentState);
+            _history.Push(CloneRequest(CurrentRequest));
         }
-        _currentState = new NavigationState { PageType = pageType, ItemId = itemId };
+
+        CurrentRequest = CloneRequest(request);
+        Navigated?.Invoke(this, new NavigationEventArgs { Request = CurrentRequest });
+    }
+
+    private static NavigationRequest CloneRequest(NavigationRequest request)
+    {
+        return new NavigationRequest
+        {
+            Page = request.Page,
+            ItemId = request.ItemId,
+            ProviderName = request.ProviderName,
+            LibrarySection = request.LibrarySection,
+            Query = request.Query,
+            WaveSeed = request.WaveSeed == null
+                ? null
+                : new WaveSeed
+                {
+                    Type = request.WaveSeed.Type,
+                    Id = request.WaveSeed.Id,
+                    Title = request.WaveSeed.Title,
+                    Subtitle = request.WaveSeed.Subtitle
+                }
+        };
     }
 }

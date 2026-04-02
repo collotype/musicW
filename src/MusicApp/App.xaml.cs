@@ -61,6 +61,9 @@ public partial class App : Application
         services.AddSingleton<INavigationService, NavigationService>();
         services.AddSingleton<IQueueService, QueueService>();
         services.AddSingleton<ILibraryService, LibraryService>();
+        services.AddSingleton<ILyricsService, LyricsService>();
+        services.AddSingleton<ITimedCommentService, TimedCommentService>();
+        services.AddSingleton<IRecommendationService, RecommendationService>();
         services.AddSingleton<IMusicProviderService, MusicProviderService>();
         services.AddSingleton<IPlaybackService, PlaybackService>();
         services.AddSingleton<ISearchService, SearchService>();
@@ -72,6 +75,9 @@ public partial class App : Application
         services.AddSingleton<AudioPlayer>();
 
         services.AddSingleton<MainViewModel>();
+        services.AddSingleton<HomeViewModel>();
+        services.AddSingleton<MyWaveViewModel>();
+        services.AddSingleton<QueueViewModel>();
         services.AddSingleton<ArtistViewModel>();
         services.AddSingleton<AlbumViewModel>();
         services.AddSingleton<PlaylistViewModel>();
@@ -81,6 +87,9 @@ public partial class App : Application
         services.AddSingleton<NowPlayingViewModel>();
 
         services.AddTransient<MainWindow>();
+        services.AddTransient<HomePage>();
+        services.AddTransient<MyWavePage>();
+        services.AddTransient<QueuePage>();
         services.AddTransient<ArtistPage>();
         services.AddTransient<AlbumPage>();
         services.AddTransient<PlaylistPage>();
@@ -182,7 +191,15 @@ public partial class App : Application
         await UpdateStartupStatusAsync("Loading settings...");
         var settingsService = Services.GetRequiredService<ISettingsService>();
         await settingsService.LoadSettingsAsync();
+        _mainViewModel?.ApplyShellSettings();
         StartupDiagnostics.LogInfo("Settings initialized.");
+
+        var playbackService = Services.GetRequiredService<IPlaybackService>();
+        await playbackService.SetVolumeAsync(settingsService.Settings.Volume);
+        if (settingsService.Settings.IsMuted)
+        {
+            await playbackService.ToggleMuteAsync();
+        }
 
         await UpdateStartupStatusAsync("Initializing library...");
         var libraryService = Services.GetRequiredService<ILibraryService>();
@@ -194,9 +211,9 @@ public partial class App : Application
         await localScanner.InitializeAsync();
         StartupDiagnostics.LogInfo("Local music scanner initialized.");
 
-        await UpdateStartupStatusAsync("Navigating to library...");
+        await UpdateStartupStatusAsync("Preparing workspace...");
         var navigationService = Services.GetRequiredService<INavigationService>();
-        navigationService.NavigateToLibrary();
+        navigationService.NavigateToHome();
         StartupDiagnostics.LogInfo("First navigation completed.");
     }
 

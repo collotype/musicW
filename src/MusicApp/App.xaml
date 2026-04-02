@@ -4,6 +4,18 @@
              xmlns:converters="clr-namespace:MusicApp.Converters">
     <Application.Resources>
         <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="Theme/Colors.xaml"/>
+                <ResourceDictionary Source="Theme/Typography.xaml"/>
+                <ResourceDictionary Source="Theme/Spacing.xaml"/>
+                <ResourceDictionary Source="Theme/Controls/Buttons.xaml"/>
+                <ResourceDictionary Source="Theme/Controls/Lists.xaml"/>
+                <ResourceDictionary Source="Theme/Controls/ScrollViewer.xaml"/>
+                <ResourceDictionary Source="Theme/Controls/CustomControls.xaml"/>
+                <ResourceDictionary Source="Theme/Controls/PlayerControls.xaml"/>
+                <ResourceDictionary Source="Theme/Controls/BottomPlayer.xaml"/>
+            </ResourceDictionary.MergedDictionaries>
+
             <!-- Converters -->
             <converters:NullToVisibilityConverter x:Key="NullToVisibilityConverter"/>
             <converters:BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter"/>
@@ -17,17 +29,142 @@
             <converters:DoubleToPercentConverter x:Key="DoubleToPercentConverter"/>
             <converters:SliderProgressConverter x:Key="SliderProgressConverter"/>
 
-            <ResourceDictionary.MergedDictionaries>
-                <ResourceDictionary Source="Theme/Colors.xaml"/>
-                <ResourceDictionary Source="Theme/Typography.xaml"/>
-                <ResourceDictionary Source="Theme/Spacing.xaml"/>
-                <ResourceDictionary Source="Theme/Controls/Buttons.xaml"/>
-                <ResourceDictionary Source="Theme/Controls/Inputs.xaml"/>
-                <ResourceDictionary Source="Theme/Controls/Lists.xaml"/>
-                <ResourceDictionary Source="Theme/Controls/ScrollViewer.xaml"/>
-                <ResourceDictionary Source="Theme/Controls/CustomControls.xaml"/>
-                <ResourceDictionary Source="Theme/Controls/PlayerControls.xaml"/>
-            </ResourceDictionary.MergedDictionaries>
+            <!-- Input styles are kept here because the separate merged dictionary was intermittently
+                 unavailable during shell startup, which broke initial window parsing. -->
+            <Style x:Key="SearchBoxStyle" TargetType="TextBox">
+                <Setter Property="Background" Value="{StaticResource ElevatedSurfaceBrush}"/>
+                <Setter Property="Foreground" Value="{StaticResource PrimaryTextBrush}"/>
+                <Setter Property="BorderBrush" Value="{StaticResource BorderSubtleBrush}"/>
+                <Setter Property="BorderThickness" Value="1"/>
+                <Setter Property="Padding" Value="44,12,16,12"/>
+                <Setter Property="FontSize" Value="14"/>
+                <Setter Property="CaretBrush" Value="{StaticResource AccentPrimaryBrush}"/>
+                <Setter Property="Template">
+                    <Setter.Value>
+                        <ControlTemplate TargetType="TextBox">
+                            <Border x:Name="border"
+                                    Background="{TemplateBinding Background}"
+                                    BorderBrush="{TemplateBinding BorderBrush}"
+                                    BorderThickness="{TemplateBinding BorderThickness}"
+                                    CornerRadius="10">
+                                <ScrollViewer x:Name="PART_ContentHost"
+                                              Margin="0"
+                                              VerticalAlignment="Center"/>
+                            </Border>
+                            <ControlTemplate.Triggers>
+                                <Trigger Property="IsFocused" Value="True">
+                                    <Setter TargetName="border" Property="BorderBrush" Value="{StaticResource BorderAccentBrush}"/>
+                                </Trigger>
+                                <Trigger Property="IsMouseOver" Value="True">
+                                    <Setter TargetName="border" Property="BorderBrush" Value="{StaticResource BorderLightBrush}"/>
+                                </Trigger>
+                            </ControlTemplate.Triggers>
+                        </ControlTemplate>
+                    </Setter.Value>
+                </Setter>
+            </Style>
+
+            <Style x:Key="TextBoxStyle" TargetType="TextBox">
+                <Setter Property="Background" Value="{StaticResource ElevatedSurfaceBrush}"/>
+                <Setter Property="Foreground" Value="{StaticResource PrimaryTextBrush}"/>
+                <Setter Property="BorderBrush" Value="{StaticResource BorderSubtleBrush}"/>
+                <Setter Property="BorderThickness" Value="1"/>
+                <Setter Property="Padding" Value="12,10"/>
+                <Setter Property="FontSize" Value="14"/>
+                <Setter Property="CaretBrush" Value="{StaticResource AccentPrimaryBrush}"/>
+                <Setter Property="Template">
+                    <Setter.Value>
+                        <ControlTemplate TargetType="TextBox">
+                            <Border x:Name="border"
+                                    Background="{TemplateBinding Background}"
+                                    BorderBrush="{TemplateBinding BorderBrush}"
+                                    BorderThickness="{TemplateBinding BorderThickness}"
+                                    CornerRadius="8">
+                                <ScrollViewer x:Name="PART_ContentHost"
+                                              Margin="0"
+                                              VerticalAlignment="Center"/>
+                            </Border>
+                            <ControlTemplate.Triggers>
+                                <Trigger Property="IsFocused" Value="True">
+                                    <Setter TargetName="border" Property="BorderBrush" Value="{StaticResource BorderAccentBrush}"/>
+                                </Trigger>
+                                <Trigger Property="IsMouseOver" Value="True">
+                                    <Setter TargetName="border" Property="BorderBrush" Value="{StaticResource BorderLightBrush}"/>
+                                </Trigger>
+                            </ControlTemplate.Triggers>
+                        </ControlTemplate>
+                    </Setter.Value>
+                </Setter>
+            </Style>
+
+            <Style x:Key="SliderStyle" TargetType="Slider">
+                <Setter Property="Foreground" Value="{StaticResource AccentPrimaryBrush}"/>
+                <Setter Property="Background" Value="{StaticResource BorderLightBrush}"/>
+                <Setter Property="Height" Value="20"/>
+            </Style>
+
+            <Style x:Key="ToggleSwitchStyle" TargetType="CheckBox">
+                <Setter Property="Background" Value="{StaticResource BorderLightBrush}"/>
+                <Setter Property="Foreground" Value="{StaticResource PrimaryTextBrush}"/>
+                <Setter Property="Width" Value="44"/>
+                <Setter Property="Height" Value="24"/>
+                <Setter Property="Cursor" Value="Hand"/>
+                <Setter Property="Template">
+                    <Setter.Value>
+                        <ControlTemplate TargetType="CheckBox">
+                            <Grid>
+                                <Border x:Name="track"
+                                        Background="{TemplateBinding Background}"
+                                        CornerRadius="12"
+                                        Width="{TemplateBinding Width}"
+                                        Height="{TemplateBinding Height}"/>
+                                <Border x:Name="thumb"
+                                        Background="{StaticResource PrimaryTextBrush}"
+                                        CornerRadius="10"
+                                        Width="20"
+                                        Height="20"
+                                        HorizontalAlignment="Left"
+                                        Margin="2,0,0,0"/>
+                            </Grid>
+                            <ControlTemplate.Triggers>
+                                <Trigger Property="IsChecked" Value="True">
+                                    <Setter TargetName="track" Property="Background" Value="{StaticResource AccentPrimaryBrush}"/>
+                                    <Setter TargetName="thumb" Property="HorizontalAlignment" Value="Right"/>
+                                    <Setter TargetName="thumb" Property="Margin" Value="0,0,2,0"/>
+                                </Trigger>
+                                <Trigger Property="IsMouseOver" Value="True">
+                                    <Setter TargetName="track" Property="Opacity" Value="0.8"/>
+                                </Trigger>
+                            </ControlTemplate.Triggers>
+                        </ControlTemplate>
+                    </Setter.Value>
+                </Setter>
+            </Style>
+
+            <Style x:Key="SurfaceCardStyle" TargetType="Border">
+                <Setter Property="Background" Value="{StaticResource CardBackgroundBrush}"/>
+                <Setter Property="BorderBrush" Value="{StaticResource BorderSubtleBrush}"/>
+                <Setter Property="BorderThickness" Value="1"/>
+                <Setter Property="CornerRadius" Value="18"/>
+                <Setter Property="Padding" Value="18"/>
+            </Style>
+
+            <Style x:Key="SubtleSurfaceCardStyle" TargetType="Border" BasedOn="{StaticResource SurfaceCardStyle}">
+                <Setter Property="Background" Value="#12FFFFFF"/>
+            </Style>
+
+            <Style x:Key="ComboBoxStyle" TargetType="ComboBox">
+                <Setter Property="Background" Value="{StaticResource ElevatedSurfaceBrush}"/>
+                <Setter Property="Foreground" Value="{StaticResource PrimaryTextBrush}"/>
+                <Setter Property="BorderBrush" Value="{StaticResource BorderSubtleBrush}"/>
+                <Setter Property="BorderThickness" Value="1"/>
+                <Setter Property="Padding" Value="10,6"/>
+            </Style>
+
+            <Style x:Key="CheckBoxStyle" TargetType="CheckBox">
+                <Setter Property="Foreground" Value="{StaticResource PrimaryTextBrush}"/>
+                <Setter Property="FontSize" Value="14"/>
+            </Style>
         </ResourceDictionary>
     </Application.Resources>
 </Application>

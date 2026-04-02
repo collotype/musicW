@@ -13,6 +13,7 @@ public class Album
     public List<Track> Tracks { get; set; } = new();
     public List<string> Genres { get; set; } = new();
     public bool IsLiked { get; set; }
+    public bool IsDownloaded { get; set; }
     public int TotalTracks => Tracks.Count;
     public TimeSpan TotalDuration => Tracks.Aggregate(TimeSpan.Zero, (acc, t) => acc + t.Duration);
     public string? ProviderAlbumId { get; set; }

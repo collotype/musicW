@@ -1,6 +1,7 @@
 using Microsoft.Win32;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using MusicApp.Enums;
 using MusicApp.Models;
 using MusicApp.Services;
 
@@ -14,16 +15,31 @@ public partial class LibraryViewModel : ObservableObject
     private readonly ILocalMusicScannerService _localMusicScannerService;
 
     [ObservableProperty]
-    private List<Track> _recentTracks = new();
+    private LibrarySection _selectedSection = LibrarySection.Overview;
 
     [ObservableProperty]
-    private List<Album> _recentAlbums = new();
+    private List<Track> _allTracks = new();
 
     [ObservableProperty]
-    private List<Artist> _recentArtists = new();
+    private List<Track> _likedTracks = new();
+
+    [ObservableProperty]
+    private List<Track> _offlineTracks = new();
+
+    [ObservableProperty]
+    private List<Track> _recentlyPlayedTracks = new();
+
+    [ObservableProperty]
+    private List<Artist> _favoriteArtists = new();
+
+    [ObservableProperty]
+    private List<Album> _savedAlbums = new();
 
     [ObservableProperty]
     private List<Playlist> _playlists = new();
+
+    [ObservableProperty]
+    private List<Playlist> _pinnedPlaylists = new();
 
     [ObservableProperty]
     private int _totalTracks;
@@ -40,19 +56,41 @@ public partial class LibraryViewModel : ObservableObject
     [ObservableProperty]
     private int _offlineCount;
 
-    [ObservableProperty]
-    private string _selectedPlaylistId = string.Empty;
+    public bool IsOverview => SelectedSection == LibrarySection.Overview;
+    public bool IsAllTracks => SelectedSection == LibrarySection.AllTracks;
+    public bool IsLikedTracks => SelectedSection == LibrarySection.LikedTracks;
+    public bool IsFavoriteArtists => SelectedSection == LibrarySection.FavoriteArtists;
+    public bool IsAlbums => SelectedSection == LibrarySection.Albums;
+    public bool IsPlaylists => SelectedSection == LibrarySection.Playlists;
+    public bool IsOffline => SelectedSection == LibrarySection.Offline;
+    public bool IsRecentlyPlayed => SelectedSection == LibrarySection.RecentlyPlayed;
+    public bool IsPinned => SelectedSection == LibrarySection.Pinned;
+    public bool HasAnyLibraryContent => TotalTracks > 0 || Playlists.Count > 0;
+    public string SectionTitle => SelectedSection switch
+    {
+        LibrarySection.AllTracks => "All Tracks",
+        LibrarySection.LikedTracks => "Liked Tracks",
+        LibrarySection.FavoriteArtists => "Favorite Artists",
+        LibrarySection.Albums => "Saved Albums",
+        LibrarySection.Playlists => "Playlists",
+        LibrarySection.Offline => "Downloads & Offline",
+        LibrarySection.RecentlyPlayed => "Recently Played",
+        LibrarySection.Pinned => "Pinned",
+        _ => "Library"
+    };
 
-    public bool HasLibrarySummary => TotalTracks > 0 || TotalAlbums > 0 || TotalArtists > 0 || LikedCount > 0 || OfflineCount > 0;
-    public bool HasRecentTracks => RecentTracks.Count > 0;
-    public bool HasRecentAlbums => RecentAlbums.Count > 0;
-    public bool HasRecentArtists => RecentArtists.Count > 0;
-    public bool HasPlaylists => Playlists.Count > 0;
-    public bool ShowEmptyState => !HasLibrarySummary;
-    public string EmptyStateTitle => HasPlaylists ? "No tracks in your library yet" : "Your library is empty";
-    public string EmptyStateMessage => HasPlaylists
-        ? "You have playlists ready, but no real tracks have been imported yet."
-        : "Import some audio files to start building your local library.";
+    public string SectionSubtitle => SelectedSection switch
+    {
+        LibrarySection.AllTracks => "Everything currently indexed in your desktop library.",
+        LibrarySection.LikedTracks => "Tracks you explicitly kept close.",
+        LibrarySection.FavoriteArtists => "Artists you chose to follow across the workspace.",
+        LibrarySection.Albums => "Albums saved into your listening shelf.",
+        LibrarySection.Playlists => "User collections, system collections, and active mixes.",
+        LibrarySection.Offline => "Downloaded tracks, albums, and playlists ready for offline use.",
+        LibrarySection.RecentlyPlayed => "Fast return path into recent listening sessions.",
+        LibrarySection.Pinned => "Collections you pinned for constant access.",
+        _ => "A desktop-first view over your music workspace."
+    };
 
     public LibraryViewModel(
         ILibraryService libraryService,
@@ -68,40 +106,59 @@ public partial class LibraryViewModel : ObservableObject
         _libraryService.LibraryChanged += OnLibraryChanged;
     }
 
+    partial void OnSelectedSectionChanged(LibrarySection value)
+    {
+        NotifySectionStateChanged();
+    }
+
     private void OnLibraryChanged(object? sender, EventArgs e)
     {
         LoadLibrary();
     }
 
+    public void SetSection(LibrarySection section)
+    {
+        SelectedSection = section;
+        NotifySectionStateChanged();
+    }
+
     public void LoadLibrary()
     {
+        AllTracks = _libraryService.AllTracks
+            .OrderByDescending(track => track.DateAdded)
+            .ToList();
+
+        LikedTracks = _libraryService.LikedTracks;
+        OfflineTracks = _libraryService.OfflineTracks;
+        FavoriteArtists = _libraryService.FavoriteArtists
+            .OrderByDescending(artist => artist.TrackCount)
+            .ToList();
+
+        SavedAlbums = _libraryService.SavedAlbums
+            .OrderByDescending(album => album.ReleaseDate ?? DateTime.MinValue)
+            .ThenBy(album => album.Title)
+            .ToList();
+
+        Playlists = _libraryService.Playlists
+            .OrderByDescending(playlist => playlist.IsPinned)
+            .ThenByDescending(playlist => playlist.LastModifiedDate ?? playlist.CreatedDate)
+            .ToList();
+
+        PinnedPlaylists = _libraryService.PinnedPlaylists;
+        RecentlyPlayedTracks = _libraryService.AllTracks
+            .Where(track => track.LastPlayedAt.HasValue)
+            .OrderByDescending(track => track.LastPlayedAt)
+            .Take(24)
+            .ToList();
+
         TotalTracks = _libraryService.AllTracks.Count;
         TotalAlbums = _libraryService.AllAlbums.Count;
         TotalArtists = _libraryService.AllArtists.Count;
         LikedCount = _libraryService.LikedTracks.Count;
         OfflineCount = _libraryService.OfflineTracks.Count;
 
-        Playlists = _libraryService.Playlists.ToList();
-
-        RecentTracks = _libraryService.AllTracks
-            .OrderByDescending(t => t.PlayCount ?? 0)
-            .ThenBy(t => t.Title)
-            .Take(10)
-            .ToList();
-
-        RecentAlbums = _libraryService.AllAlbums
-            .OrderByDescending(a => a.ReleaseDate ?? DateTime.MinValue)
-            .ThenBy(a => a.Title)
-            .Take(10)
-            .ToList();
-
-        RecentArtists = _libraryService.AllArtists
-            .OrderByDescending(a => a.TrackCount)
-            .ThenBy(a => a.Name)
-            .Take(10)
-            .ToList();
-
-        NotifyLibraryStateChanged();
+        NotifySectionStateChanged();
+        OnPropertyChanged(nameof(HasAnyLibraryContent));
     }
 
     [RelayCommand]
@@ -124,59 +181,124 @@ public partial class LibraryViewModel : ObservableObject
     }
 
     [RelayCommand]
-    private async Task PlayTrack(Track track)
+    private Task PlayTrack(Track? track)
     {
-        await _playbackService.PlayAsync(track, RecentTracks);
+        if (track == null)
+        {
+            return Task.CompletedTask;
+        }
+
+        var queue = SelectedSection switch
+        {
+            LibrarySection.LikedTracks => LikedTracks,
+            LibrarySection.Offline => OfflineTracks,
+            LibrarySection.RecentlyPlayed => RecentlyPlayedTracks,
+            _ => AllTracks
+        };
+
+        return _playbackService.PlayAsync(track, queue);
     }
 
     [RelayCommand]
-    private void NavigateToAlbum(string albumId)
+    private Task PlayPlaylist(Playlist? playlist)
     {
-        _navigationService.NavigateToAlbum(albumId);
+        if (playlist == null || playlist.Tracks.Count == 0)
+        {
+            return Task.CompletedTask;
+        }
+
+        return _playbackService.PlayAsync(playlist.Tracks[0], playlist.Tracks);
     }
 
     [RelayCommand]
-    private void NavigateToArtist(string artistId)
+    private Task PlayAlbum(Album? album)
     {
-        _navigationService.NavigateToArtist(artistId);
+        if (album == null || album.Tracks.Count == 0)
+        {
+            return Task.CompletedTask;
+        }
+
+        return _playbackService.PlayAsync(album.Tracks[0], album.Tracks);
     }
 
     [RelayCommand]
-    private void NavigateToPlaylist(string playlistId)
+    private void NavigateToAlbum(string? albumId)
     {
-        _navigationService.NavigateToPlaylist(playlistId);
-        SelectedPlaylistId = playlistId;
+        if (!string.IsNullOrWhiteSpace(albumId))
+        {
+            _navigationService.NavigateToAlbum(albumId);
+        }
+    }
+
+    [RelayCommand]
+    private void NavigateToArtist(string? artistId)
+    {
+        if (!string.IsNullOrWhiteSpace(artistId))
+        {
+            _navigationService.NavigateToArtist(artistId);
+        }
+    }
+
+    [RelayCommand]
+    private void NavigateToPlaylist(string? playlistId)
+    {
+        if (!string.IsNullOrWhiteSpace(playlistId))
+        {
+            _navigationService.NavigateToPlaylist(playlistId);
+        }
     }
 
     [RelayCommand]
     private async Task CreatePlaylist()
     {
-        await _libraryService.CreatePlaylistAsync($"New Playlist {DateTime.Now:MMddyy}");
+        await _libraryService.CreatePlaylistAsync($"New Playlist {DateTime.Now:HHmm}");
     }
 
     [RelayCommand]
-    private void NavigateToFavorites()
+    private async Task ToggleFavoriteArtist(Artist? artist)
     {
-        _navigationService.NavigateToPlaylist("favorites");
-        SelectedPlaylistId = "favorites";
+        if (artist == null)
+        {
+            return;
+        }
+
+        await _libraryService.ToggleFavoriteArtistAsync(artist.Id);
     }
 
     [RelayCommand]
-    private void NavigateToOffline()
+    private async Task ToggleSaveAlbum(Album? album)
     {
-        _navigationService.NavigateToPlaylist("offline");
-        SelectedPlaylistId = "offline";
+        if (album == null)
+        {
+            return;
+        }
+
+        await _libraryService.ToggleSaveAlbumAsync(album.Id);
     }
 
-    private void NotifyLibraryStateChanged()
+    [RelayCommand]
+    private async Task TogglePlaylistPin(Playlist? playlist)
     {
-        OnPropertyChanged(nameof(HasLibrarySummary));
-        OnPropertyChanged(nameof(HasRecentTracks));
-        OnPropertyChanged(nameof(HasRecentAlbums));
-        OnPropertyChanged(nameof(HasRecentArtists));
-        OnPropertyChanged(nameof(HasPlaylists));
-        OnPropertyChanged(nameof(ShowEmptyState));
-        OnPropertyChanged(nameof(EmptyStateTitle));
-        OnPropertyChanged(nameof(EmptyStateMessage));
+        if (playlist == null)
+        {
+            return;
+        }
+
+        await _libraryService.TogglePlaylistPinAsync(playlist.Id);
+    }
+
+    private void NotifySectionStateChanged()
+    {
+        OnPropertyChanged(nameof(IsOverview));
+        OnPropertyChanged(nameof(IsAllTracks));
+        OnPropertyChanged(nameof(IsLikedTracks));
+        OnPropertyChanged(nameof(IsFavoriteArtists));
+        OnPropertyChanged(nameof(IsAlbums));
+        OnPropertyChanged(nameof(IsPlaylists));
+        OnPropertyChanged(nameof(IsOffline));
+        OnPropertyChanged(nameof(IsRecentlyPlayed));
+        OnPropertyChanged(nameof(IsPinned));
+        OnPropertyChanged(nameof(SectionTitle));
+        OnPropertyChanged(nameof(SectionSubtitle));
     }
 }

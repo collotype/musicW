@@ -1,0 +1,104 @@
+<UserControl x:Class="MusicApp.Views.QueuePage"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:controls="clr-namespace:MusicApp.Controls"
+             Background="Transparent">
+
+    <ScrollViewer Style="{StaticResource ScrollViewerStyle}"
+                  VerticalScrollBarVisibility="Auto">
+        <StackPanel Margin="28,24,28,36">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+                <StackPanel Grid.Column="0">
+                    <TextBlock Text="Queue"
+                               Style="{StaticResource HeroTextStyle}"
+                               FontSize="42"/>
+                    <TextBlock Text="{Binding QueueSummary}"
+                               Style="{StaticResource SubtitleTextStyle}"
+                               Margin="0,10,0,0"/>
+                </StackPanel>
+                <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Top">
+                    <CheckBox Content="Smart Queue"
+                              Style="{StaticResource CheckBoxStyle}"
+                              IsChecked="{Binding SmartQueueEnabled}"
+                              Margin="0,8,14,0"/>
+                    <Button Content="Clear Queue"
+                            Style="{StaticResource SecondaryButtonStyle}"
+                            Command="{Binding ClearQueueCommand}"/>
+                </StackPanel>
+            </Grid>
+
+            <Border Style="{StaticResource SurfaceCardStyle}"
+                    Margin="0,20,0,0"
+                    Visibility="{Binding CurrentItem, Converter={StaticResource NullToVisibilityConverter}}">
+                <StackPanel>
+                    <TextBlock Text="Now Playing in Queue"
+                               Style="{StaticResource LabelTextStyle}"/>
+                    <TextBlock Text="{Binding CurrentItem.Track.Title}"
+                               Style="{StaticResource TitleTextStyle}"
+                               Margin="0,10,0,0"/>
+                    <TextBlock Text="{Binding CurrentItem.Track.ArtistName}"
+                               Style="{StaticResource SubtitleTextStyle}"
+                               Margin="0,8,0,0"/>
+                    <TextBlock Text="{Binding CurrentItem.RecommendationReason}"
+                               Style="{StaticResource CaptionTextStyle}"
+                               Margin="0,10,0,0"
+                               TextWrapping="Wrap"
+                               Visibility="{Binding CurrentItem.RecommendationReason, Converter={StaticResource NullToVisibilityConverter}}"/>
+                </StackPanel>
+            </Border>
+
+            <Border Style="{StaticResource SurfaceCardStyle}"
+                    Margin="0,20,0,0"
+                    Visibility="{Binding HasQueueItems, Converter={StaticResource BooleanToVisibilityConverter}, ConverterParameter=invert}">
+                <TextBlock Text="The queue is empty. Start playback from Home, Search, or a playlist to build it."
+                           Style="{StaticResource SubtitleTextStyle}"
+                           TextWrapping="Wrap"/>
+            </Border>
+
+            <ItemsControl ItemsSource="{Binding QueueItems}"
+                          Margin="0,20,0,0"
+                          Visibility="{Binding HasQueueItems, Converter={StaticResource BooleanToVisibilityConverter}}">
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate>
+                        <Grid Margin="0,0,0,10">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+                            <controls:TrackRowControl Grid.Column="0"
+                                                      Title="{Binding Track.Title}"
+                                                      Artist="{Binding Track.ArtistName}"
+                                                      Album="{Binding Track.AlbumTitle}"
+                                                      Duration="{Binding Track.DurationFormatted}"
+                                                      CoverArtUrl="{Binding Track.CoverArtUrl}"
+                                                      IsPlaying="{Binding IsPlaying}"
+                                                      Command="{Binding DataContext.PlayItemCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                                      CommandParameter="{Binding}"/>
+                            <StackPanel Grid.Column="1"
+                                        Orientation="Horizontal"
+                                        Margin="12,0,0,0"
+                                        VerticalAlignment="Center">
+                                <Button Content="↑"
+                                        Style="{StaticResource GhostButtonStyle}"
+                                        Command="{Binding DataContext.MoveUpCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                        CommandParameter="{Binding}"/>
+                                <Button Content="↓"
+                                        Style="{StaticResource GhostButtonStyle}"
+                                        Command="{Binding DataContext.MoveDownCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                        CommandParameter="{Binding}"/>
+                                <Button Content="Remove"
+                                        Style="{StaticResource SecondaryButtonStyle}"
+                                        Command="{Binding DataContext.RemoveItemCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                        CommandParameter="{Binding}"/>
+                            </StackPanel>
+                        </Grid>
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+            </ItemsControl>
+        </StackPanel>
+    </ScrollViewer>
+</UserControl>
