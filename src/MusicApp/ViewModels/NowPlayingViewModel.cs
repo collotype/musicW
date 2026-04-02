@@ -16,6 +16,7 @@ public partial class NowPlayingViewModel : ObservableObject
     private readonly ITimedCommentService _timedCommentService;
     private readonly IDownloadService _downloadService;
     private readonly INavigationService _navigationService;
+    private readonly ISettingsService _settingsService;
 
     private bool _isApplyingPlaybackState;
     private string _currentTrackId = string.Empty;
@@ -102,8 +103,17 @@ public partial class NowPlayingViewModel : ObservableObject
     public bool HasComments => TimedComments.Count > 0;
     public bool HasQueueItems => QueueItems.Count > 0;
     public bool CanAddComment => HasTrack && !string.IsNullOrWhiteSpace(NewCommentText);
+    public bool CanDownloadCurrentTrack => HasTrack && !IsDownloaded;
     public string QueueCountLabel => QueueItems.Count == 0 ? "Queue is empty." : $"{QueueItems.Count} tracks in queue";
     public string LyricsStatusMessage => Lyrics.StatusMessage;
+    public int FavoriteMomentsCount => TimedComments.Count(comment => comment.IsFavoriteMoment);
+    public string CommentsSummary => HasComments
+        ? $"{TimedComments.Count} comments • {FavoriteMomentsCount} favorite moments"
+        : "No timed comments attached to the current track yet.";
+    public string DownloadStatusLabel => !HasTrack
+        ? "Nothing selected"
+        : IsDownloaded ? "Available offline" : DownloadProgress > 0 ? $"Downloading {DownloadProgress:P0}" : "Not downloaded";
+    public string OutputQualityLabel => $"{(_settingsService.Settings.OutputDevice ?? "System Default")} • {(_settingsService.Settings.DownloadHighQuality ? "High Quality" : "Balanced")}";
 
     public NowPlayingViewModel(
         IPlaybackService playbackService,
@@ -112,7 +122,8 @@ public partial class NowPlayingViewModel : ObservableObject
         ILyricsService lyricsService,
         ITimedCommentService timedCommentService,
         IDownloadService downloadService,
-        INavigationService navigationService)
+        INavigationService navigationService,
+        ISettingsService settingsService)
     {
         _playbackService = playbackService;
         _libraryService = libraryService;
@@ -121,11 +132,13 @@ public partial class NowPlayingViewModel : ObservableObject
         _timedCommentService = timedCommentService;
         _downloadService = downloadService;
         _navigationService = navigationService;
+        _settingsService = settingsService;
 
         _playbackService.StateChanged += OnPlaybackStateChanged;
         _queueService.QueueChanged += OnQueueChanged;
         _timedCommentService.CommentsChanged += OnCommentsChanged;
         _downloadService.ProgressChanged += OnDownloadProgressChanged;
+        _settingsService.SettingsChanged += (_, _) => NotifyStateFlags();
 
         ApplyState(_playbackService.CurrentState);
         RefreshQueue();
@@ -180,6 +193,8 @@ public partial class NowPlayingViewModel : ObservableObject
         {
             IsDownloaded = true;
         }
+
+        NotifyStateFlags();
     }
 
     private void ApplyState(PlaybackState state)
@@ -518,6 +533,23 @@ public partial class NowPlayingViewModel : ObservableObject
         }
     }
 
+    [RelayCommand]
+    private void StartWaveFromTrack()
+    {
+        if (CurrentTrack == null)
+        {
+            return;
+        }
+
+        _navigationService.NavigateToMyWave(new WaveSeed
+        {
+            Type = WaveSeedType.Track,
+            Id = CurrentTrack.Id,
+            Title = CurrentTrack.Title,
+            Subtitle = $"Wave started from {CurrentTrack.ArtistName}."
+        });
+    }
+
     private void NotifyStateFlags()
     {
         OnPropertyChanged(nameof(HasError));
@@ -527,7 +559,12 @@ public partial class NowPlayingViewModel : ObservableObject
         OnPropertyChanged(nameof(HasComments));
         OnPropertyChanged(nameof(HasQueueItems));
         OnPropertyChanged(nameof(CanAddComment));
+        OnPropertyChanged(nameof(CanDownloadCurrentTrack));
         OnPropertyChanged(nameof(QueueCountLabel));
         OnPropertyChanged(nameof(LyricsStatusMessage));
+        OnPropertyChanged(nameof(FavoriteMomentsCount));
+        OnPropertyChanged(nameof(CommentsSummary));
+        OnPropertyChanged(nameof(DownloadStatusLabel));
+        OnPropertyChanged(nameof(OutputQualityLabel));
     }
 }

@@ -20,6 +20,7 @@ public class RecommendationService : IRecommendationService
         return new WaveTunerSettings
         {
             Activity = settings.WaveActivity,
+            Character = settings.WaveCharacter,
             Mood = settings.WaveMood,
             Language = settings.WaveLanguage,
             Familiarity = settings.DiscoveryBalance,
@@ -34,6 +35,7 @@ public class RecommendationService : IRecommendationService
         return _settingsService.UpdateSettingsAsync(settings =>
         {
             settings.WaveActivity = tuner.Activity;
+            settings.WaveCharacter = tuner.Character;
             settings.WaveMood = tuner.Mood;
             settings.WaveLanguage = tuner.Language;
             settings.DiscoveryBalance = tuner.Familiarity;
@@ -315,6 +317,7 @@ public class RecommendationService : IRecommendationService
         score += matchingGenres * 5;
 
         score += ScoreMood(track, tuner);
+        score += ScoreCharacter(track, tuner);
 
         if (!string.Equals(tuner.Language, "Any", StringComparison.OrdinalIgnoreCase) &&
             string.Equals(track.Language, tuner.Language, StringComparison.OrdinalIgnoreCase))
@@ -323,6 +326,24 @@ public class RecommendationService : IRecommendationService
         }
 
         return score;
+    }
+
+    private static double ScoreCharacter(Track track, WaveTunerSettings tuner)
+    {
+        if (string.Equals(tuner.Character, "Balanced", StringComparison.OrdinalIgnoreCase))
+        {
+            return 0;
+        }
+
+        var genres = track.Genres.ToHashSet(StringComparer.OrdinalIgnoreCase);
+        return tuner.Character switch
+        {
+            "Velvet" => genres.Contains("Soul") || genres.Contains("R&B") || genres.Contains("Dream Pop") || genres.Contains("Chillout") ? 6 : 0,
+            "Bold" => genres.Contains("Rock") || genres.Contains("Hip-Hop") || genres.Contains("Trap") ? 6 : 0,
+            "Cinematic" => genres.Contains("Ambient") || genres.Contains("Electronic") || genres.Contains("Instrumental") ? 6 : 0,
+            "Nocturnal" => genres.Contains("Synthwave") || genres.Contains("Ambient") || genres.Contains("Neo-Soul") ? 6 : 0,
+            _ => 0
+        };
     }
 
     private static double ScoreMood(Track track, WaveTunerSettings tuner)

@@ -1,4 +1,5 @@
 using System.Globalization;
+using System.Collections;
 using System.Windows.Data;
 
 namespace MusicApp.Converters;
@@ -58,6 +59,33 @@ public class BooleanToVisibilityConverter : IValueConverter
         }
 
         return boolValue ? System.Windows.Visibility.Visible : System.Windows.Visibility.Collapsed;
+    }
+
+    public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+    {
+        throw new NotImplementedException();
+    }
+}
+
+public class CountToVisibilityConverter : IValueConverter
+{
+    public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+    {
+        var invert = parameter?.ToString()?.ToLowerInvariant() == "invert";
+        var hasItems = value switch
+        {
+            int count => count > 0,
+            ICollection collection => collection.Count > 0,
+            IEnumerable enumerable => enumerable.Cast<object?>().Any(),
+            _ => false
+        };
+
+        if (invert)
+        {
+            return hasItems ? System.Windows.Visibility.Collapsed : System.Windows.Visibility.Visible;
+        }
+
+        return hasItems ? System.Windows.Visibility.Visible : System.Windows.Visibility.Collapsed;
     }
 
     public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)

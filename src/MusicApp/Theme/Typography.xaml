@@ -76,4 +76,19 @@
         <Setter Property="Foreground" Value="{StaticResource SecondaryTextBrush}"/>
     </Style>
 
+    <Style x:Key="DisplaySectionTextStyle" TargetType="TextBlock" BasedOn="{StaticResource TitleTextStyle}">
+        <Setter Property="FontSize" Value="22"/>
+        <Setter Property="Foreground" Value="{StaticResource PrimaryTextBrush}"/>
+    </Style>
+
+    <Style x:Key="MetricValueTextStyle" TargetType="TextBlock" BasedOn="{StaticResource TitleTextStyle}">
+        <Setter Property="FontSize" Value="30"/>
+        <Setter Property="Foreground" Value="{StaticResource PrimaryTextBrush}"/>
+    </Style>
+
+    <Style x:Key="MetricLabelTextStyle" TargetType="TextBlock" BasedOn="{StaticResource SmallCaptionTextStyle}">
+        <Setter Property="Foreground" Value="{StaticResource SecondaryTextBrush}"/>
+        <Setter Property="FontWeight" Value="{StaticResource FontWeightSemiBold}"/>
+    </Style>
+
 </ResourceDictionary>

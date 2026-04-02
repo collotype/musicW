@@ -237,6 +237,21 @@ public class LibraryService : ILibraryService
         LibraryChanged?.Invoke(this, EventArgs.Empty);
     }
 
+    public async Task UpdatePlaylistCoverAsync(string playlistId, string? coverArtUrl)
+    {
+        var playlist = _playlists.FirstOrDefault(item => item.Id == playlistId);
+        if (playlist == null || playlist.IsSystemPlaylist)
+        {
+            return;
+        }
+
+        playlist.CoverArtUrl = string.IsNullOrWhiteSpace(coverArtUrl) ? null : coverArtUrl;
+        playlist.LastModifiedDate = DateTime.Now;
+
+        await PersistCoreStateAsync();
+        LibraryChanged?.Invoke(this, EventArgs.Empty);
+    }
+
     public async Task DeletePlaylistAsync(string playlistId)
     {
         var playlist = _playlists.FirstOrDefault(item => item.Id == playlistId);

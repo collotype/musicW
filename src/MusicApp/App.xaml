@@ -19,6 +19,7 @@
             <!-- Converters -->
             <converters:NullToVisibilityConverter x:Key="NullToVisibilityConverter"/>
             <converters:BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter"/>
+            <converters:CountToVisibilityConverter x:Key="CountToVisibilityConverter"/>
             <converters:FormatTimeSpanConverter x:Key="FormatTimeSpanConverter"/>
             <converters:FormatNumberConverter x:Key="FormatNumberConverter"/>
             <converters:ImageSourceConverter x:Key="ImageSourceConverter"/>
@@ -145,12 +146,36 @@
                 <Setter Property="Background" Value="{StaticResource CardBackgroundBrush}"/>
                 <Setter Property="BorderBrush" Value="{StaticResource BorderSubtleBrush}"/>
                 <Setter Property="BorderThickness" Value="1"/>
-                <Setter Property="CornerRadius" Value="18"/>
-                <Setter Property="Padding" Value="18"/>
+                <Setter Property="CornerRadius" Value="22"/>
+                <Setter Property="Padding" Value="20"/>
             </Style>
 
             <Style x:Key="SubtleSurfaceCardStyle" TargetType="Border" BasedOn="{StaticResource SurfaceCardStyle}">
                 <Setter Property="Background" Value="#12FFFFFF"/>
+            </Style>
+
+            <Style x:Key="HeroSurfaceCardStyle" TargetType="Border" BasedOn="{StaticResource SurfaceCardStyle}">
+                <Setter Property="Background" Value="{StaticResource HeroGradientBrush}"/>
+                <Setter Property="Padding" Value="24"/>
+            </Style>
+
+            <Style x:Key="InsetSurfaceCardStyle" TargetType="Border" BasedOn="{StaticResource SurfaceCardStyle}">
+                <Setter Property="Background" Value="#0EFFFFFF"/>
+                <Setter Property="Padding" Value="18"/>
+            </Style>
+
+            <Style x:Key="MetricCardStyle" TargetType="Border" BasedOn="{StaticResource SurfaceCardStyle}">
+                <Setter Property="Background" Value="#10FFFFFF"/>
+                <Setter Property="CornerRadius" Value="18"/>
+                <Setter Property="Padding" Value="18"/>
+            </Style>
+
+            <Style x:Key="BadgeBorderStyle" TargetType="Border">
+                <Setter Property="Background" Value="#12FFFFFF"/>
+                <Setter Property="BorderBrush" Value="{StaticResource BorderSubtleBrush}"/>
+                <Setter Property="BorderThickness" Value="1"/>
+                <Setter Property="CornerRadius" Value="999"/>
+                <Setter Property="Padding" Value="10,5"/>
             </Style>
 
             <Style x:Key="ComboBoxStyle" TargetType="ComboBox">

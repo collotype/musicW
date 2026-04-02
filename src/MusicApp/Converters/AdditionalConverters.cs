@@ -1,4 +1,5 @@
 using System.Globalization;
+using System.Windows;
 using System.Windows.Data;
 
 namespace MusicApp.Converters;
@@ -41,18 +42,31 @@ public class EnumMatchConverter : IValueConverter
 {
     public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
     {
-        if (value != null && parameter != null)
+        var isMatch = value != null && parameter != null &&
+                      (value.ToString()?.Equals(parameter?.ToString(), StringComparison.OrdinalIgnoreCase) ?? false);
+
+        if (targetType == typeof(Visibility))
         {
-            return value.ToString()?.Equals(parameter?.ToString(), StringComparison.OrdinalIgnoreCase) ?? false;
+            return isMatch ? Visibility.Visible : Visibility.Collapsed;
         }
-        return false;
+
+        return isMatch;
     }
 
     public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
     {
         if (value is bool isChecked && isChecked && parameter != null)
         {
-            return System.Enum.Parse(targetType, parameter.ToString()!);
+            var enumType = Nullable.GetUnderlyingType(targetType) ?? targetType;
+            var enumValue = parameter.ToString();
+
+            if (enumType.IsEnum && !string.IsNullOrWhiteSpace(enumValue) &&
+                System.Enum.TryParse(enumType, enumValue, ignoreCase: true, out var parsedValue))
+            {
+                return parsedValue;
+            }
+
+            return Binding.DoNothing;
         }
         return Binding.DoNothing;
     }

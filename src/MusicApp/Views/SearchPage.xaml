@@ -4,334 +4,217 @@
              xmlns:controls="clr-namespace:MusicApp.Controls"
              Background="Transparent">
 
-    <ScrollViewer Style="{StaticResource ScrollViewerStyle}"
-                  VerticalScrollBarVisibility="Auto">
+    <ScrollViewer Style="{StaticResource ScrollViewerStyle}" VerticalScrollBarVisibility="Auto">
         <StackPanel Margin="28,24,28,36">
-            <TextBlock Text="Search"
-                       Style="{StaticResource HeroTextStyle}"/>
-            <TextBlock Text="Local library and connected providers stay inside the desktop app."
-                       Style="{StaticResource SubtitleTextStyle}"
-                       Margin="0,10,0,0"/>
+            <Border Style="{StaticResource HeroSurfaceCardStyle}">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="2*"/>
+                        <ColumnDefinition Width="1*"/>
+                    </Grid.ColumnDefinitions>
 
-            <Grid Margin="0,20,0,0">
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="*"/>
-                    <ColumnDefinition Width="240"/>
-                </Grid.ColumnDefinitions>
-                <Grid Grid.Column="0">
-                    <TextBox Style="{StaticResource SearchBoxStyle}"
-                             Text="{Binding SearchQuery, UpdateSourceTrigger=PropertyChanged}"/>
-                    <TextBlock Text="⌕"
-                               FontSize="16"
-                               Foreground="{StaticResource SecondaryTextBrush}"
-                               Margin="16,0,0,0"
-                               VerticalAlignment="Center"
-                               IsHitTestVisible="False"/>
+                    <StackPanel Grid.Column="0">
+                        <TextBlock Text="SEARCH" Style="{StaticResource SectionEyebrowTextStyle}"/>
+                        <TextBlock Text="Local library and connected providers stay inside the desktop client."
+                                   Style="{StaticResource HeroTextStyle}"
+                                   FontSize="40"
+                                   Margin="0,10,0,0"
+                                   TextWrapping="Wrap"/>
+                        <TextBlock Text="{Binding SearchStatusSummary}" Style="{StaticResource CaptionTextStyle}" Margin="0,12,0,0"/>
+
+                        <Grid Margin="0,20,0,0">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="260"/>
+                            </Grid.ColumnDefinitions>
+                            <TextBox Grid.Column="0" Style="{StaticResource SearchBoxStyle}" Text="{Binding SearchQuery, UpdateSourceTrigger=PropertyChanged}"/>
+                            <ComboBox Grid.Column="1" Margin="12,0,0,0" Style="{StaticResource ComboBoxStyle}" ItemsSource="{Binding AvailablePlaylists}" DisplayMemberPath="Title" SelectedValuePath="Id" SelectedValue="{Binding SelectedPlaylistId, Mode=TwoWay}"/>
+                        </Grid>
+
+                        <WrapPanel Margin="0,18,0,0">
+                            <RadioButton Content="Tracks" Style="{StaticResource FilterChipStyle}" IsChecked="{Binding SelectedTab, Converter={StaticResource EnumMatchConverter}, ConverterParameter=Tracks}"/>
+                            <RadioButton Content="Artists" Style="{StaticResource FilterChipStyle}" IsChecked="{Binding SelectedTab, Converter={StaticResource EnumMatchConverter}, ConverterParameter=Artists}"/>
+                            <RadioButton Content="Albums" Style="{StaticResource FilterChipStyle}" IsChecked="{Binding SelectedTab, Converter={StaticResource EnumMatchConverter}, ConverterParameter=Albums}"/>
+                            <RadioButton Content="Playlists" Style="{StaticResource FilterChipStyle}" IsChecked="{Binding SelectedTab, Converter={StaticResource EnumMatchConverter}, ConverterParameter=Playlists}"/>
+                        </WrapPanel>
+                    </StackPanel>
+
+                    <Border Grid.Column="1" Style="{StaticResource InsetSurfaceCardStyle}" Margin="20,0,0,0">
+                        <StackPanel>
+                            <TextBlock Text="Result Mix" Style="{StaticResource MetricLabelTextStyle}"/>
+                            <TextBlock Text="{Binding LocalSummary}" Style="{StaticResource BodyTextStyle}" Margin="0,10,0,0" TextWrapping="Wrap"/>
+                            <TextBlock Text="{Binding OnlineSummary}" Style="{StaticResource CaptionTextStyle}" Margin="0,8,0,0" TextWrapping="Wrap"/>
+                            <TextBlock Text="Choose a playlist target first if you want one-click add from search." Style="{StaticResource SmallCaptionTextStyle}" Margin="0,16,0,0" TextWrapping="Wrap"/>
+                        </StackPanel>
+                    </Border>
                 </Grid>
-                <ComboBox Grid.Column="1"
-                          Margin="12,0,0,0"
-                          Style="{StaticResource ComboBoxStyle}"
-                          ItemsSource="{Binding AvailablePlaylists}"
-                          DisplayMemberPath="Title"
-                          SelectedValuePath="Id"
-                          SelectedValue="{Binding SelectedPlaylistId, Mode=TwoWay}"/>
-            </Grid>
+            </Border>
 
-            <WrapPanel Margin="0,18,0,0">
-                <RadioButton Content="Tracks"
-                             Style="{StaticResource FilterChipStyle}"
-                             IsChecked="{Binding SelectedTab, Converter={StaticResource EnumMatchConverter}, ConverterParameter=Tracks}"/>
-                <RadioButton Content="Artists"
-                             Style="{StaticResource FilterChipStyle}"
-                             IsChecked="{Binding SelectedTab, Converter={StaticResource EnumMatchConverter}, ConverterParameter=Artists}"/>
-                <RadioButton Content="Albums"
-                             Style="{StaticResource FilterChipStyle}"
-                             IsChecked="{Binding SelectedTab, Converter={StaticResource EnumMatchConverter}, ConverterParameter=Albums}"/>
-                <RadioButton Content="Playlists"
-                             Style="{StaticResource FilterChipStyle}"
-                             IsChecked="{Binding SelectedTab, Converter={StaticResource EnumMatchConverter}, ConverterParameter=Playlists}"/>
-            </WrapPanel>
-
-            <Border Style="{StaticResource SurfaceCardStyle}"
-                    Margin="0,20,0,0"
-                    Visibility="{Binding HasSearched, Converter={StaticResource BooleanToVisibilityConverter}, ConverterParameter=invert}">
+            <Border Style="{StaticResource SurfaceCardStyle}" Margin="0,20,0,0" Visibility="{Binding HasSearched, Converter={StaticResource BooleanToVisibilityConverter}, ConverterParameter=invert}">
                 <StackPanel Width="520" HorizontalAlignment="Center">
-                    <TextBlock Text="Search is ready for local and provider-backed results."
-                               Style="{StaticResource TitleTextStyle}"
-                               TextAlignment="Center"/>
-                    <TextBlock Text="Enter at least two characters to search tracks, artists, albums, and playlists without leaving the desktop workspace."
-                               Style="{StaticResource SubtitleTextStyle}"
-                               Margin="0,12,0,0"
-                               TextAlignment="Center"
-                               TextWrapping="Wrap"/>
+                    <TextBlock Text="Search is ready for local and provider-backed results." Style="{StaticResource TitleTextStyle}" TextAlignment="Center"/>
+                    <TextBlock Text="Enter at least two characters to search tracks, artists, albums, and playlists without leaving the shell." Style="{StaticResource SubtitleTextStyle}" Margin="0,12,0,0" TextWrapping="Wrap" TextAlignment="Center"/>
                 </StackPanel>
             </Border>
 
-            <Border Style="{StaticResource SurfaceCardStyle}"
-                    Margin="0,20,0,0"
-                    Visibility="{Binding IsSearching, Converter={StaticResource BooleanToVisibilityConverter}}">
-                <TextBlock Text="Searching..."
-                           Style="{StaticResource SubtitleTextStyle}"/>
+            <Border Style="{StaticResource SurfaceCardStyle}" Margin="0,20,0,0" Visibility="{Binding IsSearching, Converter={StaticResource BooleanToVisibilityConverter}}">
+                <TextBlock Text="Searching..." Style="{StaticResource SubtitleTextStyle}"/>
             </Border>
 
-            <Border Style="{StaticResource SurfaceCardStyle}"
-                    Margin="0,20,0,0"
-                    Visibility="{Binding HasError, Converter={StaticResource BooleanToVisibilityConverter}}">
-                <TextBlock Text="{Binding ErrorMessage}"
-                           Foreground="{StaticResource ErrorBrush}"
-                           TextWrapping="Wrap"/>
+            <Border Style="{StaticResource SurfaceCardStyle}" Margin="0,20,0,0" Visibility="{Binding HasError, Converter={StaticResource BooleanToVisibilityConverter}}">
+                <TextBlock Text="{Binding ErrorMessage}" Foreground="{StaticResource ErrorBrush}" TextWrapping="Wrap"/>
             </Border>
 
-            <Border Style="{StaticResource SurfaceCardStyle}"
-                    Margin="0,20,0,0"
-                    Visibility="{Binding HasNoResults, Converter={StaticResource BooleanToVisibilityConverter}}">
+            <Border Style="{StaticResource SurfaceCardStyle}" Margin="0,20,0,0" Visibility="{Binding HasNoResults, Converter={StaticResource BooleanToVisibilityConverter}}">
                 <StackPanel Width="520" HorizontalAlignment="Center">
-                    <TextBlock Text="No results found"
-                               Style="{StaticResource TitleTextStyle}"
-                               TextAlignment="Center"/>
-                    <TextBlock Text="Try another phrase or rely on local imports if the provider catalog is sparse."
-                               Style="{StaticResource SubtitleTextStyle}"
-                               Margin="0,12,0,0"
-                               TextWrapping="Wrap"
-                               TextAlignment="Center"/>
+                    <TextBlock Text="No results found" Style="{StaticResource TitleTextStyle}" TextAlignment="Center"/>
+                    <TextBlock Text="Try another phrase, broaden the query, or rely on local imports if the connected catalogs are sparse." Style="{StaticResource SubtitleTextStyle}" Margin="0,12,0,0" TextWrapping="Wrap" TextAlignment="Center"/>
                 </StackPanel>
             </Border>
 
-            <StackPanel Margin="0,22,0,0"
-                        Visibility="{Binding HasTrackResults, Converter={StaticResource BooleanToVisibilityConverter}}">
-                <StackPanel Visibility="{Binding SelectedTab, Converter={StaticResource EnumMatchConverter}, ConverterParameter=Tracks}">
-                    <TextBlock Text="Tracks"
-                               Style="{StaticResource TitleTextStyle}"/>
-                    <TextBlock Text="Play, queue, like, or send into a playlist directly from search."
-                               Style="{StaticResource CaptionTextStyle}"
-                               Margin="0,4,0,14"/>
+            <StackPanel Margin="0,22,0,0" Visibility="{Binding SelectedTab, Converter={StaticResource EnumMatchConverter}, ConverterParameter=Tracks}">
+                <Border Style="{StaticResource SurfaceCardStyle}" Visibility="{Binding HasTrackResults, Converter={StaticResource BooleanToVisibilityConverter}}">
+                    <StackPanel>
+                        <TextBlock Text="Tracks" Style="{StaticResource DisplaySectionTextStyle}"/>
+                        <TextBlock Text="Play, queue, like, add to playlist, open artist or album, or jump straight into a track-based wave." Style="{StaticResource CaptionTextStyle}" Margin="0,4,0,14"/>
 
-                    <TextBlock Text="Local"
-                               Style="{StaticResource LabelTextStyle}"
-                               Visibility="{Binding LocalResults.Tracks, Converter={StaticResource NullToVisibilityConverter}}"/>
-                    <ItemsControl ItemsSource="{Binding LocalResults.Tracks}">
-                        <ItemsControl.ItemTemplate>
-                            <DataTemplate>
-                                <Grid Margin="0,0,0,10">
-                                    <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="*"/>
-                                        <ColumnDefinition Width="Auto"/>
-                                    </Grid.ColumnDefinitions>
-                                    <controls:TrackRowControl Grid.Column="0"
-                                                              Title="{Binding Title}"
-                                                              Artist="{Binding ArtistName}"
-                                                              Album="{Binding AlbumTitle}"
-                                                              Duration="{Binding DurationFormatted}"
-                                                              CoverArtUrl="{Binding CoverArtUrl}"
-                                                              Command="{Binding DataContext.PlayTrackCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
-                                                              CommandParameter="{Binding}"/>
-                                    <StackPanel Grid.Column="1" Orientation="Horizontal" Margin="12,0,0,0" VerticalAlignment="Center">
-                                        <Button Content="Queue"
-                                                Style="{StaticResource GhostButtonStyle}"
-                                                Command="{Binding DataContext.QueueTrackCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
-                                                CommandParameter="{Binding}"
-                                                Margin="0,0,6,0"/>
-                                        <Button Content="Like"
-                                                Style="{StaticResource GhostButtonStyle}"
-                                                Command="{Binding DataContext.ToggleLikeCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
-                                                CommandParameter="{Binding}"
-                                                Margin="0,0,6,0"/>
-                                        <Button Content="Add"
-                                                Style="{StaticResource SecondaryButtonStyle}"
-                                                Command="{Binding DataContext.AddTrackToSelectedPlaylistCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
-                                                CommandParameter="{Binding}"/>
-                                    </StackPanel>
-                                </Grid>
-                            </DataTemplate>
-                        </ItemsControl.ItemTemplate>
-                    </ItemsControl>
+                        <TextBlock Text="Local" Style="{StaticResource LabelTextStyle}" Visibility="{Binding HasLocalTrackResults, Converter={StaticResource BooleanToVisibilityConverter}}"/>
+                        <ItemsControl ItemsSource="{Binding LocalResults.Tracks}" Visibility="{Binding HasLocalTrackResults, Converter={StaticResource BooleanToVisibilityConverter}}">
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <Border Style="{StaticResource InsetSurfaceCardStyle}" Margin="0,0,0,10">
+                                        <Grid>
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="*"/>
+                                                <ColumnDefinition Width="Auto"/>
+                                            </Grid.ColumnDefinitions>
+                                            <controls:TrackRowControl Grid.Column="0" Title="{Binding Title}" Artist="{Binding ArtistName}" Album="{Binding AlbumTitle}" Duration="{Binding DurationFormatted}" CoverArtUrl="{Binding CoverArtUrl}" Command="{Binding DataContext.PlayTrackCommand, RelativeSource={RelativeSource AncestorType=UserControl}}" CommandParameter="{Binding}"/>
+                                            <WrapPanel Grid.Column="1" Margin="12,0,0,0" VerticalAlignment="Center">
+                                                <Button Content="Queue" Style="{StaticResource GhostButtonStyle}" Command="{Binding DataContext.QueueTrackCommand, RelativeSource={RelativeSource AncestorType=UserControl}}" CommandParameter="{Binding}" Margin="0,0,6,6"/>
+                                                <Button Content="Like" Style="{StaticResource GhostButtonStyle}" Command="{Binding DataContext.ToggleLikeCommand, RelativeSource={RelativeSource AncestorType=UserControl}}" CommandParameter="{Binding}" Margin="0,0,6,6"/>
+                                                <Button Content="Wave" Style="{StaticResource GhostButtonStyle}" Command="{Binding DataContext.StartWaveFromTrackCommand, RelativeSource={RelativeSource AncestorType=UserControl}}" CommandParameter="{Binding}" Margin="0,0,6,6"/>
+                                                <Button Content="Artist" Style="{StaticResource GhostButtonStyle}" Command="{Binding DataContext.NavigateToArtistCommand, RelativeSource={RelativeSource AncestorType=UserControl}}" CommandParameter="{Binding ArtistId}" Margin="0,0,6,6"/>
+                                                <Button Content="Album" Style="{StaticResource GhostButtonStyle}" Command="{Binding DataContext.NavigateToAlbumCommand, RelativeSource={RelativeSource AncestorType=UserControl}}" CommandParameter="{Binding AlbumId}" Margin="0,0,6,6"/>
+                                                <Button Content="Add" Style="{StaticResource SecondaryButtonStyle}" Command="{Binding DataContext.AddTrackToSelectedPlaylistCommand, RelativeSource={RelativeSource AncestorType=UserControl}}" CommandParameter="{Binding}" Margin="0,0,0,6"/>
+                                            </WrapPanel>
+                                        </Grid>
+                                    </Border>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
 
-                    <TextBlock Text="Online"
-                               Style="{StaticResource LabelTextStyle}"
-                               Margin="0,18,0,0"
-                               Visibility="{Binding OnlineResults.Tracks, Converter={StaticResource NullToVisibilityConverter}}"/>
-                    <ItemsControl ItemsSource="{Binding OnlineResults.Tracks}">
-                        <ItemsControl.ItemTemplate>
-                            <DataTemplate>
-                                <Grid Margin="0,0,0,10">
-                                    <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="*"/>
-                                        <ColumnDefinition Width="Auto"/>
-                                    </Grid.ColumnDefinitions>
-                                    <controls:TrackRowControl Grid.Column="0"
-                                                              Title="{Binding Title}"
-                                                              Artist="{Binding ArtistName}"
-                                                              Album="{Binding AlbumTitle}"
-                                                              Duration="{Binding DurationFormatted}"
-                                                              CoverArtUrl="{Binding CoverArtUrl}"
-                                                              Command="{Binding DataContext.PlayTrackCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
-                                                              CommandParameter="{Binding}"/>
-                                    <StackPanel Grid.Column="1" Orientation="Horizontal" Margin="12,0,0,0" VerticalAlignment="Center">
-                                        <Button Content="Queue"
-                                                Style="{StaticResource GhostButtonStyle}"
-                                                Command="{Binding DataContext.QueueTrackCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
-                                                CommandParameter="{Binding}"
-                                                Margin="0,0,6,0"/>
-                                        <Button Content="Add"
-                                                Style="{StaticResource SecondaryButtonStyle}"
-                                                Command="{Binding DataContext.AddTrackToSelectedPlaylistCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
-                                                CommandParameter="{Binding}"/>
-                                    </StackPanel>
-                                </Grid>
-                            </DataTemplate>
-                        </ItemsControl.ItemTemplate>
-                    </ItemsControl>
-                </StackPanel>
+                        <TextBlock Text="Online" Style="{StaticResource LabelTextStyle}" Margin="0,14,0,0" Visibility="{Binding HasOnlineTrackResults, Converter={StaticResource BooleanToVisibilityConverter}}"/>
+                        <ItemsControl ItemsSource="{Binding OnlineResults.Tracks}" Visibility="{Binding HasOnlineTrackResults, Converter={StaticResource BooleanToVisibilityConverter}}">
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <Border Style="{StaticResource InsetSurfaceCardStyle}" Margin="0,0,0,10">
+                                        <Grid>
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="*"/>
+                                                <ColumnDefinition Width="Auto"/>
+                                            </Grid.ColumnDefinitions>
+                                            <controls:TrackRowControl Grid.Column="0" Title="{Binding Title}" Artist="{Binding ArtistName}" Album="{Binding AlbumTitle}" Duration="{Binding DurationFormatted}" CoverArtUrl="{Binding CoverArtUrl}" Command="{Binding DataContext.PlayTrackCommand, RelativeSource={RelativeSource AncestorType=UserControl}}" CommandParameter="{Binding}"/>
+                                            <WrapPanel Grid.Column="1" Margin="12,0,0,0" VerticalAlignment="Center">
+                                                <Button Content="Queue" Style="{StaticResource GhostButtonStyle}" Command="{Binding DataContext.QueueTrackCommand, RelativeSource={RelativeSource AncestorType=UserControl}}" CommandParameter="{Binding}" Margin="0,0,6,6"/>
+                                                <Button Content="Wave" Style="{StaticResource GhostButtonStyle}" Command="{Binding DataContext.StartWaveFromTrackCommand, RelativeSource={RelativeSource AncestorType=UserControl}}" CommandParameter="{Binding}" Margin="0,0,6,6"/>
+                                                <Button Content="Artist" Style="{StaticResource GhostButtonStyle}" Command="{Binding DataContext.NavigateToArtistCommand, RelativeSource={RelativeSource AncestorType=UserControl}}" CommandParameter="{Binding ArtistId}" Margin="0,0,6,6"/>
+                                                <Button Content="Album" Style="{StaticResource GhostButtonStyle}" Command="{Binding DataContext.NavigateToAlbumCommand, RelativeSource={RelativeSource AncestorType=UserControl}}" CommandParameter="{Binding AlbumId}" Margin="0,0,6,6"/>
+                                                <Button Content="Add" Style="{StaticResource SecondaryButtonStyle}" Command="{Binding DataContext.AddTrackToSelectedPlaylistCommand, RelativeSource={RelativeSource AncestorType=UserControl}}" CommandParameter="{Binding}" Margin="0,0,0,6"/>
+                                            </WrapPanel>
+                                        </Grid>
+                                    </Border>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                    </StackPanel>
+                </Border>
             </StackPanel>
 
-            <StackPanel Margin="0,22,0,0"
-                        Visibility="{Binding SelectedTab, Converter={StaticResource EnumMatchConverter}, ConverterParameter=Artists}">
-                <TextBlock Text="Artists"
-                           Style="{StaticResource TitleTextStyle}"/>
-                <TextBlock Text="Open full artist surfaces without leaving search."
-                           Style="{StaticResource CaptionTextStyle}"
-                           Margin="0,4,0,14"/>
-                <ScrollViewer HorizontalScrollBarVisibility="Auto"
-                              VerticalScrollBarVisibility="Disabled">
-                    <ItemsControl ItemsSource="{Binding LocalResults.Artists}">
-                        <ItemsControl.ItemsPanel>
-                            <ItemsPanelTemplate>
-                                <StackPanel Orientation="Horizontal"/>
-                            </ItemsPanelTemplate>
-                        </ItemsControl.ItemsPanel>
-                        <ItemsControl.ItemTemplate>
-                            <DataTemplate>
-                                <controls:ArtistCircleCard ArtistName="{Binding Name}"
-                                                           ImageUrl="{Binding ImageUrl}"
-                                                           Command="{Binding DataContext.NavigateToArtistCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
-                                                           CommandParameter="{Binding Id}"
-                                                           Margin="0,0,14,0"/>
-                            </DataTemplate>
-                        </ItemsControl.ItemTemplate>
-                    </ItemsControl>
-                </ScrollViewer>
-                <ScrollViewer HorizontalScrollBarVisibility="Auto"
-                              VerticalScrollBarVisibility="Disabled"
-                              Margin="0,16,0,0">
-                    <ItemsControl ItemsSource="{Binding OnlineResults.Artists}">
-                        <ItemsControl.ItemsPanel>
-                            <ItemsPanelTemplate>
-                                <StackPanel Orientation="Horizontal"/>
-                            </ItemsPanelTemplate>
-                        </ItemsControl.ItemsPanel>
-                        <ItemsControl.ItemTemplate>
-                            <DataTemplate>
-                                <controls:ArtistCircleCard ArtistName="{Binding Name}"
-                                                           ImageUrl="{Binding ImageUrl}"
-                                                           Command="{Binding DataContext.NavigateToArtistCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
-                                                           CommandParameter="{Binding Id}"
-                                                           Margin="0,0,14,0"/>
-                            </DataTemplate>
-                        </ItemsControl.ItemTemplate>
-                    </ItemsControl>
-                </ScrollViewer>
+            <StackPanel Margin="0,22,0,0" Visibility="{Binding SelectedTab, Converter={StaticResource EnumMatchConverter}, ConverterParameter=Artists}">
+                <Border Style="{StaticResource SurfaceCardStyle}">
+                    <StackPanel>
+                        <TextBlock Text="Artists" Style="{StaticResource DisplaySectionTextStyle}"/>
+                        <TextBlock Text="Open full artist surfaces without leaving the search workspace." Style="{StaticResource CaptionTextStyle}" Margin="0,4,0,14"/>
+                        <ScrollViewer HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Disabled" Visibility="{Binding HasLocalArtistResults, Converter={StaticResource BooleanToVisibilityConverter}}">
+                            <ItemsControl ItemsSource="{Binding LocalResults.Artists}">
+                                <ItemsControl.ItemsPanel><ItemsPanelTemplate><StackPanel Orientation="Horizontal"/></ItemsPanelTemplate></ItemsControl.ItemsPanel>
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate>
+                                        <controls:ArtistCircleCard ArtistName="{Binding Name}" ImageUrl="{Binding ImageUrl}" Command="{Binding DataContext.NavigateToArtistCommand, RelativeSource={RelativeSource AncestorType=UserControl}}" CommandParameter="{Binding Id}" Margin="0,0,14,0"/>
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
+                        </ScrollViewer>
+                        <ScrollViewer HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Disabled" Margin="0,14,0,0" Visibility="{Binding HasOnlineArtistResults, Converter={StaticResource BooleanToVisibilityConverter}}">
+                            <ItemsControl ItemsSource="{Binding OnlineResults.Artists}">
+                                <ItemsControl.ItemsPanel><ItemsPanelTemplate><StackPanel Orientation="Horizontal"/></ItemsPanelTemplate></ItemsControl.ItemsPanel>
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate>
+                                        <controls:ArtistCircleCard ArtistName="{Binding Name}" ImageUrl="{Binding ImageUrl}" Command="{Binding DataContext.NavigateToArtistCommand, RelativeSource={RelativeSource AncestorType=UserControl}}" CommandParameter="{Binding Id}" Margin="0,0,14,0"/>
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
+                        </ScrollViewer>
+                    </StackPanel>
+                </Border>
             </StackPanel>
 
-            <StackPanel Margin="0,22,0,0"
-                        Visibility="{Binding SelectedTab, Converter={StaticResource EnumMatchConverter}, ConverterParameter=Albums}">
-                <TextBlock Text="Albums"
-                           Style="{StaticResource TitleTextStyle}"/>
-                <TextBlock Text="Artwork-first browsing with direct album surfaces."
-                           Style="{StaticResource CaptionTextStyle}"
-                           Margin="0,4,0,14"/>
-                <ScrollViewer HorizontalScrollBarVisibility="Auto"
-                              VerticalScrollBarVisibility="Disabled">
-                    <ItemsControl ItemsSource="{Binding LocalResults.Albums}">
-                        <ItemsControl.ItemsPanel>
-                            <ItemsPanelTemplate>
-                                <StackPanel Orientation="Horizontal"/>
-                            </ItemsPanelTemplate>
-                        </ItemsControl.ItemsPanel>
-                        <ItemsControl.ItemTemplate>
-                            <DataTemplate>
-                                <controls:AlbumCard Title="{Binding Title}"
-                                                    Artist="{Binding ArtistName}"
-                                                    CoverArtUrl="{Binding CoverArtUrl}"
-                                                    Year="{Binding ReleaseYear}"
-                                                    Command="{Binding DataContext.NavigateToAlbumCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
-                                                    CommandParameter="{Binding Id}"
-                                                    Margin="0,0,14,0"/>
-                            </DataTemplate>
-                        </ItemsControl.ItemTemplate>
-                    </ItemsControl>
-                </ScrollViewer>
-                <ScrollViewer HorizontalScrollBarVisibility="Auto"
-                              VerticalScrollBarVisibility="Disabled"
-                              Margin="0,16,0,0">
-                    <ItemsControl ItemsSource="{Binding OnlineResults.Albums}">
-                        <ItemsControl.ItemsPanel>
-                            <ItemsPanelTemplate>
-                                <StackPanel Orientation="Horizontal"/>
-                            </ItemsPanelTemplate>
-                        </ItemsControl.ItemsPanel>
-                        <ItemsControl.ItemTemplate>
-                            <DataTemplate>
-                                <controls:AlbumCard Title="{Binding Title}"
-                                                    Artist="{Binding ArtistName}"
-                                                    CoverArtUrl="{Binding CoverArtUrl}"
-                                                    Year="{Binding ReleaseYear}"
-                                                    Command="{Binding DataContext.NavigateToAlbumCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
-                                                    CommandParameter="{Binding Id}"
-                                                    Margin="0,0,14,0"/>
-                            </DataTemplate>
-                        </ItemsControl.ItemTemplate>
-                    </ItemsControl>
-                </ScrollViewer>
+            <StackPanel Margin="0,22,0,0" Visibility="{Binding SelectedTab, Converter={StaticResource EnumMatchConverter}, ConverterParameter=Albums}">
+                <Border Style="{StaticResource SurfaceCardStyle}">
+                    <StackPanel>
+                        <TextBlock Text="Albums" Style="{StaticResource DisplaySectionTextStyle}"/>
+                        <TextBlock Text="Artwork-first browsing with direct album surfaces." Style="{StaticResource CaptionTextStyle}" Margin="0,4,0,14"/>
+                        <ScrollViewer HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Disabled" Visibility="{Binding HasLocalAlbumResults, Converter={StaticResource BooleanToVisibilityConverter}}">
+                            <ItemsControl ItemsSource="{Binding LocalResults.Albums}">
+                                <ItemsControl.ItemsPanel><ItemsPanelTemplate><StackPanel Orientation="Horizontal"/></ItemsPanelTemplate></ItemsControl.ItemsPanel>
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate>
+                                        <controls:AlbumCard Title="{Binding Title}" Artist="{Binding ArtistName}" CoverArtUrl="{Binding CoverArtUrl}" Year="{Binding ReleaseYear}" Command="{Binding DataContext.NavigateToAlbumCommand, RelativeSource={RelativeSource AncestorType=UserControl}}" CommandParameter="{Binding Id}" Margin="0,0,14,0"/>
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
+                        </ScrollViewer>
+                        <ScrollViewer HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Disabled" Margin="0,14,0,0" Visibility="{Binding HasOnlineAlbumResults, Converter={StaticResource BooleanToVisibilityConverter}}">
+                            <ItemsControl ItemsSource="{Binding OnlineResults.Albums}">
+                                <ItemsControl.ItemsPanel><ItemsPanelTemplate><StackPanel Orientation="Horizontal"/></ItemsPanelTemplate></ItemsControl.ItemsPanel>
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate>
+                                        <controls:AlbumCard Title="{Binding Title}" Artist="{Binding ArtistName}" CoverArtUrl="{Binding CoverArtUrl}" Year="{Binding ReleaseYear}" Command="{Binding DataContext.NavigateToAlbumCommand, RelativeSource={RelativeSource AncestorType=UserControl}}" CommandParameter="{Binding Id}" Margin="0,0,14,0"/>
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
+                        </ScrollViewer>
+                    </StackPanel>
+                </Border>
             </StackPanel>
 
-            <StackPanel Margin="0,22,0,0"
-                        Visibility="{Binding SelectedTab, Converter={StaticResource EnumMatchConverter}, ConverterParameter=Playlists}">
-                <TextBlock Text="Playlists"
-                           Style="{StaticResource TitleTextStyle}"/>
-                <TextBlock Text="Collections from your library and connected providers."
-                           Style="{StaticResource CaptionTextStyle}"
-                           Margin="0,4,0,14"/>
-                <ScrollViewer HorizontalScrollBarVisibility="Auto"
-                              VerticalScrollBarVisibility="Disabled">
-                    <ItemsControl ItemsSource="{Binding LocalResults.Playlists}">
-                        <ItemsControl.ItemsPanel>
-                            <ItemsPanelTemplate>
-                                <StackPanel Orientation="Horizontal"/>
-                            </ItemsPanelTemplate>
-                        </ItemsControl.ItemsPanel>
-                        <ItemsControl.ItemTemplate>
-                            <DataTemplate>
-                                <controls:PlaylistCard Title="{Binding Title}"
-                                                       Subtitle="{Binding OwnerName}"
-                                                       CoverArtUrl="{Binding CoverArtUrl}"
-                                                       Command="{Binding DataContext.NavigateToPlaylistCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
-                                                       CommandParameter="{Binding Id}"
-                                                       Margin="0,0,14,0"/>
-                            </DataTemplate>
-                        </ItemsControl.ItemTemplate>
-                    </ItemsControl>
-                </ScrollViewer>
-                <ScrollViewer HorizontalScrollBarVisibility="Auto"
-                              VerticalScrollBarVisibility="Disabled"
-                              Margin="0,16,0,0">
-                    <ItemsControl ItemsSource="{Binding OnlineResults.Playlists}">
-                        <ItemsControl.ItemsPanel>
-                            <ItemsPanelTemplate>
-                                <StackPanel Orientation="Horizontal"/>
-                            </ItemsPanelTemplate>
-                        </ItemsControl.ItemsPanel>
-                        <ItemsControl.ItemTemplate>
-                            <DataTemplate>
-                                <controls:PlaylistCard Title="{Binding Title}"
-                                                       Subtitle="{Binding OwnerName}"
-                                                       CoverArtUrl="{Binding CoverArtUrl}"
-                                                       Command="{Binding DataContext.NavigateToPlaylistCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
-                                                       CommandParameter="{Binding Id}"
-                                                       Margin="0,0,14,0"/>
-                            </DataTemplate>
-                        </ItemsControl.ItemTemplate>
-                    </ItemsControl>
-                </ScrollViewer>
+            <StackPanel Margin="0,22,0,0" Visibility="{Binding SelectedTab, Converter={StaticResource EnumMatchConverter}, ConverterParameter=Playlists}">
+                <Border Style="{StaticResource SurfaceCardStyle}">
+                    <StackPanel>
+                        <TextBlock Text="Playlists" Style="{StaticResource DisplaySectionTextStyle}"/>
+                        <TextBlock Text="Collections from your library and connected providers." Style="{StaticResource CaptionTextStyle}" Margin="0,4,0,14"/>
+                        <ScrollViewer HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Disabled" Visibility="{Binding HasLocalPlaylistResults, Converter={StaticResource BooleanToVisibilityConverter}}">
+                            <ItemsControl ItemsSource="{Binding LocalResults.Playlists}">
+                                <ItemsControl.ItemsPanel><ItemsPanelTemplate><StackPanel Orientation="Horizontal"/></ItemsPanelTemplate></ItemsControl.ItemsPanel>
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate>
+                                        <controls:PlaylistCard Title="{Binding Title}" Subtitle="{Binding OwnerName}" CoverArtUrl="{Binding CoverArtUrl}" Command="{Binding DataContext.NavigateToPlaylistCommand, RelativeSource={RelativeSource AncestorType=UserControl}}" CommandParameter="{Binding Id}" Margin="0,0,14,0"/>
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
+                        </ScrollViewer>
+                        <ScrollViewer HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Disabled" Margin="0,14,0,0" Visibility="{Binding HasOnlinePlaylistResults, Converter={StaticResource BooleanToVisibilityConverter}}">
+                            <ItemsControl ItemsSource="{Binding OnlineResults.Playlists}">
+                                <ItemsControl.ItemsPanel><ItemsPanelTemplate><StackPanel Orientation="Horizontal"/></ItemsPanelTemplate></ItemsControl.ItemsPanel>
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate>
+                                        <controls:PlaylistCard Title="{Binding Title}" Subtitle="{Binding OwnerName}" CoverArtUrl="{Binding CoverArtUrl}" Command="{Binding DataContext.NavigateToPlaylistCommand, RelativeSource={RelativeSource AncestorType=UserControl}}" CommandParameter="{Binding Id}" Margin="0,0,14,0"/>
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
+                        </ScrollViewer>
+                    </StackPanel>
+                </Border>
             </StackPanel>
         </StackPanel>
     </ScrollViewer>

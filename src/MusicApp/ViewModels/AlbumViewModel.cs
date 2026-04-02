@@ -37,6 +37,12 @@ public partial class AlbumViewModel : ObservableObject
     public bool HasRelatedReleases => RelatedReleases.Count > 0;
     public bool IsSaved => Album?.IsLiked == true;
     public List<Playlist> AvailablePlaylists => _libraryService.Playlists;
+    public string SourceLabel => _providerName;
+    public string AlbumSummary => Album == null
+        ? string.Empty
+        : $"{Album.ReleaseYear} • {Album.TotalTracks} tracks • {Album.TotalDurationFormatted} • {Album.AlbumType}";
+    public string RelatedSummary => HasRelatedReleases ? $"{RelatedReleases.Count} related releases from the same artist." : "No related releases surfaced.";
+    public string SaveLabel => IsSaved ? "Saved to Library" : "Save Album";
 
     public AlbumViewModel(
         IMusicProviderService providerService,
@@ -48,6 +54,8 @@ public partial class AlbumViewModel : ObservableObject
         _playbackService = playbackService;
         _navigationService = navigationService;
         _libraryService = libraryService;
+
+        EnsureSelectedPlaylist();
     }
 
     public async Task LoadAlbumAsync(string albumId, string providerName = "Local")
@@ -83,6 +91,7 @@ public partial class AlbumViewModel : ObservableObject
         }
         finally
         {
+            EnsureSelectedPlaylist();
             IsLoading = false;
             NotifyStateChanged();
         }
@@ -91,13 +100,18 @@ public partial class AlbumViewModel : ObservableObject
     [RelayCommand]
     private Task PlayAll()
     {
-        return Album?.Tracks.Count > 0 ? _playbackService.PlayAsync(Album.Tracks[0], Album.Tracks) : Task.CompletedTask;
+        if (Album == null || Album.Tracks.Count == 0)
+        {
+            return Task.CompletedTask;
+        }
+
+        return _playbackService.PlayAsync(Album.Tracks[0], Album.Tracks);
     }
 
     [RelayCommand]
     private Task Shuffle()
     {
-        if (Album?.Tracks.Count <= 0)
+        if (Album == null || Album.Tracks.Count == 0)
         {
             return Task.CompletedTask;
         }
@@ -121,7 +135,7 @@ public partial class AlbumViewModel : ObservableObject
     [RelayCommand]
     private async Task AddToLibrary()
     {
-        if (Album?.Tracks == null)
+        if (Album == null || Album.Tracks.Count == 0)
         {
             return;
         }
@@ -200,5 +214,19 @@ public partial class AlbumViewModel : ObservableObject
         OnPropertyChanged(nameof(HasRelatedReleases));
         OnPropertyChanged(nameof(IsSaved));
         OnPropertyChanged(nameof(AvailablePlaylists));
+        OnPropertyChanged(nameof(SourceLabel));
+        OnPropertyChanged(nameof(AlbumSummary));
+        OnPropertyChanged(nameof(RelatedSummary));
+        OnPropertyChanged(nameof(SaveLabel));
+    }
+
+    private void EnsureSelectedPlaylist()
+    {
+        if (!string.IsNullOrWhiteSpace(SelectedPlaylistId))
+        {
+            return;
+        }
+
+        SelectedPlaylistId = AvailablePlaylists.FirstOrDefault()?.Id ?? string.Empty;
     }
 }

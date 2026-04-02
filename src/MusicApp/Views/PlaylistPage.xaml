@@ -7,85 +7,114 @@
     <ScrollViewer Style="{StaticResource ScrollViewerStyle}"
                   VerticalScrollBarVisibility="Auto">
         <StackPanel Margin="28,24,28,36">
-            <Border Style="{StaticResource SurfaceCardStyle}"
-                    Background="{StaticResource HeroGradientBrush}">
+            <Border Style="{StaticResource HeroSurfaceCardStyle}"
+                    Visibility="{Binding HasPlaylist, Converter={StaticResource BooleanToVisibilityConverter}}">
                 <Grid>
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="220"/>
                         <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="300"/>
                     </Grid.ColumnDefinitions>
+
                     <Border Grid.Column="0"
                             Width="200"
                             Height="200"
-                            CornerRadius="22">
+                            CornerRadius="26">
                         <Border.Background>
                             <ImageBrush ImageSource="{Binding Playlist.CoverArtUrl}" Stretch="UniformToFill"/>
                         </Border.Background>
                     </Border>
-                    <StackPanel Grid.Column="1" Margin="26,0,0,0" VerticalAlignment="Center">
-                        <TextBlock Text="{Binding CollectionLabel}"
-                                   Style="{StaticResource SectionEyebrowTextStyle}"/>
+
+                    <StackPanel Grid.Column="1" Margin="26,0,20,0" VerticalAlignment="Center">
+                        <TextBlock Text="{Binding CollectionLabel}" Style="{StaticResource SectionEyebrowTextStyle}"/>
                         <TextBlock Text="{Binding Playlist.Title}"
                                    Style="{StaticResource HeroTextStyle}"
+                                   FontSize="38"
+                                   Margin="0,10,0,0"
+                                   TextWrapping="Wrap"/>
+                        <TextBlock Text="{Binding PlaylistSummary}"
+                                   Style="{StaticResource SubtitleTextStyle}"
+                                   Margin="0,12,0,0"
+                                   TextWrapping="Wrap"/>
+                        <TextBlock Text="{Binding PlaylistMetaSummary}"
+                                   Style="{StaticResource CaptionTextStyle}"
                                    Margin="0,8,0,0"
                                    TextWrapping="Wrap"/>
                         <TextBlock Text="{Binding CollectionSubtitle}"
-                                   Style="{StaticResource SubtitleTextStyle}"
-                                   Margin="0,10,0,0"
+                                   Style="{StaticResource CaptionTextStyle}"
+                                   Margin="0,12,0,0"
                                    TextWrapping="Wrap"/>
-                        <StackPanel Orientation="Horizontal" Margin="0,18,0,0">
+
+                        <WrapPanel Margin="0,20,0,0">
                             <Button Content="Play"
                                     Style="{StaticResource PrimaryButtonStyle}"
                                     Command="{Binding PlayAllCommand}"
-                                    Margin="0,0,10,0"/>
+                                    Margin="0,0,10,10"/>
                             <Button Content="Shuffle"
                                     Style="{StaticResource SecondaryButtonStyle}"
                                     Command="{Binding ShuffleCommand}"
-                                    Margin="0,0,10,0"/>
+                                    Margin="0,0,10,10"/>
                             <Button Content="Smart Shuffle"
                                     Style="{StaticResource SecondaryButtonStyle}"
                                     Command="{Binding SmartShuffleCommand}"
-                                    Margin="0,0,10,0"/>
+                                    Margin="0,0,10,10"/>
                             <Button Content="Start Wave"
                                     Style="{StaticResource GhostButtonStyle}"
                                     Command="{Binding StartWaveCommand}"
-                                    Margin="0,0,10,0"/>
+                                    Margin="0,0,10,10"/>
                             <Button Content="Pin"
                                     Style="{StaticResource GhostButtonStyle}"
                                     Command="{Binding TogglePinCommand}"
-                                    Visibility="{Binding Playlist.IsSystemPlaylist, Converter={StaticResource BooleanToVisibilityConverter}, ConverterParameter=invert}"/>
-                        </StackPanel>
-                        <StackPanel Orientation="Horizontal" Margin="0,12,0,0">
-                            <Button Content="Edit"
-                                    Style="{StaticResource GhostButtonStyle}"
-                                    Command="{Binding ToggleEditCommand}"
-                                    Margin="0,0,10,0"
-                                    Visibility="{Binding Playlist.IsSystemPlaylist, Converter={StaticResource BooleanToVisibilityConverter}, ConverterParameter=invert}"/>
-                            <Button Content="Delete"
-                                    Style="{StaticResource GhostButtonStyle}"
-                                    Command="{Binding DeletePlaylistCommand}"
-                                    Visibility="{Binding Playlist.IsSystemPlaylist, Converter={StaticResource BooleanToVisibilityConverter}, ConverterParameter=invert}"/>
-                        </StackPanel>
+                                    Margin="0,0,0,10"
+                                    Visibility="{Binding CanEditPlaylist, Converter={StaticResource BooleanToVisibilityConverter}}"/>
+                        </WrapPanel>
+                    </StackPanel>
+
+                    <StackPanel Grid.Column="2">
+                        <Border Style="{StaticResource InsetSurfaceCardStyle}" Margin="0,0,0,12">
+                            <StackPanel>
+                                <TextBlock Text="Playlist Management" Style="{StaticResource MetricLabelTextStyle}"/>
+                                <Button Content="{Binding CoverButtonLabel}"
+                                        Style="{StaticResource SecondaryButtonStyle}"
+                                        Command="{Binding ChangeCoverArtCommand}"
+                                        Margin="0,12,0,0"
+                                        Visibility="{Binding CanEditPlaylist, Converter={StaticResource BooleanToVisibilityConverter}}"/>
+                                <Button Content="Edit Tracks"
+                                        Style="{StaticResource GhostButtonStyle}"
+                                        Command="{Binding ToggleEditCommand}"
+                                        Margin="0,10,0,0"
+                                        Visibility="{Binding CanEditPlaylist, Converter={StaticResource BooleanToVisibilityConverter}}"/>
+                                <Button Content="Delete Playlist"
+                                        Style="{StaticResource GhostButtonStyle}"
+                                        Command="{Binding DeletePlaylistCommand}"
+                                        Margin="0,10,0,0"
+                                        Visibility="{Binding CanEditPlaylist, Converter={StaticResource BooleanToVisibilityConverter}}"/>
+                            </StackPanel>
+                        </Border>
+
+                        <Border Style="{StaticResource MetricCardStyle}">
+                            <StackPanel>
+                                <TextBlock Text="{Binding SearchScopeTitle}" Style="{StaticResource MetricLabelTextStyle}"/>
+                                <TextBox Style="{StaticResource SearchBoxStyle}"
+                                         Text="{Binding SearchQuery, UpdateSourceTrigger=PropertyChanged}"
+                                         Margin="0,12,0,0"/>
+                            </StackPanel>
+                        </Border>
                     </StackPanel>
                 </Grid>
             </Border>
 
             <Border Style="{StaticResource SurfaceCardStyle}"
                     Margin="0,20,0,0"
-                    Visibility="{Binding Playlist, Converter={StaticResource NullToVisibilityConverter}}">
-                <StackPanel>
-                    <TextBlock Text="{Binding SearchScopeTitle}"
-                               Style="{StaticResource LabelTextStyle}"/>
-                    <TextBox Style="{StaticResource SearchBoxStyle}"
-                             Text="{Binding SearchQuery, UpdateSourceTrigger=PropertyChanged}"
-                             Margin="0,12,0,0"/>
-                </StackPanel>
+                    Visibility="{Binding HasPlaylist, Converter={StaticResource BooleanToVisibilityConverter}, ConverterParameter=invert}">
+                <TextBlock Text="Playlist not found."
+                           Style="{StaticResource SubtitleTextStyle}"/>
             </Border>
 
             <Border Style="{StaticResource SurfaceCardStyle}"
                     Margin="0,20,0,0"
                     Visibility="{Binding ShowEmptyCollectionState, Converter={StaticResource BooleanToVisibilityConverter}}">
-                <StackPanel Width="520" HorizontalAlignment="Center">
+                <StackPanel Width="540" HorizontalAlignment="Center">
                     <TextBlock Text="{Binding EmptyStateTitle}"
                                Style="{StaticResource TitleTextStyle}"
                                TextAlignment="Center"/>
@@ -100,7 +129,7 @@
             <Border Style="{StaticResource SurfaceCardStyle}"
                     Margin="0,20,0,0"
                     Visibility="{Binding ShowNoSearchMatchesState, Converter={StaticResource BooleanToVisibilityConverter}}">
-                <StackPanel Width="520" HorizontalAlignment="Center">
+                <StackPanel Width="540" HorizontalAlignment="Center">
                     <TextBlock Text="No matching tracks"
                                Style="{StaticResource TitleTextStyle}"
                                TextAlignment="Center"/>
@@ -112,48 +141,67 @@
                 </StackPanel>
             </Border>
 
-            <ItemsControl ItemsSource="{Binding DisplayedTracks}"
-                          Margin="0,20,0,0"
-                          Visibility="{Binding HasFilteredTracks, Converter={StaticResource BooleanToVisibilityConverter}}">
-                <ItemsControl.ItemTemplate>
-                    <DataTemplate>
-                        <Grid Margin="0,0,0,10">
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="*"/>
-                                <ColumnDefinition Width="Auto"/>
-                            </Grid.ColumnDefinitions>
-                            <controls:TrackRowControl Grid.Column="0"
-                                                      Title="{Binding Title}"
-                                                      Artist="{Binding ArtistName}"
-                                                      Album="{Binding AlbumTitle}"
-                                                      Duration="{Binding DurationFormatted}"
-                                                      CoverArtUrl="{Binding CoverArtUrl}"
-                                                      Command="{Binding DataContext.PlayTrackCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
-                                                      CommandParameter="{Binding}"/>
-                            <StackPanel Grid.Column="1"
-                                        Orientation="Horizontal"
-                                        Margin="12,0,0,0"
-                                        VerticalAlignment="Center">
-                                <Button Content="↑"
-                                        Style="{StaticResource GhostButtonStyle}"
-                                        Command="{Binding DataContext.MoveTrackUpCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
-                                        CommandParameter="{Binding}"
-                                        Visibility="{Binding DataContext.IsEditing, RelativeSource={RelativeSource AncestorType=UserControl}, Converter={StaticResource BooleanToVisibilityConverter}}"/>
-                                <Button Content="↓"
-                                        Style="{StaticResource GhostButtonStyle}"
-                                        Command="{Binding DataContext.MoveTrackDownCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
-                                        CommandParameter="{Binding}"
-                                        Visibility="{Binding DataContext.IsEditing, RelativeSource={RelativeSource AncestorType=UserControl}, Converter={StaticResource BooleanToVisibilityConverter}}"/>
-                                <Button Content="Remove"
-                                        Style="{StaticResource SecondaryButtonStyle}"
-                                        Command="{Binding DataContext.RemoveTrackCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
-                                        CommandParameter="{Binding}"
-                                        Visibility="{Binding DataContext.IsEditing, RelativeSource={RelativeSource AncestorType=UserControl}, Converter={StaticResource BooleanToVisibilityConverter}}"/>
-                            </StackPanel>
-                        </Grid>
-                    </DataTemplate>
-                </ItemsControl.ItemTemplate>
-            </ItemsControl>
+            <Border Style="{StaticResource SurfaceCardStyle}"
+                    Margin="0,20,0,0"
+                    Visibility="{Binding HasFilteredTracks, Converter={StaticResource BooleanToVisibilityConverter}}">
+                <StackPanel>
+                    <TextBlock Text="Tracks" Style="{StaticResource DisplaySectionTextStyle}"/>
+                    <TextBlock Text="Play from here, filter the set, or reorder it when editing is enabled."
+                               Style="{StaticResource CaptionTextStyle}"
+                               Margin="0,4,0,14"/>
+
+                    <ItemsControl ItemsSource="{Binding DisplayedTracks}">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <Grid Margin="0,0,0,10">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                    </Grid.ColumnDefinitions>
+                                    <controls:TrackRowControl Grid.Column="0"
+                                                              Title="{Binding Title}"
+                                                              Artist="{Binding ArtistName}"
+                                                              Album="{Binding AlbumTitle}"
+                                                              Duration="{Binding DurationFormatted}"
+                                                              CoverArtUrl="{Binding CoverArtUrl}"
+                                                              Command="{Binding DataContext.PlayTrackCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                                              CommandParameter="{Binding}"/>
+                                    <WrapPanel Grid.Column="1" Margin="12,0,0,0" VerticalAlignment="Center">
+                                        <Button Content="Artist"
+                                                Style="{StaticResource GhostButtonStyle}"
+                                                Command="{Binding DataContext.NavigateToArtistCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                                CommandParameter="{Binding ArtistId}"
+                                                Margin="0,0,6,6"/>
+                                        <Button Content="Album"
+                                                Style="{StaticResource GhostButtonStyle}"
+                                                Command="{Binding DataContext.NavigateToAlbumCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                                CommandParameter="{Binding AlbumId}"
+                                                Margin="0,0,6,6"/>
+                                        <Button Content="Up"
+                                                Style="{StaticResource GhostButtonStyle}"
+                                                Command="{Binding DataContext.MoveTrackUpCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                                CommandParameter="{Binding}"
+                                                Margin="0,0,6,6"
+                                                Visibility="{Binding DataContext.IsEditing, RelativeSource={RelativeSource AncestorType=UserControl}, Converter={StaticResource BooleanToVisibilityConverter}}"/>
+                                        <Button Content="Down"
+                                                Style="{StaticResource GhostButtonStyle}"
+                                                Command="{Binding DataContext.MoveTrackDownCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                                CommandParameter="{Binding}"
+                                                Margin="0,0,6,6"
+                                                Visibility="{Binding DataContext.IsEditing, RelativeSource={RelativeSource AncestorType=UserControl}, Converter={StaticResource BooleanToVisibilityConverter}}"/>
+                                        <Button Content="Remove"
+                                                Style="{StaticResource SecondaryButtonStyle}"
+                                                Command="{Binding DataContext.RemoveTrackCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                                CommandParameter="{Binding}"
+                                                Margin="0,0,0,6"
+                                                Visibility="{Binding DataContext.IsEditing, RelativeSource={RelativeSource AncestorType=UserControl}, Converter={StaticResource BooleanToVisibilityConverter}}"/>
+                                    </WrapPanel>
+                                </Grid>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                </StackPanel>
+            </Border>
         </StackPanel>
     </ScrollViewer>
 </UserControl>

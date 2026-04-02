@@ -78,6 +78,7 @@ public partial class MainViewModel : ObservableObject
     public bool IsDetailsContextMode => SelectedContextPanelMode == ContextPanelMode.Details;
     public bool IsCommentsContextMode => SelectedContextPanelMode == ContextPanelMode.Comments;
     public bool IsWaveContextMode => SelectedContextPanelMode == ContextPanelMode.Wave;
+    public string WorkspaceSummary => $"{Library.TotalTracks} tracks • {Library.TotalAlbums} albums • {Library.TotalArtists} artists";
     public string CurrentPageTitle => CurrentPageType switch
     {
         NavigationPage.Home => "Home",
@@ -111,6 +112,14 @@ public partial class MainViewModel : ObservableObject
         ContextPanelMode.Comments => "Timed Comments",
         ContextPanelMode.Wave => "Wave Notes",
         _ => "Up Next"
+    };
+    public string ContextPanelSubtitle => SelectedContextPanelMode switch
+    {
+        ContextPanelMode.Lyrics => NowPlaying.LyricsStatusMessage,
+        ContextPanelMode.Details => NowPlaying.ContextSummary,
+        ContextPanelMode.Comments => NowPlaying.CommentsSummary,
+        ContextPanelMode.Wave => MyWave.TunerSummary,
+        _ => NowPlaying.QueueCountLabel
     };
 
     public MainViewModel(
@@ -155,10 +164,16 @@ public partial class MainViewModel : ObservableObject
 
         if (e.PropertyName == nameof(LibraryViewModel.SectionTitle) ||
             e.PropertyName == nameof(LibraryViewModel.SectionSubtitle) ||
-            e.PropertyName == nameof(LibraryViewModel.SelectedSection))
+            e.PropertyName == nameof(LibraryViewModel.SelectedSection) ||
+            e.PropertyName == nameof(LibraryViewModel.TotalTracks) ||
+            e.PropertyName == nameof(LibraryViewModel.TotalAlbums) ||
+            e.PropertyName == nameof(LibraryViewModel.TotalArtists) ||
+            e.PropertyName == nameof(LibraryViewModel.PinnedPlaylists) ||
+            e.PropertyName == nameof(LibraryViewModel.UserPlaylists))
         {
             OnPropertyChanged(nameof(CurrentPageTitle));
             OnPropertyChanged(nameof(CurrentPageSubtitle));
+            OnPropertyChanged(nameof(WorkspaceSummary));
         }
     }
 
@@ -170,6 +185,7 @@ public partial class MainViewModel : ObservableObject
         OnPropertyChanged(nameof(IsCommentsContextMode));
         OnPropertyChanged(nameof(IsWaveContextMode));
         OnPropertyChanged(nameof(ContextPanelTitle));
+        OnPropertyChanged(nameof(ContextPanelSubtitle));
     }
 
     public void SetStartupStatus(string message)
@@ -410,6 +426,15 @@ public partial class MainViewModel : ObservableObject
     }
 
     [RelayCommand]
+    private void NavigateToPlaylist(string? playlistId)
+    {
+        if (!string.IsNullOrWhiteSpace(playlistId))
+        {
+            _navigationService.NavigateToPlaylist(playlistId);
+        }
+    }
+
+    [RelayCommand]
     private void ShowQueueContext()
     {
         IsContextPanelVisible = true;
@@ -466,5 +491,7 @@ public partial class MainViewModel : ObservableObject
         OnPropertyChanged(nameof(IsSettingsActive));
         OnPropertyChanged(nameof(CurrentPageTitle));
         OnPropertyChanged(nameof(CurrentPageSubtitle));
+        OnPropertyChanged(nameof(WorkspaceSummary));
+        OnPropertyChanged(nameof(ContextPanelSubtitle));
     }
 }

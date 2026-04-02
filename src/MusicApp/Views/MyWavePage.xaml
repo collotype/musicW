@@ -4,221 +4,154 @@
              xmlns:enums="clr-namespace:MusicApp.Enums"
              Background="Transparent">
 
-    <ScrollViewer Style="{StaticResource ScrollViewerStyle}"
-                  VerticalScrollBarVisibility="Auto">
+    <ScrollViewer Style="{StaticResource ScrollViewerStyle}" VerticalScrollBarVisibility="Auto">
         <StackPanel Margin="28,24,28,36">
-            <Border Style="{StaticResource SurfaceCardStyle}"
-                    Background="{StaticResource HeroGradientBrush}">
-                <StackPanel>
-                    <TextBlock Text="MY WAVE"
-                               Style="{StaticResource SectionEyebrowTextStyle}"/>
-                    <TextBlock Text="{Binding Seed.Title}"
-                               Style="{StaticResource HeroTextStyle}"
-                               Margin="0,10,0,0"/>
-                    <TextBlock Text="{Binding SeedLabel}"
-                               Style="{StaticResource SubtitleTextStyle}"
-                               Margin="0,10,0,0"
-                               TextWrapping="Wrap"/>
-                    <TextBlock Text="{Binding TunerSummary}"
-                               Style="{StaticResource CaptionTextStyle}"
-                               Margin="0,16,0,0"/>
-
-                    <StackPanel Orientation="Horizontal" Margin="0,18,0,0">
-                        <RadioButton Content="Flow"
-                                     Style="{StaticResource FilterChipStyle}"
-                                     IsChecked="{Binding SelectedPresentation, Converter={StaticResource EnumMatchConverter}, ConverterParameter=Flow}"/>
-                        <RadioButton Content="Snippets"
-                                     Style="{StaticResource FilterChipStyle}"
-                                     IsChecked="{Binding SelectedPresentation, Converter={StaticResource EnumMatchConverter}, ConverterParameter=Snippets}"/>
-                    </StackPanel>
-                </StackPanel>
-            </Border>
-
-            <Border Style="{StaticResource SurfaceCardStyle}"
-                    Margin="0,20,0,0">
+            <Border Style="{StaticResource HeroSurfaceCardStyle}">
                 <Grid>
                     <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="*"/>
-                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="2*"/>
+                        <ColumnDefinition Width="1*"/>
                     </Grid.ColumnDefinitions>
-
-                    <StackPanel Grid.Column="0" Margin="0,0,18,0">
-                        <TextBlock Text="Activity"
-                                   Style="{StaticResource LabelTextStyle}"/>
-                        <ComboBox Style="{StaticResource ComboBoxStyle}"
-                                  ItemsSource="{Binding ActivityOptions}"
-                                  SelectedItem="{Binding SelectedActivity, Mode=TwoWay}"
-                                  Margin="0,10,0,0"/>
-
-                        <TextBlock Text="Mood"
-                                   Style="{StaticResource LabelTextStyle}"
-                                   Margin="0,18,0,0"/>
-                        <ComboBox Style="{StaticResource ComboBoxStyle}"
-                                  ItemsSource="{Binding MoodOptions}"
-                                  SelectedItem="{Binding SelectedMood, Mode=TwoWay}"
-                                  Margin="0,10,0,0"/>
-
-                        <TextBlock Text="Language"
-                                   Style="{StaticResource LabelTextStyle}"
-                                   Margin="0,18,0,0"/>
-                        <ComboBox Style="{StaticResource ComboBoxStyle}"
-                                  ItemsSource="{Binding LanguageOptions}"
-                                  SelectedItem="{Binding SelectedLanguage, Mode=TwoWay}"
-                                  Margin="0,10,0,0"/>
+                    <StackPanel Grid.Column="0" MaxWidth="760">
+                        <TextBlock Text="MY WAVE" Style="{StaticResource SectionEyebrowTextStyle}"/>
+                        <TextBlock Text="{Binding Seed.Title}" Style="{StaticResource HeroTextStyle}" Margin="0,10,0,0"/>
+                        <TextBlock Text="{Binding SeedLabel}" Style="{StaticResource SubtitleTextStyle}" Margin="0,10,0,0" TextWrapping="Wrap"/>
+                        <TextBlock Text="{Binding TunerSummary}" Style="{StaticResource CaptionTextStyle}" Margin="0,16,0,0"/>
+                        <WrapPanel Margin="0,20,0,0">
+                            <RadioButton Content="Flow" Style="{StaticResource FilterChipStyle}" IsChecked="{Binding SelectedPresentation, Converter={StaticResource EnumMatchConverter}, ConverterParameter=Flow}"/>
+                            <RadioButton Content="Snippets" Style="{StaticResource FilterChipStyle}" IsChecked="{Binding SelectedPresentation, Converter={StaticResource EnumMatchConverter}, ConverterParameter=Snippets}"/>
+                        </WrapPanel>
                     </StackPanel>
 
-                    <StackPanel Grid.Column="1">
-                        <TextBlock Text="Familiar vs Discovery"
-                                   Style="{StaticResource LabelTextStyle}"/>
-                        <Slider Style="{StaticResource SliderStyle}"
-                                Minimum="0"
-                                Maximum="1"
-                                Value="{Binding Familiarity, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                                Margin="0,10,0,0"/>
-
-                        <TextBlock Text="Popularity vs Deep Cuts"
-                                   Style="{StaticResource LabelTextStyle}"
-                                   Margin="0,18,0,0"/>
-                        <Slider Style="{StaticResource SliderStyle}"
-                                Minimum="0"
-                                Maximum="1"
-                                Value="{Binding Popularity, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                                Margin="0,10,0,0"/>
-
-                        <TextBlock Text="Artist Variety"
-                                   Style="{StaticResource LabelTextStyle}"
-                                   Margin="0,18,0,0"/>
-                        <Slider Style="{StaticResource SliderStyle}"
-                                Minimum="0"
-                                Maximum="1"
-                                Value="{Binding ArtistVariety, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                                Margin="0,10,0,0"/>
-
-                        <TextBlock Text="Calm vs Energetic"
-                                   Style="{StaticResource LabelTextStyle}"
-                                   Margin="0,18,0,0"/>
-                        <Slider Style="{StaticResource SliderStyle}"
-                                Minimum="0"
-                                Maximum="1"
-                                Value="{Binding Energy, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                                Margin="0,10,0,0"/>
-                    </StackPanel>
+                    <Border Grid.Column="1" Style="{StaticResource InsetSurfaceCardStyle}" Margin="20,0,0,0">
+                        <StackPanel>
+                            <TextBlock Text="Mode" Style="{StaticResource MetricLabelTextStyle}"/>
+                            <TextBlock Text="{Binding PresentationSummary}" Style="{StaticResource BodyTextStyle}" Margin="0,10,0,0" TextWrapping="Wrap"/>
+                            <Button Content="Reset Tuner" Style="{StaticResource SecondaryButtonStyle}" Command="{Binding ResetTunerCommand}" Margin="0,16,0,0"/>
+                        </StackPanel>
+                    </Border>
                 </Grid>
             </Border>
 
-            <Border Style="{StaticResource SurfaceCardStyle}"
-                    Margin="0,20,0,0"
-                    Visibility="{Binding HasRecommendations, Converter={StaticResource BooleanToVisibilityConverter}, ConverterParameter=invert}">
-                <StackPanel Width="520" HorizontalAlignment="Center">
-                    <TextBlock Text="My Wave needs more local signal."
-                               Style="{StaticResource TitleTextStyle}"
-                               TextAlignment="Center"/>
-                    <TextBlock Text="Import more tracks or play a few sessions so the recommendation engine has a stronger desktop library to work with."
-                               Style="{StaticResource SubtitleTextStyle}"
-                               Margin="0,12,0,0"
-                               TextWrapping="Wrap"
-                               TextAlignment="Center"/>
+            <Grid Margin="0,20,0,0">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="1.05*"/>
+                    <ColumnDefinition Width="1.95*"/>
+                </Grid.ColumnDefinitions>
+
+                <Border Grid.Column="0" Style="{StaticResource SurfaceCardStyle}" Margin="0,0,18,0">
+                    <StackPanel>
+                        <TextBlock Text="Wave Tuner" Style="{StaticResource DisplaySectionTextStyle}"/>
+                        <TextBlock Text="Desktop-first tuning for activity, character, mood, language, familiarity, popularity, artist variety, and energy." Style="{StaticResource CaptionTextStyle}" Margin="0,4,0,14" TextWrapping="Wrap"/>
+
+                        <TextBlock Text="Activity" Style="{StaticResource LabelTextStyle}"/>
+                        <ComboBox Style="{StaticResource ComboBoxStyle}" ItemsSource="{Binding ActivityOptions}" SelectedItem="{Binding SelectedActivity, Mode=TwoWay}" Margin="0,10,0,0"/>
+
+                        <TextBlock Text="Character" Style="{StaticResource LabelTextStyle}" Margin="0,16,0,0"/>
+                        <ComboBox Style="{StaticResource ComboBoxStyle}" ItemsSource="{Binding CharacterOptions}" SelectedItem="{Binding SelectedCharacter, Mode=TwoWay}" Margin="0,10,0,0"/>
+
+                        <TextBlock Text="Mood" Style="{StaticResource LabelTextStyle}" Margin="0,16,0,0"/>
+                        <ComboBox Style="{StaticResource ComboBoxStyle}" ItemsSource="{Binding MoodOptions}" SelectedItem="{Binding SelectedMood, Mode=TwoWay}" Margin="0,10,0,0"/>
+
+                        <TextBlock Text="Language" Style="{StaticResource LabelTextStyle}" Margin="0,16,0,0"/>
+                        <ComboBox Style="{StaticResource ComboBoxStyle}" ItemsSource="{Binding LanguageOptions}" SelectedItem="{Binding SelectedLanguage, Mode=TwoWay}" Margin="0,10,0,0"/>
+
+                        <TextBlock Text="Familiar vs Discovery" Style="{StaticResource LabelTextStyle}" Margin="0,18,0,0"/>
+                        <Slider Style="{StaticResource SliderStyle}" Minimum="0" Maximum="1" Value="{Binding Familiarity, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Margin="0,10,0,0"/>
+                        <TextBlock Text="{Binding FamiliarityLabel}" Style="{StaticResource SmallCaptionTextStyle}" Margin="0,4,0,0"/>
+
+                        <TextBlock Text="Popularity vs Deep Cuts" Style="{StaticResource LabelTextStyle}" Margin="0,16,0,0"/>
+                        <Slider Style="{StaticResource SliderStyle}" Minimum="0" Maximum="1" Value="{Binding Popularity, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Margin="0,10,0,0"/>
+                        <TextBlock Text="{Binding PopularityLabel}" Style="{StaticResource SmallCaptionTextStyle}" Margin="0,4,0,0"/>
+
+                        <TextBlock Text="Artist Variety" Style="{StaticResource LabelTextStyle}" Margin="0,16,0,0"/>
+                        <Slider Style="{StaticResource SliderStyle}" Minimum="0" Maximum="1" Value="{Binding ArtistVariety, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Margin="0,10,0,0"/>
+                        <TextBlock Text="{Binding VarietyLabel}" Style="{StaticResource SmallCaptionTextStyle}" Margin="0,4,0,0"/>
+
+                        <TextBlock Text="Calm vs Energetic" Style="{StaticResource LabelTextStyle}" Margin="0,16,0,0"/>
+                        <Slider Style="{StaticResource SliderStyle}" Minimum="0" Maximum="1" Value="{Binding Energy, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Margin="0,10,0,0"/>
+                        <TextBlock Text="{Binding EnergyLabel}" Style="{StaticResource SmallCaptionTextStyle}" Margin="0,4,0,0"/>
+                    </StackPanel>
+                </Border>
+
+                <StackPanel Grid.Column="1">
+                    <Border Style="{StaticResource SurfaceCardStyle}"
+                            Visibility="{Binding HasRecommendations, Converter={StaticResource BooleanToVisibilityConverter}, ConverterParameter=invert}">
+                        <StackPanel Width="520" HorizontalAlignment="Center">
+                            <TextBlock Text="My Wave needs stronger local signal."
+                                       Style="{StaticResource TitleTextStyle}"
+                                       TextAlignment="Center"/>
+                            <TextBlock Text="Import more tracks or finish a few listening sessions so the engine has better library context for explainable recommendations."
+                                       Style="{StaticResource SubtitleTextStyle}"
+                                       Margin="0,12,0,0"
+                                       TextWrapping="Wrap"
+                                       TextAlignment="Center"/>
+                        </StackPanel>
+                    </Border>
+
+                    <StackPanel Visibility="{Binding SelectedPresentation, Converter={StaticResource EnumMatchConverter}, ConverterParameter=Flow}">
+                        <Border Style="{StaticResource SurfaceCardStyle}">
+                            <StackPanel>
+                                <TextBlock Text="Recommendation Flow" Style="{StaticResource DisplaySectionTextStyle}"/>
+                                <TextBlock Text="{Binding PresentationSummary}" Style="{StaticResource CaptionTextStyle}" Margin="0,4,0,14"/>
+                                <ItemsControl ItemsSource="{Binding Recommendations}">
+                                    <ItemsControl.ItemTemplate>
+                                        <DataTemplate>
+                                            <Border Style="{StaticResource InsetSurfaceCardStyle}" Margin="0,0,0,12">
+                                                <Grid>
+                                                    <Grid.ColumnDefinitions>
+                                                        <ColumnDefinition Width="*"/>
+                                                        <ColumnDefinition Width="Auto"/>
+                                                    </Grid.ColumnDefinitions>
+                                                    <StackPanel Grid.Column="0">
+                                                        <TextBlock Text="{Binding Track.Title}" FontSize="16" FontWeight="SemiBold" Foreground="{StaticResource PrimaryTextBrush}"/>
+                                                        <TextBlock Text="{Binding Track.ArtistName}" Style="{StaticResource SubtitleTextStyle}" FontSize="14" Margin="0,4,0,0"/>
+                                                        <TextBlock Text="{Binding Reason}" Style="{StaticResource CaptionTextStyle}" Margin="0,8,0,0" TextWrapping="Wrap"/>
+                                                    </StackPanel>
+                                                    <WrapPanel Grid.Column="1" Margin="12,0,0,0" VerticalAlignment="Top">
+                                                        <Button Content="Play" Style="{StaticResource PrimaryButtonStyle}" Command="{Binding DataContext.PlayTrackCommand, RelativeSource={RelativeSource AncestorType=UserControl}}" CommandParameter="{Binding}" Margin="0,0,8,8"/>
+                                                        <Button Content="More" Style="{StaticResource SecondaryButtonStyle}" Command="{Binding DataContext.MoreLikeThisCommand, RelativeSource={RelativeSource AncestorType=UserControl}}" CommandParameter="{Binding}" Margin="0,0,8,8"/>
+                                                        <Button Content="Less" Style="{StaticResource GhostButtonStyle}" Command="{Binding DataContext.LessLikeThisCommand, RelativeSource={RelativeSource AncestorType=UserControl}}" CommandParameter="{Binding}" Margin="0,0,0,8"/>
+                                                    </WrapPanel>
+                                                </Grid>
+                                            </Border>
+                                        </DataTemplate>
+                                    </ItemsControl.ItemTemplate>
+                                </ItemsControl>
+                            </StackPanel>
+                        </Border>
+                    </StackPanel>
+
+                    <StackPanel Visibility="{Binding SelectedPresentation, Converter={StaticResource EnumMatchConverter}, ConverterParameter=Snippets}">
+                        <Border Style="{StaticResource SurfaceCardStyle}">
+                            <StackPanel>
+                                <TextBlock Text="Snippets" Style="{StaticResource DisplaySectionTextStyle}"/>
+                                <TextBlock Text="Short previews for faster discovery decisions." Style="{StaticResource CaptionTextStyle}" Margin="0,4,0,14"/>
+                                <WrapPanel>
+                                    <ItemsControl ItemsSource="{Binding Snippets}">
+                                        <ItemsControl.ItemsPanel>
+                                            <ItemsPanelTemplate><WrapPanel/></ItemsPanelTemplate>
+                                        </ItemsControl.ItemsPanel>
+                                        <ItemsControl.ItemTemplate>
+                                            <DataTemplate>
+                                                <Border Width="320" Style="{StaticResource InsetSurfaceCardStyle}" Margin="0,0,16,16">
+                                                    <StackPanel>
+                                                        <TextBlock Text="{Binding Track.Title}" FontSize="18" FontWeight="SemiBold" Foreground="{StaticResource PrimaryTextBrush}"/>
+                                                        <TextBlock Text="{Binding Track.ArtistName}" Style="{StaticResource SubtitleTextStyle}" FontSize="14" Margin="0,4,0,0"/>
+                                                        <TextBlock Text="{Binding Detail}" Style="{StaticResource CaptionTextStyle}" Margin="0,8,0,0" TextWrapping="Wrap"/>
+                                                        <TextBlock Text="{Binding StartLabel}" Style="{StaticResource LabelTextStyle}" Margin="0,12,0,0"/>
+                                                        <Button Content="Play Snippet" Style="{StaticResource PrimaryButtonStyle}" Command="{Binding DataContext.PlaySnippetCommand, RelativeSource={RelativeSource AncestorType=UserControl}}" CommandParameter="{Binding}" Margin="0,14,0,0" HorizontalAlignment="Left"/>
+                                                    </StackPanel>
+                                                </Border>
+                                            </DataTemplate>
+                                        </ItemsControl.ItemTemplate>
+                                    </ItemsControl>
+                                </WrapPanel>
+                            </StackPanel>
+                        </Border>
+                    </StackPanel>
                 </StackPanel>
-            </Border>
-
-            <StackPanel Margin="0,20,0,0"
-                        Visibility="{Binding SelectedPresentation, Converter={StaticResource EnumMatchConverter}, ConverterParameter=Flow}">
-                <ItemsControl ItemsSource="{Binding Recommendations}">
-                    <ItemsControl.ItemTemplate>
-                        <DataTemplate>
-                            <Border Margin="0,0,0,12"
-                                    Padding="18"
-                                    CornerRadius="18"
-                                    Background="#10FFFFFF"
-                                    BorderBrush="{StaticResource BorderSubtleBrush}"
-                                    BorderThickness="1">
-                                <Grid>
-                                    <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="*"/>
-                                        <ColumnDefinition Width="Auto"/>
-                                    </Grid.ColumnDefinitions>
-                                    <StackPanel Grid.Column="0">
-                                        <TextBlock Text="{Binding Track.Title}"
-                                                   FontSize="16"
-                                                   FontWeight="SemiBold"/>
-                                        <TextBlock Text="{Binding Track.ArtistName}"
-                                                   Style="{StaticResource SubtitleTextStyle}"
-                                                   FontSize="14"
-                                                   Margin="0,4,0,0"/>
-                                        <TextBlock Text="{Binding Reason}"
-                                                   Style="{StaticResource CaptionTextStyle}"
-                                                   TextWrapping="Wrap"
-                                                   Margin="0,8,0,0"/>
-                                    </StackPanel>
-                                    <StackPanel Grid.Column="1"
-                                                Orientation="Horizontal"
-                                                VerticalAlignment="Top">
-                                        <Button Content="Play"
-                                                Style="{StaticResource PrimaryButtonStyle}"
-                                                Command="{Binding DataContext.PlayTrackCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
-                                                CommandParameter="{Binding}"
-                                                Margin="0,0,8,0"/>
-                                        <Button Content="More"
-                                                Style="{StaticResource SecondaryButtonStyle}"
-                                                Command="{Binding DataContext.MoreLikeThisCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
-                                                CommandParameter="{Binding}"
-                                                Margin="0,0,8,0"/>
-                                        <Button Content="Less"
-                                                Style="{StaticResource GhostButtonStyle}"
-                                                Command="{Binding DataContext.LessLikeThisCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
-                                                CommandParameter="{Binding}"/>
-                                    </StackPanel>
-                                </Grid>
-                            </Border>
-                        </DataTemplate>
-                    </ItemsControl.ItemTemplate>
-                </ItemsControl>
-            </StackPanel>
-
-            <WrapPanel Margin="0,20,0,0"
-                       Visibility="{Binding SelectedPresentation, Converter={StaticResource EnumMatchConverter}, ConverterParameter=Snippets}">
-                <ItemsControl ItemsSource="{Binding Snippets}">
-                    <ItemsControl.ItemsPanel>
-                        <ItemsPanelTemplate>
-                            <WrapPanel/>
-                        </ItemsPanelTemplate>
-                    </ItemsControl.ItemsPanel>
-                    <ItemsControl.ItemTemplate>
-                        <DataTemplate>
-                            <Border Width="300"
-                                    Margin="0,0,16,16"
-                                    Padding="18"
-                                    CornerRadius="20"
-                                    Background="{StaticResource CardBackgroundBrush}"
-                                    BorderBrush="{StaticResource BorderSubtleBrush}"
-                                    BorderThickness="1">
-                                <StackPanel>
-                                    <TextBlock Text="{Binding Track.Title}"
-                                               FontSize="18"
-                                               FontWeight="SemiBold"/>
-                                    <TextBlock Text="{Binding Track.ArtistName}"
-                                               Style="{StaticResource SubtitleTextStyle}"
-                                               FontSize="14"
-                                               Margin="0,4,0,0"/>
-                                    <TextBlock Text="{Binding Detail}"
-                                               Style="{StaticResource CaptionTextStyle}"
-                                               TextWrapping="Wrap"
-                                               Margin="0,8,0,0"/>
-                                    <TextBlock Text="{Binding StartLabel}"
-                                               Style="{StaticResource LabelTextStyle}"
-                                               Margin="0,12,0,0"/>
-                                    <Button Content="Play Snippet"
-                                            Style="{StaticResource PrimaryButtonStyle}"
-                                            Command="{Binding DataContext.PlaySnippetCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
-                                            CommandParameter="{Binding}"
-                                            Margin="0,14,0,0"
-                                            HorizontalAlignment="Left"/>
-                                </StackPanel>
-                            </Border>
-                        </DataTemplate>
-                    </ItemsControl.ItemTemplate>
-                </ItemsControl>
-            </WrapPanel>
+            </Grid>
         </StackPanel>
     </ScrollViewer>
 </UserControl>

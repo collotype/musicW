@@ -45,6 +45,7 @@ public class SettingsModel
     public double ArtistVariety { get; set; } = 0.68;
     public double EnergyBalance { get; set; } = 0.52;
     public string WaveMood { get; set; } = "Fluid";
+    public string WaveCharacter { get; set; } = "Balanced";
     public string WaveActivity { get; set; } = "Any";
     public string WaveLanguage { get; set; } = "Any";
     public bool SmartQueueEnabled { get; set; } = true;

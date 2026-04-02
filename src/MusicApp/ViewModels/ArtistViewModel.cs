@@ -43,6 +43,12 @@ public partial class ArtistViewModel : ObservableObject
     public bool HasBiography => !string.IsNullOrWhiteSpace(Artist?.Biography);
     public bool IsFavoriteArtist => Artist?.IsFollowed == true;
     public List<Playlist> AvailablePlaylists => _libraryService.Playlists;
+    public string SourceLabel => _providerName;
+    public string HeaderSummary => Artist == null
+        ? string.Empty
+        : $"{Artist.MonthlyListenersFormatted} monthly listeners • {Artist.TrackCount} tracks • {Artist.AlbumCount} releases";
+    public string TrackSummary => HasTopTracks ? $"{TopTracks.Count} tracks ready for playback." : "No artist tracks available.";
+    public string ReleaseSummary => HasAlbums ? $"{Albums.Count} releases available in-app." : "No releases surfaced for this artist yet.";
 
     public ArtistViewModel(
         IMusicProviderService providerService,
@@ -54,6 +60,8 @@ public partial class ArtistViewModel : ObservableObject
         _playbackService = playbackService;
         _navigationService = navigationService;
         _libraryService = libraryService;
+
+        EnsureSelectedPlaylist();
     }
 
     public async Task LoadArtistAsync(string artistId, string providerName = "Local")
@@ -90,6 +98,7 @@ public partial class ArtistViewModel : ObservableObject
         }
         finally
         {
+            EnsureSelectedPlaylist();
             IsLoading = false;
             NotifySectionStateChanged();
         }
@@ -187,5 +196,19 @@ public partial class ArtistViewModel : ObservableObject
         OnPropertyChanged(nameof(HasBiography));
         OnPropertyChanged(nameof(IsFavoriteArtist));
         OnPropertyChanged(nameof(AvailablePlaylists));
+        OnPropertyChanged(nameof(SourceLabel));
+        OnPropertyChanged(nameof(HeaderSummary));
+        OnPropertyChanged(nameof(TrackSummary));
+        OnPropertyChanged(nameof(ReleaseSummary));
+    }
+
+    private void EnsureSelectedPlaylist()
+    {
+        if (!string.IsNullOrWhiteSpace(SelectedPlaylistId))
+        {
+            return;
+        }
+
+        SelectedPlaylistId = AvailablePlaylists.FirstOrDefault()?.Id ?? string.Empty;
     }
 }

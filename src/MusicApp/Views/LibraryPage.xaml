@@ -7,59 +7,70 @@
     <ScrollViewer Style="{StaticResource ScrollViewerStyle}"
                   VerticalScrollBarVisibility="Auto">
         <StackPanel Margin="28,24,28,36">
-            <Grid>
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="*"/>
-                    <ColumnDefinition Width="Auto"/>
-                </Grid.ColumnDefinitions>
-                <StackPanel Grid.Column="0">
-                    <TextBlock Text="{Binding SectionTitle}"
-                               Style="{StaticResource HeroTextStyle}"
-                               FontSize="42"/>
-                    <TextBlock Text="{Binding SectionSubtitle}"
-                               Style="{StaticResource SubtitleTextStyle}"
-                               Margin="0,10,0,0"
-                               TextWrapping="Wrap"/>
-                </StackPanel>
-                <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Top">
-                    <Button Content="Import Tracks"
-                            Style="{StaticResource SecondaryButtonStyle}"
-                            Command="{Binding ImportTracksCommand}"
-                            Margin="0,0,10,0"/>
-                    <Button Content="Create Playlist"
-                            Style="{StaticResource PrimaryButtonStyle}"
-                            Command="{Binding CreatePlaylistCommand}"/>
-                </StackPanel>
-            </Grid>
+            <Border Style="{StaticResource HeroSurfaceCardStyle}">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="2*"/>
+                        <ColumnDefinition Width="1.1*"/>
+                    </Grid.ColumnDefinitions>
 
-            <UniformGrid Rows="1"
-                         Columns="4"
-                         Margin="0,20,0,0">
-                <Border Style="{StaticResource SurfaceCardStyle}" Margin="0,0,12,0">
-                    <StackPanel>
-                        <TextBlock Text="Tracks" Style="{StaticResource LabelTextStyle}"/>
-                        <TextBlock Text="{Binding TotalTracks}" Style="{StaticResource TitleTextStyle}" Margin="0,8,0,0"/>
+                    <StackPanel Grid.Column="0">
+                        <TextBlock Text="LIBRARY"
+                                   Style="{StaticResource SectionEyebrowTextStyle}"/>
+                        <TextBlock Text="{Binding SectionTitle}"
+                                   Style="{StaticResource HeroTextStyle}"
+                                   FontSize="40"
+                                   Margin="0,10,0,0"/>
+                        <TextBlock Text="{Binding SectionSubtitle}"
+                                   Style="{StaticResource SubtitleTextStyle}"
+                                   Margin="0,12,0,0"
+                                   TextWrapping="Wrap"/>
+                        <TextBlock Text="{Binding OverviewSummary}"
+                                   Style="{StaticResource CaptionTextStyle}"
+                                   Margin="0,12,0,0"/>
+                        <WrapPanel Margin="0,22,0,0">
+                            <Button Content="Import Tracks"
+                                    Style="{StaticResource PrimaryButtonStyle}"
+                                    Command="{Binding ImportTracksCommand}"
+                                    Margin="0,0,10,10"/>
+                            <Button Content="Create Playlist"
+                                    Style="{StaticResource SecondaryButtonStyle}"
+                                    Command="{Binding CreatePlaylistCommand}"
+                                    Margin="0,0,10,10"/>
+                        </WrapPanel>
                     </StackPanel>
-                </Border>
-                <Border Style="{StaticResource SurfaceCardStyle}" Margin="0,0,12,0">
-                    <StackPanel>
-                        <TextBlock Text="Albums" Style="{StaticResource LabelTextStyle}"/>
-                        <TextBlock Text="{Binding TotalAlbums}" Style="{StaticResource TitleTextStyle}" Margin="0,8,0,0"/>
-                    </StackPanel>
-                </Border>
-                <Border Style="{StaticResource SurfaceCardStyle}" Margin="0,0,12,0">
-                    <StackPanel>
-                        <TextBlock Text="Artists" Style="{StaticResource LabelTextStyle}"/>
-                        <TextBlock Text="{Binding TotalArtists}" Style="{StaticResource TitleTextStyle}" Margin="0,8,0,0"/>
-                    </StackPanel>
-                </Border>
-                <Border Style="{StaticResource SurfaceCardStyle}">
-                    <StackPanel>
-                        <TextBlock Text="Offline" Style="{StaticResource LabelTextStyle}"/>
-                        <TextBlock Text="{Binding OfflineCount}" Style="{StaticResource TitleTextStyle}" Margin="0,8,0,0"/>
-                    </StackPanel>
-                </Border>
-            </UniformGrid>
+
+                    <UniformGrid Grid.Column="1"
+                                 Rows="2"
+                                 Columns="2"
+                                 Margin="20,0,0,0">
+                        <Border Style="{StaticResource MetricCardStyle}" Margin="0,0,12,12">
+                            <StackPanel>
+                                <TextBlock Text="{Binding TotalTracks}" Style="{StaticResource MetricValueTextStyle}"/>
+                                <TextBlock Text="Tracks" Style="{StaticResource MetricLabelTextStyle}"/>
+                            </StackPanel>
+                        </Border>
+                        <Border Style="{StaticResource MetricCardStyle}" Margin="0,0,0,12">
+                            <StackPanel>
+                                <TextBlock Text="{Binding TotalAlbums}" Style="{StaticResource MetricValueTextStyle}"/>
+                                <TextBlock Text="Albums" Style="{StaticResource MetricLabelTextStyle}"/>
+                            </StackPanel>
+                        </Border>
+                        <Border Style="{StaticResource MetricCardStyle}" Margin="0,0,12,0">
+                            <StackPanel>
+                                <TextBlock Text="{Binding TotalArtists}" Style="{StaticResource MetricValueTextStyle}"/>
+                                <TextBlock Text="Artists" Style="{StaticResource MetricLabelTextStyle}"/>
+                            </StackPanel>
+                        </Border>
+                        <Border Style="{StaticResource MetricCardStyle}">
+                            <StackPanel>
+                                <TextBlock Text="{Binding OfflineCount}" Style="{StaticResource MetricValueTextStyle}"/>
+                                <TextBlock Text="Offline Tracks" Style="{StaticResource MetricLabelTextStyle}"/>
+                            </StackPanel>
+                        </Border>
+                    </UniformGrid>
+                </Grid>
+            </Border>
 
             <WrapPanel Margin="0,20,0,0">
                 <RadioButton Content="Overview"
@@ -278,6 +289,13 @@
 
             <StackPanel Margin="0,22,0,0"
                         Visibility="{Binding IsOffline, Converter={StaticResource BooleanToVisibilityConverter}}">
+                <TextBlock Text="Offline content"
+                           Style="{StaticResource TitleTextStyle}"/>
+                <TextBlock Text="{Binding OfflineCollectionsSummary}"
+                           Style="{StaticResource CaptionTextStyle}"
+                           Margin="0,4,0,14"
+                           TextWrapping="Wrap"/>
+
                 <ItemsControl ItemsSource="{Binding OfflineTracks}">
                     <ItemsControl.ItemTemplate>
                         <DataTemplate>
@@ -289,6 +307,55 @@
                                                       Command="{Binding DataContext.PlayTrackCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
                                                       CommandParameter="{Binding}"
                                                       Margin="0,0,0,8"/>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+
+                <TextBlock Text="Downloaded albums"
+                           Style="{StaticResource LabelTextStyle}"
+                           Margin="0,18,0,0"
+                           Visibility="{Binding HasDownloadedAlbums, Converter={StaticResource BooleanToVisibilityConverter}}"/>
+                <ItemsControl ItemsSource="{Binding DownloadedAlbums}"
+                              Margin="0,10,0,0"
+                              Visibility="{Binding HasDownloadedAlbums, Converter={StaticResource BooleanToVisibilityConverter}}">
+                    <ItemsControl.ItemsPanel>
+                        <ItemsPanelTemplate>
+                            <WrapPanel/>
+                        </ItemsPanelTemplate>
+                    </ItemsControl.ItemsPanel>
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate>
+                            <controls:AlbumCard Title="{Binding Title}"
+                                                Artist="{Binding ArtistName}"
+                                                CoverArtUrl="{Binding CoverArtUrl}"
+                                                Year="{Binding ReleaseYear}"
+                                                Command="{Binding DataContext.NavigateToAlbumCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                                CommandParameter="{Binding Id}"
+                                                Margin="0,0,16,16"/>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+
+                <TextBlock Text="Offline playlists"
+                           Style="{StaticResource LabelTextStyle}"
+                           Margin="0,18,0,0"
+                           Visibility="{Binding HasDownloadedPlaylists, Converter={StaticResource BooleanToVisibilityConverter}}"/>
+                <ItemsControl ItemsSource="{Binding DownloadedPlaylists}"
+                              Margin="0,10,0,0"
+                              Visibility="{Binding HasDownloadedPlaylists, Converter={StaticResource BooleanToVisibilityConverter}}">
+                    <ItemsControl.ItemsPanel>
+                        <ItemsPanelTemplate>
+                            <WrapPanel/>
+                        </ItemsPanelTemplate>
+                    </ItemsControl.ItemsPanel>
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate>
+                            <controls:PlaylistCard Title="{Binding Title}"
+                                                   Subtitle="{Binding OwnerName}"
+                                                   CoverArtUrl="{Binding CoverArtUrl}"
+                                                   Command="{Binding DataContext.OpenPlaylistCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                                   CommandParameter="{Binding Id}"
+                                                   Margin="0,0,16,16"/>
                         </DataTemplate>
                     </ItemsControl.ItemTemplate>
                 </ItemsControl>

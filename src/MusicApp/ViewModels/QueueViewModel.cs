@@ -20,8 +20,21 @@ public partial class QueueViewModel : ObservableObject
     [ObservableProperty]
     private bool _smartQueueEnabled;
 
+    [ObservableProperty]
+    private List<QueueItem> _upNextItems = new();
+
+    [ObservableProperty]
+    private List<QueueItem> _recommendedItems = new();
+
     public bool HasQueueItems => QueueItems.Count > 0;
+    public bool HasUpNextItems => UpNextItems.Count > 0;
+    public bool HasRecommendedItems => RecommendedItems.Count > 0;
     public string QueueSummary => HasQueueItems ? $"{QueueItems.Count} tracks ready." : "Queue is empty.";
+    public string UpNextSummary => HasUpNextItems ? $"{UpNextItems.Count} explicit tracks still queued." : "No explicit up next items.";
+    public string RecommendationSummary => HasRecommendedItems ? $"{RecommendedItems.Count} smart inserts are staged after the explicit queue." : "No smart inserts in the queue yet.";
+    public string SmartQueueStatusSummary => SmartQueueEnabled
+        ? "Smart queue will extend playback with explainable recommendations."
+        : "Playback will stop after the explicit queue ends.";
 
     public QueueViewModel(
         IQueueService queueService,
@@ -41,6 +54,7 @@ public partial class QueueViewModel : ObservableObject
     {
         _queueService.SmartQueueEnabled = value;
         _ = _settingsService.UpdateSettingsAsync(settings => settings.SmartQueueEnabled = value);
+        OnPropertyChanged(nameof(SmartQueueStatusSummary));
     }
 
     private void OnQueueChanged(object? sender, EventArgs e)
@@ -52,8 +66,16 @@ public partial class QueueViewModel : ObservableObject
     {
         QueueItems = _queueService.Queue.ToList();
         CurrentItem = _queueService.CurrentItem;
+        var upcoming = _queueService.Queue.Skip(Math.Max(_queueService.CurrentIndex + 1, 0)).ToList();
+        UpNextItems = upcoming.Where(item => !item.IsRecommendation).ToList();
+        RecommendedItems = upcoming.Where(item => item.IsRecommendation).ToList();
         OnPropertyChanged(nameof(HasQueueItems));
+        OnPropertyChanged(nameof(HasUpNextItems));
+        OnPropertyChanged(nameof(HasRecommendedItems));
         OnPropertyChanged(nameof(QueueSummary));
+        OnPropertyChanged(nameof(UpNextSummary));
+        OnPropertyChanged(nameof(RecommendationSummary));
+        OnPropertyChanged(nameof(SmartQueueStatusSummary));
     }
 
     [RelayCommand]

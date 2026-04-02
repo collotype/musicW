@@ -100,6 +100,7 @@ public interface ILibraryService
     Task RemoveFromPlaylistAsync(string playlistId, string trackId);
     Task ReorderPlaylistTrackAsync(string playlistId, int fromIndex, int toIndex);
     Task TogglePlaylistPinAsync(string playlistId);
+    Task UpdatePlaylistCoverAsync(string playlistId, string? coverArtUrl);
     Task DeletePlaylistAsync(string playlistId);
     Task<Playlist?> GetPlaylistAsync(string playlistId);
     Task<Artist?> GetArtistAsync(string artistId);

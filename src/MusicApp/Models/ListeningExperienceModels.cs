@@ -55,6 +55,7 @@ public class WaveSeed
 public class WaveTunerSettings
 {
     public string Activity { get; set; } = "Any";
+    public string Character { get; set; } = "Balanced";
     public string Mood { get; set; } = "Fluid";
     public string Language { get; set; } = "Any";
     public double Familiarity { get; set; } = 0.55;

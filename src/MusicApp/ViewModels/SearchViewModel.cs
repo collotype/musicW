@@ -45,11 +45,29 @@ public partial class SearchViewModel : ObservableObject
     public bool HasArtistResults => LocalResults.Artists.Count > 0 || OnlineResults.Artists.Count > 0;
     public bool HasAlbumResults => LocalResults.Albums.Count > 0 || OnlineResults.Albums.Count > 0;
     public bool HasPlaylistResults => LocalResults.Playlists.Count > 0 || OnlineResults.Playlists.Count > 0;
+    public bool HasLocalTrackResults => LocalResults.Tracks.Count > 0;
+    public bool HasOnlineTrackResults => OnlineResults.Tracks.Count > 0;
+    public bool HasLocalArtistResults => LocalResults.Artists.Count > 0;
+    public bool HasOnlineArtistResults => OnlineResults.Artists.Count > 0;
+    public bool HasLocalAlbumResults => LocalResults.Albums.Count > 0;
+    public bool HasOnlineAlbumResults => OnlineResults.Albums.Count > 0;
+    public bool HasLocalPlaylistResults => LocalResults.Playlists.Count > 0;
+    public bool HasOnlinePlaylistResults => OnlineResults.Playlists.Count > 0;
     public bool HasNoResults => HasSearched && !IsSearching && string.IsNullOrWhiteSpace(ErrorMessage) && !HasTrackResults && !HasArtistResults && !HasAlbumResults && !HasPlaylistResults;
     public bool HasError => !string.IsNullOrWhiteSpace(ErrorMessage);
     public bool CanClearSearch => !string.IsNullOrWhiteSpace(SearchQuery);
     public List<Playlist> AvailablePlaylists => _libraryService.Playlists.OrderByDescending(playlist => playlist.IsPinned).ThenBy(playlist => playlist.Title).ToList();
     public string CurrentTabTitle => SelectedTab.ToString();
+    public bool HasPlaylistTargets => AvailablePlaylists.Count > 0;
+    public string SearchStatusSummary => HasSearched
+        ? $"Local {LocalResults.Tracks.Count + LocalResults.Artists.Count + LocalResults.Albums.Count + LocalResults.Playlists.Count} • Online {OnlineResults.Tracks.Count + OnlineResults.Artists.Count + OnlineResults.Albums.Count + OnlineResults.Playlists.Count}"
+        : "Search local and connected catalogs without leaving the desktop shell.";
+    public string LocalSummary => HasSearched
+        ? $"{LocalResults.Tracks.Count} tracks • {LocalResults.Artists.Count} artists • {LocalResults.Albums.Count} albums • {LocalResults.Playlists.Count} playlists"
+        : "No local query yet.";
+    public string OnlineSummary => HasSearched
+        ? $"{OnlineResults.Tracks.Count} tracks • {OnlineResults.Artists.Count} artists • {OnlineResults.Albums.Count} albums • {OnlineResults.Playlists.Count} playlists"
+        : "No provider query yet.";
 
     public SearchViewModel(
         ISearchService searchService,
@@ -64,7 +82,12 @@ public partial class SearchViewModel : ObservableObject
         _queueService = queueService;
         _libraryService = libraryService;
 
-        _libraryService.LibraryChanged += (_, _) => OnPropertyChanged(nameof(AvailablePlaylists));
+        _libraryService.LibraryChanged += (_, _) =>
+        {
+            EnsureSelectedPlaylist();
+            NotifyResultStateChanged();
+        };
+        EnsureSelectedPlaylist();
     }
 
     partial void OnSearchQueryChanged(string value)
@@ -233,6 +256,23 @@ public partial class SearchViewModel : ObservableObject
     }
 
     [RelayCommand]
+    private void StartWaveFromTrack(Track? track)
+    {
+        if (track == null)
+        {
+            return;
+        }
+
+        _navigationService.NavigateToMyWave(new WaveSeed
+        {
+            Type = WaveSeedType.Track,
+            Id = track.Id,
+            Title = track.Title,
+            Subtitle = $"Wave started from {track.ArtistName}."
+        });
+    }
+
+    [RelayCommand]
     private void ClearSearch()
     {
         SearchQuery = string.Empty;
@@ -296,9 +336,31 @@ public partial class SearchViewModel : ObservableObject
         OnPropertyChanged(nameof(HasArtistResults));
         OnPropertyChanged(nameof(HasAlbumResults));
         OnPropertyChanged(nameof(HasPlaylistResults));
+        OnPropertyChanged(nameof(HasLocalTrackResults));
+        OnPropertyChanged(nameof(HasOnlineTrackResults));
+        OnPropertyChanged(nameof(HasLocalArtistResults));
+        OnPropertyChanged(nameof(HasOnlineArtistResults));
+        OnPropertyChanged(nameof(HasLocalAlbumResults));
+        OnPropertyChanged(nameof(HasOnlineAlbumResults));
+        OnPropertyChanged(nameof(HasLocalPlaylistResults));
+        OnPropertyChanged(nameof(HasOnlinePlaylistResults));
         OnPropertyChanged(nameof(HasNoResults));
         OnPropertyChanged(nameof(HasError));
         OnPropertyChanged(nameof(CurrentTabTitle));
         OnPropertyChanged(nameof(AvailablePlaylists));
+        OnPropertyChanged(nameof(HasPlaylistTargets));
+        OnPropertyChanged(nameof(SearchStatusSummary));
+        OnPropertyChanged(nameof(LocalSummary));
+        OnPropertyChanged(nameof(OnlineSummary));
+    }
+
+    private void EnsureSelectedPlaylist()
+    {
+        if (!string.IsNullOrWhiteSpace(SelectedPlaylistId))
+        {
+            return;
+        }
+
+        SelectedPlaylistId = AvailablePlaylists.FirstOrDefault()?.Id ?? string.Empty;
     }
 }

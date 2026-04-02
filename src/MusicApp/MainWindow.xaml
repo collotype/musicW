@@ -11,23 +11,22 @@
         Height="940"
         Width="1520"
         MinHeight="720"
-        MinWidth="1160"
+        MinWidth="1240"
         WindowStartupLocation="CenterScreen"
         Background="{StaticResource AppBackgroundBrush}">
 
     <Window.Resources>
         <Style x:Key="ShellIconTextStyle" TargetType="TextBlock">
             <Setter Property="FontFamily" Value="{StaticResource IconFont}"/>
-            <Setter Property="FontSize" Value="16"/>
+            <Setter Property="FontSize" Value="15"/>
             <Setter Property="Foreground" Value="{StaticResource SecondaryTextBrush}"/>
             <Setter Property="VerticalAlignment" Value="Center"/>
-            <Setter Property="HorizontalAlignment" Value="Center"/>
         </Style>
 
         <Style x:Key="SidebarNavButtonStyle" TargetType="Button" BasedOn="{StaticResource SidebarButtonStyle}">
             <Style.Triggers>
                 <DataTrigger Binding="{Binding Tag, RelativeSource={RelativeSource Self}}" Value="True">
-                    <Setter Property="Background" Value="#1FD5A35A"/>
+                    <Setter Property="Background" Value="#1ED9A764"/>
                     <Setter Property="Foreground" Value="{StaticResource PrimaryTextBrush}"/>
                 </DataTrigger>
             </Style.Triggers>
@@ -35,10 +34,9 @@
 
         <Style x:Key="ContextChipButtonStyle" TargetType="Button" BasedOn="{StaticResource GhostButtonStyle}">
             <Setter Property="Padding" Value="14,8"/>
-            <Setter Property="Foreground" Value="{StaticResource SecondaryTextBrush}"/>
             <Style.Triggers>
                 <DataTrigger Binding="{Binding Tag, RelativeSource={RelativeSource Self}}" Value="True">
-                    <Setter Property="Background" Value="#1FD5A35A"/>
+                    <Setter Property="Background" Value="#1ED9A764"/>
                     <Setter Property="Foreground" Value="{StaticResource AccentPrimaryBrush}"/>
                 </DataTrigger>
             </Style.Triggers>
@@ -50,19 +48,10 @@
             <Setter Property="Margin" Value="0,0,0,8"/>
             <Style.Triggers>
                 <DataTrigger Binding="{Binding IsActive}" Value="True">
-                    <Setter Property="Background" Value="#1FD5A35A"/>
+                    <Setter Property="Background" Value="#1ED9A764"/>
                     <Setter Property="Foreground" Value="{StaticResource PrimaryTextBrush}"/>
                 </DataTrigger>
             </Style.Triggers>
-        </Style>
-
-        <Style x:Key="InfoBadgeStyle" TargetType="Border">
-            <Setter Property="Background" Value="#12FFFFFF"/>
-            <Setter Property="BorderBrush" Value="{StaticResource BorderSubtleBrush}"/>
-            <Setter Property="BorderThickness" Value="1"/>
-            <Setter Property="CornerRadius" Value="999"/>
-            <Setter Property="Padding" Value="10,5"/>
-            <Setter Property="Margin" Value="0,0,8,8"/>
         </Style>
     </Window.Resources>
 
@@ -81,25 +70,28 @@
             <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
 
-        <Grid x:Name="WorkspaceGrid" Grid.Row="0">
+        <Rectangle Fill="{StaticResource AmbientGlowBrush}" IsHitTestVisible="False"/>
+
+        <Grid Grid.Row="0" Margin="16,16,16,0">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="Auto"/>
                 <ColumnDefinition Width="*"/>
                 <ColumnDefinition Width="Auto"/>
             </Grid.ColumnDefinitions>
 
-            <Border x:Name="SidebarHost"
-                    Grid.Column="0"
+            <Border Grid.Column="0"
+                    Margin="0,0,16,16"
+                    Padding="14,16"
                     Background="{StaticResource SidebarBackgroundBrush}"
                     BorderBrush="{StaticResource BorderSubtleBrush}"
-                    BorderThickness="0,0,1,0"
-                    Padding="14,18">
+                    BorderThickness="1"
+                    CornerRadius="28">
                 <Border.Style>
                     <Style TargetType="Border">
-                        <Setter Property="Width" Value="286"/>
+                        <Setter Property="Width" Value="296"/>
                         <Style.Triggers>
                             <DataTrigger Binding="{Binding IsSidebarCollapsed}" Value="True">
-                                <Setter Property="Width" Value="96"/>
+                                <Setter Property="Width" Value="102"/>
                             </DataTrigger>
                         </Style.Triggers>
                     </Style>
@@ -112,1221 +104,114 @@
                         <RowDefinition Height="Auto"/>
                     </Grid.RowDefinitions>
 
-                    <StackPanel Grid.Row="0">
-                        <Grid Margin="0,0,0,18">
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="Auto"/>
-                                <ColumnDefinition Width="*"/>
-                                <ColumnDefinition Width="Auto"/>
-                            </Grid.ColumnDefinitions>
-
-                            <Border Grid.Column="0"
-                                    Width="42"
-                                    Height="42"
-                                    CornerRadius="14"
-                                    Background="{StaticResource HeroGradientBrush}">
-                                <TextBlock Text="M"
-                                           FontFamily="{StaticResource DisplayFont}"
-                                           FontSize="20"
-                                           Foreground="{StaticResource AccentPrimaryBrush}"
-                                           HorizontalAlignment="Center"
-                                           VerticalAlignment="Center"/>
-                            </Border>
-
-                            <StackPanel Grid.Column="1"
-                                        Margin="12,0,0,0"
-                                        Visibility="{Binding IsSidebarCollapsed, Converter={StaticResource BooleanToVisibilityConverter}, ConverterParameter=invert}">
-                                <TextBlock Text="MusicApp"
-                                           FontFamily="{StaticResource DisplayFont}"
-                                           FontSize="20"
-                                           Foreground="{StaticResource PrimaryTextBrush}"/>
-                                <TextBlock Text="Desktop workspace"
-                                           Style="{StaticResource CaptionTextStyle}"/>
-                            </StackPanel>
-
-                            <Button Grid.Column="2"
-                                    Style="{StaticResource IconButtonStyle}"
-                                    Command="{Binding ToggleSidebarCommand}">
-                                <TextBlock Style="{StaticResource ShellIconTextStyle}"
-                                           Text="&#xE700;"/>
-                            </Button>
-                        </Grid>
-
-                        <TextBlock Text="Workspace"
-                                   Style="{StaticResource SectionEyebrowTextStyle}"
-                                   Margin="4,0,0,10"
-                                   Visibility="{Binding IsSidebarCollapsed, Converter={StaticResource BooleanToVisibilityConverter}, ConverterParameter=invert}"/>
-
-                        <Button Style="{StaticResource SidebarNavButtonStyle}"
-                                Tag="{Binding IsHomeActive}"
-                                Command="{Binding NavigateToHomeCommand}"
-                                Margin="0,0,0,6">
-                            <StackPanel Orientation="Horizontal">
-                                <TextBlock Style="{StaticResource ShellIconTextStyle}" Text="&#xE80F;"/>
-                                <TextBlock Text="Home"
-                                           Margin="12,0,0,0"
-                                           VerticalAlignment="Center"
-                                           Visibility="{Binding IsSidebarCollapsed, Converter={StaticResource BooleanToVisibilityConverter}, ConverterParameter=invert}"/>
-                            </StackPanel>
+                    <Grid Margin="0,0,0,18">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+                        <Border Width="46" Height="46" CornerRadius="16" Background="{StaticResource HeroGradientBrush}">
+                            <TextBlock Text="M" FontFamily="{StaticResource DisplayFont}" FontSize="22" Foreground="{StaticResource AccentPrimaryBrush}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                        <StackPanel Grid.Column="1" Margin="12,0,0,0" VerticalAlignment="Center" Visibility="{Binding IsSidebarCollapsed, Converter={StaticResource BooleanToVisibilityConverter}, ConverterParameter=invert}">
+                            <TextBlock Text="MusicApp" FontFamily="{StaticResource DisplayFont}" FontSize="22" Foreground="{StaticResource PrimaryTextBrush}"/>
+                            <TextBlock Text="Desktop music workspace" Style="{StaticResource CaptionTextStyle}"/>
+                        </StackPanel>
+                        <Button Grid.Column="2" Style="{StaticResource IconButtonStyle}" Command="{Binding ToggleSidebarCommand}">
+                            <TextBlock Style="{StaticResource ShellIconTextStyle}" Text="&#xE700;"/>
                         </Button>
+                    </Grid>
 
-                        <Button Style="{StaticResource SidebarNavButtonStyle}"
-                                Tag="{Binding IsMyWaveActive}"
-                                Command="{Binding NavigateToMyWaveCommand}"
-                                Margin="0,0,0,6">
-                            <StackPanel Orientation="Horizontal">
-                                <TextBlock Style="{StaticResource ShellIconTextStyle}" Text="&#xEC42;"/>
-                                <TextBlock Text="My Wave"
-                                           Margin="12,0,0,0"
-                                           VerticalAlignment="Center"
-                                           Visibility="{Binding IsSidebarCollapsed, Converter={StaticResource BooleanToVisibilityConverter}, ConverterParameter=invert}"/>
-                            </StackPanel>
-                        </Button>
+                    <ScrollViewer Grid.Row="1" Style="{StaticResource ScrollViewerStyle}" VerticalScrollBarVisibility="Auto">
+                        <StackPanel>
+                            <TextBlock Text="Workspace" Style="{StaticResource SectionEyebrowTextStyle}" Margin="6,0,0,10" Visibility="{Binding IsSidebarCollapsed, Converter={StaticResource BooleanToVisibilityConverter}, ConverterParameter=invert}"/>
+                            <Button Style="{StaticResource SidebarNavButtonStyle}" Tag="{Binding IsHomeActive}" Command="{Binding NavigateToHomeCommand}" Margin="0,0,0,6"><StackPanel Orientation="Horizontal"><TextBlock Style="{StaticResource ShellIconTextStyle}" Text="&#xE80F;"/><TextBlock Text="Home" Margin="12,0,0,0" Visibility="{Binding IsSidebarCollapsed, Converter={StaticResource BooleanToVisibilityConverter}, ConverterParameter=invert}"/></StackPanel></Button>
+                            <Button Style="{StaticResource SidebarNavButtonStyle}" Tag="{Binding IsMyWaveActive}" Command="{Binding NavigateToMyWaveCommand}" Margin="0,0,0,6"><StackPanel Orientation="Horizontal"><TextBlock Style="{StaticResource ShellIconTextStyle}" Text="&#xEC42;"/><TextBlock Text="My Wave" Margin="12,0,0,0" Visibility="{Binding IsSidebarCollapsed, Converter={StaticResource BooleanToVisibilityConverter}, ConverterParameter=invert}"/></StackPanel></Button>
+                            <Button Style="{StaticResource SidebarNavButtonStyle}" Tag="{Binding IsSearchActive}" Command="{Binding NavigateToSearchCommand}" Margin="0,0,0,6"><StackPanel Orientation="Horizontal"><TextBlock Style="{StaticResource ShellIconTextStyle}" Text="&#xE721;"/><TextBlock Text="Search" Margin="12,0,0,0" Visibility="{Binding IsSidebarCollapsed, Converter={StaticResource BooleanToVisibilityConverter}, ConverterParameter=invert}"/></StackPanel></Button>
+                            <Button Style="{StaticResource SidebarNavButtonStyle}" Tag="{Binding IsLibraryActive}" Command="{Binding NavigateToLibraryCommand}" Margin="0,0,0,6"><StackPanel Orientation="Horizontal"><TextBlock Style="{StaticResource ShellIconTextStyle}" Text="&#xE8D2;"/><TextBlock Text="Library" Margin="12,0,0,0" Visibility="{Binding IsSidebarCollapsed, Converter={StaticResource BooleanToVisibilityConverter}, ConverterParameter=invert}"/></StackPanel></Button>
+                            <Button Style="{StaticResource SidebarNavButtonStyle}" Tag="{Binding IsQueueActive}" Command="{Binding NavigateToQueueCommand}" Margin="0,0,0,10"><StackPanel Orientation="Horizontal"><TextBlock Style="{StaticResource ShellIconTextStyle}" Text="&#xE149;"/><TextBlock Text="Queue" Margin="12,0,0,0" Visibility="{Binding IsSidebarCollapsed, Converter={StaticResource BooleanToVisibilityConverter}, ConverterParameter=invert}"/></StackPanel></Button>
 
-                        <Button Style="{StaticResource SidebarNavButtonStyle}"
-                                Tag="{Binding IsSearchActive}"
-                                Command="{Binding NavigateToSearchCommand}"
-                                Margin="0,0,0,6">
-                            <StackPanel Orientation="Horizontal">
-                                <TextBlock Style="{StaticResource ShellIconTextStyle}" Text="&#xE721;"/>
-                                <TextBlock Text="Search"
-                                           Margin="12,0,0,0"
-                                           VerticalAlignment="Center"
-                                           Visibility="{Binding IsSidebarCollapsed, Converter={StaticResource BooleanToVisibilityConverter}, ConverterParameter=invert}"/>
-                            </StackPanel>
-                        </Button>
-
-                        <Button Style="{StaticResource SidebarNavButtonStyle}"
-                                Tag="{Binding IsLibraryActive}"
-                                Command="{Binding NavigateToLibraryCommand}"
-                                Margin="0,0,0,6">
-                            <StackPanel Orientation="Horizontal">
-                                <TextBlock Style="{StaticResource ShellIconTextStyle}" Text="&#xE8D2;"/>
-                                <TextBlock Text="Library"
-                                           Margin="12,0,0,0"
-                                           VerticalAlignment="Center"
-                                           Visibility="{Binding IsSidebarCollapsed, Converter={StaticResource BooleanToVisibilityConverter}, ConverterParameter=invert}"/>
-                            </StackPanel>
-                        </Button>
-
-                        <Button Style="{StaticResource SidebarNavButtonStyle}"
-                                Tag="{Binding IsQueueActive}"
-                                Command="{Binding NavigateToQueueCommand}"
-                                Margin="0,0,0,6">
-                            <StackPanel Orientation="Horizontal">
-                                <TextBlock Style="{StaticResource ShellIconTextStyle}" Text="&#xE149;"/>
-                                <TextBlock Text="Queue"
-                                           Margin="12,0,0,0"
-                                           VerticalAlignment="Center"
-                                           Visibility="{Binding IsSidebarCollapsed, Converter={StaticResource BooleanToVisibilityConverter}, ConverterParameter=invert}"/>
-                            </StackPanel>
-                        </Button>
-                    </StackPanel>
-
-                    <ScrollViewer Grid.Row="1"
-                                  VerticalScrollBarVisibility="Auto"
-                                  HorizontalScrollBarVisibility="Disabled">
-                        <StackPanel Margin="0,6,0,0">
-                            <TextBlock Text="Library Sections"
-                                       Style="{StaticResource SectionEyebrowTextStyle}"
-                                       Margin="4,8,0,10"
-                                       Visibility="{Binding IsSidebarCollapsed, Converter={StaticResource BooleanToVisibilityConverter}, ConverterParameter=invert}"/>
-
-                            <Button Style="{StaticResource SidebarNavButtonStyle}"
-                                    Tag="{Binding CurrentLibrarySection, Converter={StaticResource EnumMatchConverter}, ConverterParameter=LikedTracks}"
-                                    Command="{Binding NavigateToLibrarySectionCommand}"
-                                    CommandParameter="{x:Static enums:LibrarySection.LikedTracks}"
-                                    Margin="0,0,0,6">
-                                <StackPanel Orientation="Horizontal">
-                                    <TextBlock Style="{StaticResource ShellIconTextStyle}" Text="&#xEB52;"/>
-                                    <TextBlock Text="Liked Tracks"
-                                               Margin="12,0,0,0"
-                                               VerticalAlignment="Center"
-                                               Visibility="{Binding IsSidebarCollapsed, Converter={StaticResource BooleanToVisibilityConverter}, ConverterParameter=invert}"/>
-                                </StackPanel>
-                            </Button>
-
-                            <Button Style="{StaticResource SidebarNavButtonStyle}"
-                                    Tag="{Binding CurrentLibrarySection, Converter={StaticResource EnumMatchConverter}, ConverterParameter=FavoriteArtists}"
-                                    Command="{Binding NavigateToLibrarySectionCommand}"
-                                    CommandParameter="{x:Static enums:LibrarySection.FavoriteArtists}"
-                                    Margin="0,0,0,6">
-                                <StackPanel Orientation="Horizontal">
-                                    <TextBlock Style="{StaticResource ShellIconTextStyle}" Text="&#xE125;"/>
-                                    <TextBlock Text="Favorite Artists"
-                                               Margin="12,0,0,0"
-                                               VerticalAlignment="Center"
-                                               Visibility="{Binding IsSidebarCollapsed, Converter={StaticResource BooleanToVisibilityConverter}, ConverterParameter=invert}"/>
-                                </StackPanel>
-                            </Button>
-
-                            <Button Style="{StaticResource SidebarNavButtonStyle}"
-                                    Tag="{Binding CurrentLibrarySection, Converter={StaticResource EnumMatchConverter}, ConverterParameter=Albums}"
-                                    Command="{Binding NavigateToLibrarySectionCommand}"
-                                    CommandParameter="{x:Static enums:LibrarySection.Albums}"
-                                    Margin="0,0,0,6">
-                                <StackPanel Orientation="Horizontal">
-                                    <TextBlock Style="{StaticResource ShellIconTextStyle}" Text="&#xE189;"/>
-                                    <TextBlock Text="Albums"
-                                               Margin="12,0,0,0"
-                                               VerticalAlignment="Center"
-                                               Visibility="{Binding IsSidebarCollapsed, Converter={StaticResource BooleanToVisibilityConverter}, ConverterParameter=invert}"/>
-                                </StackPanel>
-                            </Button>
-
-                            <Button Style="{StaticResource SidebarNavButtonStyle}"
-                                    Tag="{Binding CurrentLibrarySection, Converter={StaticResource EnumMatchConverter}, ConverterParameter=Playlists}"
-                                    Command="{Binding NavigateToLibrarySectionCommand}"
-                                    CommandParameter="{x:Static enums:LibrarySection.Playlists}"
-                                    Margin="0,0,0,6">
-                                <StackPanel Orientation="Horizontal">
-                                    <TextBlock Style="{StaticResource ShellIconTextStyle}" Text="&#xE14C;"/>
-                                    <TextBlock Text="Playlists"
-                                               Margin="12,0,0,0"
-                                               VerticalAlignment="Center"
-                                               Visibility="{Binding IsSidebarCollapsed, Converter={StaticResource BooleanToVisibilityConverter}, ConverterParameter=invert}"/>
-                                </StackPanel>
-                            </Button>
-
-                            <Button Style="{StaticResource SidebarNavButtonStyle}"
-                                    Tag="{Binding CurrentLibrarySection, Converter={StaticResource EnumMatchConverter}, ConverterParameter=Offline}"
-                                    Command="{Binding NavigateToLibrarySectionCommand}"
-                                    CommandParameter="{x:Static enums:LibrarySection.Offline}"
-                                    Margin="0,0,0,6">
-                                <StackPanel Orientation="Horizontal">
-                                    <TextBlock Style="{StaticResource ShellIconTextStyle}" Text="&#xE896;"/>
-                                    <TextBlock Text="Downloads"
-                                               Margin="12,0,0,0"
-                                               VerticalAlignment="Center"
-                                               Visibility="{Binding IsSidebarCollapsed, Converter={StaticResource BooleanToVisibilityConverter}, ConverterParameter=invert}"/>
-                                </StackPanel>
-                            </Button>
-
-                            <Button Style="{StaticResource SidebarNavButtonStyle}"
-                                    Tag="{Binding CurrentLibrarySection, Converter={StaticResource EnumMatchConverter}, ConverterParameter=RecentlyPlayed}"
-                                    Command="{Binding NavigateToLibrarySectionCommand}"
-                                    CommandParameter="{x:Static enums:LibrarySection.RecentlyPlayed}"
-                                    Margin="0,0,0,6">
-                                <StackPanel Orientation="Horizontal">
-                                    <TextBlock Style="{StaticResource ShellIconTextStyle}" Text="&#xE823;"/>
-                                    <TextBlock Text="Recently Played"
-                                               Margin="12,0,0,0"
-                                               VerticalAlignment="Center"
-                                               Visibility="{Binding IsSidebarCollapsed, Converter={StaticResource BooleanToVisibilityConverter}, ConverterParameter=invert}"/>
-                                </StackPanel>
-                            </Button>
+                            <TextBlock Text="Library" Style="{StaticResource SectionEyebrowTextStyle}" Margin="6,12,0,10" Visibility="{Binding IsSidebarCollapsed, Converter={StaticResource BooleanToVisibilityConverter}, ConverterParameter=invert}"/>
+                            <Button Style="{StaticResource SidebarNavButtonStyle}" Tag="{Binding CurrentLibrarySection, Converter={StaticResource EnumMatchConverter}, ConverterParameter=AllTracks}" Command="{Binding NavigateToLibrarySectionCommand}" CommandParameter="{x:Static enums:LibrarySection.AllTracks}" Margin="0,0,0,6"><StackPanel Orientation="Horizontal"><TextBlock Style="{StaticResource ShellIconTextStyle}" Text="&#xE8D2;"/><TextBlock Text="All Tracks" Margin="12,0,0,0" Visibility="{Binding IsSidebarCollapsed, Converter={StaticResource BooleanToVisibilityConverter}, ConverterParameter=invert}"/></StackPanel></Button>
+                            <Button Style="{StaticResource SidebarNavButtonStyle}" Tag="{Binding CurrentLibrarySection, Converter={StaticResource EnumMatchConverter}, ConverterParameter=LikedTracks}" Command="{Binding NavigateToLibrarySectionCommand}" CommandParameter="{x:Static enums:LibrarySection.LikedTracks}" Margin="0,0,0,6"><StackPanel Orientation="Horizontal"><TextBlock Style="{StaticResource ShellIconTextStyle}" Text="&#xEB52;"/><TextBlock Text="Liked Tracks" Margin="12,0,0,0" Visibility="{Binding IsSidebarCollapsed, Converter={StaticResource BooleanToVisibilityConverter}, ConverterParameter=invert}"/></StackPanel></Button>
+                            <Button Style="{StaticResource SidebarNavButtonStyle}" Tag="{Binding CurrentLibrarySection, Converter={StaticResource EnumMatchConverter}, ConverterParameter=FavoriteArtists}" Command="{Binding NavigateToLibrarySectionCommand}" CommandParameter="{x:Static enums:LibrarySection.FavoriteArtists}" Margin="0,0,0,6"><StackPanel Orientation="Horizontal"><TextBlock Style="{StaticResource ShellIconTextStyle}" Text="&#xE125;"/><TextBlock Text="Favorite Artists" Margin="12,0,0,0" Visibility="{Binding IsSidebarCollapsed, Converter={StaticResource BooleanToVisibilityConverter}, ConverterParameter=invert}"/></StackPanel></Button>
+                            <Button Style="{StaticResource SidebarNavButtonStyle}" Tag="{Binding CurrentLibrarySection, Converter={StaticResource EnumMatchConverter}, ConverterParameter=Albums}" Command="{Binding NavigateToLibrarySectionCommand}" CommandParameter="{x:Static enums:LibrarySection.Albums}" Margin="0,0,0,6"><StackPanel Orientation="Horizontal"><TextBlock Style="{StaticResource ShellIconTextStyle}" Text="&#xE189;"/><TextBlock Text="Albums" Margin="12,0,0,0" Visibility="{Binding IsSidebarCollapsed, Converter={StaticResource BooleanToVisibilityConverter}, ConverterParameter=invert}"/></StackPanel></Button>
+                            <Button Style="{StaticResource SidebarNavButtonStyle}" Tag="{Binding CurrentLibrarySection, Converter={StaticResource EnumMatchConverter}, ConverterParameter=Playlists}" Command="{Binding NavigateToLibrarySectionCommand}" CommandParameter="{x:Static enums:LibrarySection.Playlists}" Margin="0,0,0,6"><StackPanel Orientation="Horizontal"><TextBlock Style="{StaticResource ShellIconTextStyle}" Text="&#xE14C;"/><TextBlock Text="Playlists" Margin="12,0,0,0" Visibility="{Binding IsSidebarCollapsed, Converter={StaticResource BooleanToVisibilityConverter}, ConverterParameter=invert}"/></StackPanel></Button>
+                            <Button Style="{StaticResource SidebarNavButtonStyle}" Tag="{Binding CurrentLibrarySection, Converter={StaticResource EnumMatchConverter}, ConverterParameter=Offline}" Command="{Binding NavigateToLibrarySectionCommand}" CommandParameter="{x:Static enums:LibrarySection.Offline}" Margin="0,0,0,6"><StackPanel Orientation="Horizontal"><TextBlock Style="{StaticResource ShellIconTextStyle}" Text="&#xE896;"/><TextBlock Text="Downloads" Margin="12,0,0,0" Visibility="{Binding IsSidebarCollapsed, Converter={StaticResource BooleanToVisibilityConverter}, ConverterParameter=invert}"/></StackPanel></Button>
+                            <Button Style="{StaticResource SidebarNavButtonStyle}" Tag="{Binding CurrentLibrarySection, Converter={StaticResource EnumMatchConverter}, ConverterParameter=RecentlyPlayed}" Command="{Binding NavigateToLibrarySectionCommand}" CommandParameter="{x:Static enums:LibrarySection.RecentlyPlayed}" Margin="0,0,0,6"><StackPanel Orientation="Horizontal"><TextBlock Style="{StaticResource ShellIconTextStyle}" Text="&#xE823;"/><TextBlock Text="Recently Played" Margin="12,0,0,0" Visibility="{Binding IsSidebarCollapsed, Converter={StaticResource BooleanToVisibilityConverter}, ConverterParameter=invert}"/></StackPanel></Button>
+                            <Button Style="{StaticResource SidebarNavButtonStyle}" Tag="{Binding CurrentLibrarySection, Converter={StaticResource EnumMatchConverter}, ConverterParameter=Pinned}" Command="{Binding NavigateToLibrarySectionCommand}" CommandParameter="{x:Static enums:LibrarySection.Pinned}" Margin="0,0,0,6"><StackPanel Orientation="Horizontal"><TextBlock Style="{StaticResource ShellIconTextStyle}" Text="&#xE718;"/><TextBlock Text="Pinned" Margin="12,0,0,0" Visibility="{Binding IsSidebarCollapsed, Converter={StaticResource BooleanToVisibilityConverter}, ConverterParameter=invert}"/></StackPanel></Button>
                         </StackPanel>
                     </ScrollViewer>
 
-                    <StackPanel Grid.Row="2" Margin="0,18,0,0">
-                        <Button Style="{StaticResource SidebarNavButtonStyle}"
-                                Tag="{Binding IsSettingsActive}"
-                                Command="{Binding NavigateToSettingsCommand}">
-                            <StackPanel Orientation="Horizontal">
-                                <TextBlock Style="{StaticResource ShellIconTextStyle}" Text="&#xE713;"/>
-                                <TextBlock Text="Settings"
-                                           Margin="12,0,0,0"
-                                           VerticalAlignment="Center"
-                                           Visibility="{Binding IsSidebarCollapsed, Converter={StaticResource BooleanToVisibilityConverter}, ConverterParameter=invert}"/>
-                            </StackPanel>
-                        </Button>
-                    </StackPanel>
+                    <Button Grid.Row="2" Style="{StaticResource SidebarNavButtonStyle}" Tag="{Binding IsSettingsActive}" Command="{Binding NavigateToSettingsCommand}">
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Style="{StaticResource ShellIconTextStyle}" Text="&#xE713;"/>
+                            <TextBlock Text="Settings" Margin="12,0,0,0" Visibility="{Binding IsSidebarCollapsed, Converter={StaticResource BooleanToVisibilityConverter}, ConverterParameter=invert}"/>
+                        </StackPanel>
+                    </Button>
                 </Grid>
             </Border>
-            <Grid x:Name="CenterHost" Grid.Column="1">
+
+            <Grid Grid.Column="1">
                 <Grid.RowDefinitions>
                     <RowDefinition Height="Auto"/>
                     <RowDefinition Height="*"/>
                 </Grid.RowDefinitions>
-
-                <Border Grid.Row="0"
-                        Margin="20,18,20,0"
-                        Padding="18"
-                        CornerRadius="22"
-                        Background="#0EFFFFFF"
-                        BorderBrush="{StaticResource BorderSubtleBrush}"
-                        BorderThickness="1">
+                <Border Grid.Row="0" Margin="0,0,16,16" Padding="20" Background="#120F1318" BorderBrush="{StaticResource BorderSubtleBrush}" BorderThickness="1" CornerRadius="28">
                     <Grid>
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="Auto"/>
-                            <ColumnDefinition Width="*"/>
-                            <ColumnDefinition Width="Auto"/>
-                        </Grid.ColumnDefinitions>
-
-                        <Button Grid.Column="0"
-                                Style="{StaticResource IconButtonStyle}"
-                                Command="{Binding GoBackCommand}"
-                                Margin="0,0,14,0">
-                            <TextBlock Style="{StaticResource ShellIconTextStyle}" Text="&#xE72B;"/>
-                        </Button>
-
-                        <StackPanel Grid.Column="1" VerticalAlignment="Center">
-                            <TextBlock Text="{Binding CurrentPageTitle}"
-                                       Style="{StaticResource TitleTextStyle}"
-                                       FontSize="26"/>
-                            <TextBlock Text="{Binding CurrentPageSubtitle}"
-                                       Style="{StaticResource CaptionTextStyle}"
-                                       Margin="0,6,0,0"
-                                       TextWrapping="Wrap"/>
-                        </StackPanel>
-
-                        <StackPanel Grid.Column="2"
-                                    Orientation="Horizontal"
-                                    VerticalAlignment="Center">
-                            <Border Style="{StaticResource InfoBadgeStyle}">
-                                <StackPanel Orientation="Horizontal">
-                                    <TextBlock Style="{StaticResource ShellIconTextStyle}"
-                                               Text="&#xE8D2;"
-                                               Margin="0,0,6,0"/>
-                                    <TextBlock Text="{Binding Library.TotalTracks, StringFormat={}{0} tracks}"
-                                               Style="{StaticResource CaptionTextStyle}"
-                                               Foreground="{StaticResource PrimaryTextBrush}"/>
-                                </StackPanel>
-                            </Border>
-
-                            <Button Style="{StaticResource ContextChipButtonStyle}"
-                                    Command="{Binding NavigateToSearchCommand}"
-                                    Margin="0,0,8,0">
-                                <StackPanel Orientation="Horizontal">
-                                    <TextBlock Style="{StaticResource ShellIconTextStyle}" Text="&#xE721;" Margin="0,0,8,0"/>
-                                    <TextBlock Text="Search"/>
-                                </StackPanel>
-                            </Button>
-
-                            <Button Style="{StaticResource ContextChipButtonStyle}"
-                                    Command="{Binding ToggleExpandedPlayerCommand}"
-                                    Margin="0,0,8,0">
-                                <StackPanel Orientation="Horizontal">
-                                    <TextBlock Style="{StaticResource ShellIconTextStyle}" Text="&#xE740;" Margin="0,0,8,0"/>
-                                    <TextBlock Text="Player"/>
-                                </StackPanel>
-                            </Button>
-
-                            <Button Style="{StaticResource ContextChipButtonStyle}"
-                                    Tag="{Binding IsContextPanelVisible}"
-                                    Command="{Binding ToggleContextPanelCommand}">
-                                <StackPanel Orientation="Horizontal">
-                                    <TextBlock Style="{StaticResource ShellIconTextStyle}" Text="&#xE7F8;" Margin="0,0,8,0"/>
-                                    <TextBlock Text="Panel"/>
-                                </StackPanel>
-                            </Button>
-                        </StackPanel>
+                        <Grid.ColumnDefinitions><ColumnDefinition Width="Auto"/><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
+                        <Button Grid.Column="0" Style="{StaticResource IconButtonStyle}" Command="{Binding GoBackCommand}" Margin="0,0,16,0"><TextBlock Style="{StaticResource ShellIconTextStyle}" Text="&#xE72B;"/></Button>
+                        <StackPanel Grid.Column="1"><TextBlock Text="{Binding CurrentPageTitle}" Style="{StaticResource TitleTextStyle}" FontSize="28"/><TextBlock Text="{Binding CurrentPageSubtitle}" Style="{StaticResource CaptionTextStyle}" Margin="0,6,0,0" TextWrapping="Wrap"/></StackPanel>
+                        <StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Center"><Button Style="{StaticResource ContextChipButtonStyle}" Command="{Binding NavigateToSearchCommand}" Margin="0,0,8,0"><TextBlock Text="Search"/></Button><Button Style="{StaticResource ContextChipButtonStyle}" Command="{Binding ToggleExpandedPlayerCommand}" Margin="0,0,8,0"><TextBlock Text="Player"/></Button><Button Style="{StaticResource ContextChipButtonStyle}" Tag="{Binding IsContextPanelVisible}" Command="{Binding ToggleContextPanelCommand}"><TextBlock Text="Panel"/></Button></StackPanel>
                     </Grid>
                 </Border>
-
-                <Border Grid.Row="1"
-                        Margin="20,18,20,18"
-                        CornerRadius="28"
-                        Background="{StaticResource MainPanelBackgroundBrush}"
-                        BorderBrush="{StaticResource BorderSubtleBrush}"
-                        BorderThickness="1"
-                        ClipToBounds="True">
-                    <ContentControl Content="{Binding CurrentPage}"/>
-                </Border>
+                <Border Grid.Row="1" Margin="0,0,16,16" Background="{StaticResource MainPanelBackgroundBrush}" BorderBrush="{StaticResource BorderSubtleBrush}" BorderThickness="1" CornerRadius="32" ClipToBounds="True"><ContentControl Content="{Binding CurrentPage}"/></Border>
             </Grid>
-            <Border x:Name="ContextPanelHost"
-                    Grid.Column="2"
-                    Width="388"
-                    Margin="0,18,18,18"
-                    Padding="18"
-                    Background="{StaticResource GlassSurfaceBrush}"
-                    BorderBrush="{StaticResource BorderSubtleBrush}"
-                    BorderThickness="1"
-                    CornerRadius="24"
-                    Visibility="{Binding IsContextPanelVisible, Converter={StaticResource BooleanToVisibilityConverter}}">
+
+            <Border Grid.Column="2" Width="394" Margin="0,0,0,16" Padding="18" Background="{StaticResource GlassSurfaceBrush}" BorderBrush="{StaticResource BorderSubtleBrush}" BorderThickness="1" CornerRadius="28" Visibility="{Binding IsContextPanelVisible, Converter={StaticResource BooleanToVisibilityConverter}}">
                 <Grid>
-                    <Grid.RowDefinitions>
-                        <RowDefinition Height="Auto"/>
-                        <RowDefinition Height="Auto"/>
-                        <RowDefinition Height="*"/>
-                    </Grid.RowDefinitions>
-
-                    <StackPanel Grid.Row="0">
-                        <TextBlock Text="{Binding ContextPanelTitle}"
-                                   Style="{StaticResource TitleTextStyle}"
-                                   FontSize="24"/>
-                        <TextBlock Margin="0,6,0,0"
-                                   TextWrapping="Wrap">
-                            <TextBlock.Style>
-                                <Style TargetType="TextBlock" BasedOn="{StaticResource CaptionTextStyle}">
-                                    <Setter Property="Text" Value="{Binding NowPlaying.ContextSummary}"/>
-                                    <Style.Triggers>
-                                        <DataTrigger Binding="{Binding IsWaveContextMode}" Value="True">
-                                            <Setter Property="Text" Value="{Binding MyWave.TunerSummary}"/>
-                                        </DataTrigger>
-                                    </Style.Triggers>
-                                </Style>
-                            </TextBlock.Style>
-                        </TextBlock>
-                    </StackPanel>
-
-                    <WrapPanel Grid.Row="1" Margin="0,18,0,16">
-                        <Button Style="{StaticResource ContextChipButtonStyle}"
-                                Tag="{Binding IsQueueContextMode}"
-                                Command="{Binding ShowQueueContextCommand}">
-                            <TextBlock Text="Up Next"/>
-                        </Button>
-                        <Button Style="{StaticResource ContextChipButtonStyle}"
-                                Tag="{Binding IsLyricsContextMode}"
-                                Command="{Binding ShowLyricsContextCommand}">
-                            <TextBlock Text="Lyrics"/>
-                        </Button>
-                        <Button Style="{StaticResource ContextChipButtonStyle}"
-                                Tag="{Binding IsDetailsContextMode}"
-                                Command="{Binding ShowDetailsContextCommand}">
-                            <TextBlock Text="Details"/>
-                        </Button>
-                        <Button Style="{StaticResource ContextChipButtonStyle}"
-                                Tag="{Binding IsCommentsContextMode}"
-                                Command="{Binding ShowCommentsContextCommand}">
-                            <TextBlock Text="Comments"/>
-                        </Button>
-                        <Button Style="{StaticResource ContextChipButtonStyle}"
-                                Tag="{Binding IsWaveContextMode}"
-                                Command="{Binding ShowWaveContextCommand}">
-                            <TextBlock Text="Wave"/>
-                        </Button>
-                    </WrapPanel>
-
-                    <Grid x:Name="ContextContentHost" Grid.Row="2">
-                        <ScrollViewer VerticalScrollBarVisibility="Auto"
-                                      Visibility="{Binding IsQueueContextMode, Converter={StaticResource BooleanToVisibilityConverter}}">
-                            <StackPanel>
-                                <Border Style="{StaticResource SubtleSurfaceCardStyle}" Margin="0,0,0,14">
-                                    <Grid>
-                                        <Grid.ColumnDefinitions>
-                                            <ColumnDefinition Width="*"/>
-                                            <ColumnDefinition Width="Auto"/>
-                                        </Grid.ColumnDefinitions>
-                                        <StackPanel>
-                                            <TextBlock Text="Queue"
-                                                       Style="{StaticResource BodyTextStyle}"
-                                                       FontWeight="SemiBold"/>
-                                            <TextBlock Text="{Binding NowPlaying.QueueCountLabel}"
-                                                       Style="{StaticResource CaptionTextStyle}"
-                                                       Margin="0,4,0,0"/>
-                                        </StackPanel>
-                                        <Button Grid.Column="1"
-                                                Style="{StaticResource GhostButtonStyle}"
-                                                Command="{Binding NavigateToQueueCommand}">
-                                            <TextBlock Text="Open page"/>
-                                        </Button>
-                                    </Grid>
-                                </Border>
-
-                                <TextBlock Text="Queue is empty."
-                                           Style="{StaticResource CaptionTextStyle}"
-                                           Visibility="{Binding NowPlaying.HasQueueItems, Converter={StaticResource BooleanToVisibilityConverter}, ConverterParameter=invert}"/>
-
-                                <ItemsControl ItemsSource="{Binding NowPlaying.QueueItems}"
-                                              Visibility="{Binding NowPlaying.HasQueueItems, Converter={StaticResource BooleanToVisibilityConverter}}">
-                                    <ItemsControl.ItemTemplate>
-                                        <DataTemplate>
-                                            <Border Style="{StaticResource SubtleSurfaceCardStyle}" Margin="0,0,0,12">
-                                                <Grid>
-                                                    <Grid.ColumnDefinitions>
-                                                        <ColumnDefinition Width="*"/>
-                                                        <ColumnDefinition Width="Auto"/>
-                                                    </Grid.ColumnDefinitions>
-                                                    <StackPanel>
-                                                        <TextBlock Text="{Binding Track.Title}"
-                                                                   FontSize="13"
-                                                                   FontWeight="SemiBold"
-                                                                   Foreground="{StaticResource PrimaryTextBrush}"
-                                                                   TextTrimming="CharacterEllipsis"/>
-                                                        <TextBlock Text="{Binding Track.ArtistName}"
-                                                                   Style="{StaticResource CaptionTextStyle}"
-                                                                   Margin="0,4,0,0"
-                                                                   TextTrimming="CharacterEllipsis"/>
-                                                        <TextBlock Text="{Binding RecommendationReason}"
-                                                                   Style="{StaticResource SmallCaptionTextStyle}"
-                                                                   Margin="0,6,0,0"
-                                                                   TextWrapping="Wrap"
-                                                                   Visibility="{Binding IsRecommendation, Converter={StaticResource BooleanToVisibilityConverter}}"/>
-                                                    </StackPanel>
-                                                    <StackPanel Grid.Column="1" Margin="14,0,0,0">
-                                                        <Button Style="{StaticResource GhostButtonStyle}"
-                                                                Command="{Binding DataContext.NowPlaying.PlayQueueItemCommand, ElementName=RootWindow}"
-                                                                CommandParameter="{Binding}"
-                                                                Margin="0,0,0,6">
-                                                            <TextBlock Text="Play"/>
-                                                        </Button>
-                                                        <Button Style="{StaticResource GhostButtonStyle}"
-                                                                Command="{Binding DataContext.NowPlaying.RemoveQueueItemCommand, ElementName=RootWindow}"
-                                                                CommandParameter="{Binding}">
-                                                            <TextBlock Text="Remove"/>
-                                                        </Button>
-                                                    </StackPanel>
-                                                </Grid>
-                                            </Border>
-                                        </DataTemplate>
-                                    </ItemsControl.ItemTemplate>
-                                </ItemsControl>
-                            </StackPanel>
-                        </ScrollViewer>
-
-                        <ScrollViewer VerticalScrollBarVisibility="Auto"
-                                      Visibility="{Binding IsLyricsContextMode, Converter={StaticResource BooleanToVisibilityConverter}}">
-                            <StackPanel>
-                                <TextBlock Text="{Binding NowPlaying.LyricsStatusMessage}"
-                                           Style="{StaticResource CaptionTextStyle}"
-                                           Margin="0,0,0,10"
-                                           Visibility="{Binding NowPlaying.HasLyrics, Converter={StaticResource BooleanToVisibilityConverter}, ConverterParameter=invert}"/>
-
-                                <ItemsControl ItemsSource="{Binding NowPlaying.LyricLines}"
-                                              Visibility="{Binding NowPlaying.HasLyrics, Converter={StaticResource BooleanToVisibilityConverter}}">
-                                    <ItemsControl.ItemTemplate>
-                                        <DataTemplate>
-                                            <Button Style="{StaticResource LyricLineButtonStyle}"
-                                                    Command="{Binding DataContext.NowPlaying.SeekToLyricCommand, ElementName=RootWindow}"
-                                                    CommandParameter="{Binding}">
-                                                <Grid>
-                                                    <Grid.ColumnDefinitions>
-                                                        <ColumnDefinition Width="Auto"/>
-                                                        <ColumnDefinition Width="*"/>
-                                                    </Grid.ColumnDefinitions>
-                                                    <TextBlock Text="{Binding TimeLabel}"
-                                                               Style="{StaticResource SmallCaptionTextStyle}"
-                                                               Margin="0,0,12,0"
-                                                               VerticalAlignment="Center"/>
-                                                    <TextBlock Grid.Column="1"
-                                                               Text="{Binding Text}"
-                                                               TextWrapping="Wrap"
-                                                               Foreground="{Binding RelativeSource={RelativeSource AncestorType=Button}, Path=Foreground}"/>
-                                                </Grid>
-                                            </Button>
-                                        </DataTemplate>
-                                    </ItemsControl.ItemTemplate>
-                                </ItemsControl>
-                            </StackPanel>
-                        </ScrollViewer>
-
-                        <ScrollViewer VerticalScrollBarVisibility="Auto"
-                                      Visibility="{Binding IsDetailsContextMode, Converter={StaticResource BooleanToVisibilityConverter}}">
-                            <StackPanel>
-                                <TextBlock Text="Nothing is playing."
-                                           Style="{StaticResource CaptionTextStyle}"
-                                           Visibility="{Binding NowPlaying.HasTrack, Converter={StaticResource BooleanToVisibilityConverter}, ConverterParameter=invert}"/>
-
-                                <StackPanel Visibility="{Binding NowPlaying.HasTrack, Converter={StaticResource BooleanToVisibilityConverter}}">
-                                    <Border Height="208"
-                                            CornerRadius="22"
-                                            Background="{StaticResource ElevatedSurfaceBrush}"
-                                            BorderBrush="{StaticResource BorderSubtleBrush}"
-                                            BorderThickness="1"
-                                            ClipToBounds="True">
-                                        <Grid>
-                                            <Image Source="{Binding NowPlaying.CoverArtUrl, Converter={StaticResource ImageSourceConverter}}"
-                                                   Stretch="UniformToFill"/>
-                                            <Border Background="{StaticResource HeroGradientBrush}"
-                                                    Visibility="{Binding NowPlaying.CoverArtUrl, Converter={StaticResource NullToVisibilityConverter}, ConverterParameter=invert}">
-                                                <TextBlock Text="Now Playing"
-                                                           Foreground="{StaticResource AccentPrimaryBrush}"
-                                                           HorizontalAlignment="Center"
-                                                           VerticalAlignment="Center"/>
-                                            </Border>
-                                        </Grid>
-                                    </Border>
-
-                                    <TextBlock Text="{Binding NowPlaying.Title}"
-                                               Style="{StaticResource TitleTextStyle}"
-                                               FontSize="24"
-                                               Margin="0,16,0,0"/>
-                                    <TextBlock Text="{Binding NowPlaying.Artist}"
-                                               Style="{StaticResource SubtitleTextStyle}"
-                                               Margin="0,6,0,0"/>
-
-                                    <WrapPanel Margin="0,14,0,0">
-                                        <Border Style="{StaticResource InfoBadgeStyle}">
-                                            <TextBlock Text="{Binding NowPlaying.CurrentTrack.AlbumTitle}"
-                                                       Style="{StaticResource SmallCaptionTextStyle}"
-                                                       Foreground="{StaticResource PrimaryTextBrush}"/>
-                                        </Border>
-                                        <Border Style="{StaticResource InfoBadgeStyle}">
-                                            <TextBlock Text="{Binding NowPlaying.CurrentTrack.DurationFormatted}"
-                                                       Style="{StaticResource SmallCaptionTextStyle}"
-                                                       Foreground="{StaticResource PrimaryTextBrush}"/>
-                                        </Border>
-                                        <Border Style="{StaticResource InfoBadgeStyle}">
-                                            <TextBlock Text="{Binding NowPlaying.CurrentTrack.Language}"
-                                                       Style="{StaticResource SmallCaptionTextStyle}"
-                                                       Foreground="{StaticResource PrimaryTextBrush}"/>
-                                        </Border>
-                                        <Border Style="{StaticResource InfoBadgeStyle}">
-                                            <TextBlock Text="{Binding NowPlaying.IsDownloaded, StringFormat={}{0}}"
-                                                       Style="{StaticResource SmallCaptionTextStyle}"
-                                                       Foreground="{StaticResource PrimaryTextBrush}"/>
-                                        </Border>
-                                    </WrapPanel>
-
-                                    <TextBlock Text="{Binding NowPlaying.ContextSummary}"
-                                               Style="{StaticResource CaptionTextStyle}"
-                                               Margin="0,12,0,0"
-                                               TextWrapping="Wrap"/>
-
-                                    <WrapPanel Margin="0,16,0,0">
-                                        <Button Style="{StaticResource SecondaryButtonStyle}"
-                                                Command="{Binding NowPlaying.NavigateToArtistCommand}"
-                                                Margin="0,0,10,10">
-                                            <TextBlock Text="Open artist"/>
-                                        </Button>
-                                        <Button Style="{StaticResource SecondaryButtonStyle}"
-                                                Command="{Binding NowPlaying.NavigateToAlbumCommand}"
-                                                Margin="0,0,10,10">
-                                            <TextBlock Text="Open album"/>
-                                        </Button>
-                                        <Button Style="{StaticResource SecondaryButtonStyle}"
-                                                Command="{Binding NowPlaying.DownloadCurrentTrackCommand}"
-                                                Margin="0,0,10,10">
-                                            <TextBlock Text="Download"/>
-                                        </Button>
-                                    </WrapPanel>
-                                </StackPanel>
-                            </StackPanel>
-                        </ScrollViewer>
-
-                        <ScrollViewer VerticalScrollBarVisibility="Auto"
-                                      Visibility="{Binding IsCommentsContextMode, Converter={StaticResource BooleanToVisibilityConverter}}">
-                            <StackPanel>
-                                <TextBlock Text="Timed comments are attached to the current playback position."
-                                           Style="{StaticResource CaptionTextStyle}"
-                                           TextWrapping="Wrap"/>
-
-                                <TextBox Style="{StaticResource TextBoxStyle}"
-                                         Margin="0,14,0,10"
-                                         Text="{Binding NowPlaying.NewCommentText, UpdateSourceTrigger=PropertyChanged}"/>
-
-                                <Button Style="{StaticResource PrimaryButtonStyle}"
-                                        Command="{Binding NowPlaying.AddCommentCommand}"
-                                        Margin="0,0,0,16">
-                                    <TextBlock Text="Add comment at current time"/>
-                                </Button>
-
-                                <TextBlock Text="No comments yet."
-                                           Style="{StaticResource CaptionTextStyle}"
-                                           Visibility="{Binding NowPlaying.HasComments, Converter={StaticResource BooleanToVisibilityConverter}, ConverterParameter=invert}"/>
-
-                                <ItemsControl ItemsSource="{Binding NowPlaying.TimedComments}"
-                                              Visibility="{Binding NowPlaying.HasComments, Converter={StaticResource BooleanToVisibilityConverter}}">
-                                    <ItemsControl.ItemTemplate>
-                                        <DataTemplate>
-                                            <Border Style="{StaticResource SubtleSurfaceCardStyle}" Margin="0,0,0,12">
-                                                <Grid>
-                                                    <Grid.ColumnDefinitions>
-                                                        <ColumnDefinition Width="*"/>
-                                                        <ColumnDefinition Width="Auto"/>
-                                                    </Grid.ColumnDefinitions>
-                                                    <StackPanel>
-                                                        <TextBlock Text="{Binding TimeLabel}"
-                                                                   Style="{StaticResource LabelTextStyle}"/>
-                                                        <TextBlock Text="{Binding Text}"
-                                                                   Margin="0,8,0,0"
-                                                                   Foreground="{StaticResource PrimaryTextBrush}"
-                                                                   TextWrapping="Wrap"/>
-                                                        <TextBlock Text="{Binding CreatedLabel}"
-                                                                   Style="{StaticResource SmallCaptionTextStyle}"
-                                                                   Margin="0,8,0,0"/>
-                                                    </StackPanel>
-                                                    <StackPanel Grid.Column="1" Margin="14,0,0,0">
-                                                        <Button Style="{StaticResource GhostButtonStyle}"
-                                                                Command="{Binding DataContext.NowPlaying.JumpToCommentCommand, ElementName=RootWindow}"
-                                                                CommandParameter="{Binding}"
-                                                                Margin="0,0,0,6">
-                                                            <TextBlock Text="Jump"/>
-                                                        </Button>
-                                                        <Button Style="{StaticResource GhostButtonStyle}"
-                                                                Command="{Binding DataContext.NowPlaying.ToggleFavoriteMomentCommand, ElementName=RootWindow}"
-                                                                CommandParameter="{Binding}"
-                                                                Margin="0,0,0,6">
-                                                            <TextBlock Text="Favorite"/>
-                                                        </Button>
-                                                        <Button Style="{StaticResource GhostButtonStyle}"
-                                                                Command="{Binding DataContext.NowPlaying.DeleteCommentCommand, ElementName=RootWindow}"
-                                                                CommandParameter="{Binding}">
-                                                            <TextBlock Text="Delete"/>
-                                                        </Button>
-                                                    </StackPanel>
-                                                </Grid>
-                                            </Border>
-                                        </DataTemplate>
-                                    </ItemsControl.ItemTemplate>
-                                </ItemsControl>
-                            </StackPanel>
-                        </ScrollViewer>
-
-                        <ScrollViewer VerticalScrollBarVisibility="Auto"
-                                      Visibility="{Binding IsWaveContextMode, Converter={StaticResource BooleanToVisibilityConverter}}">
-                            <StackPanel>
-                                <Border Style="{StaticResource SurfaceCardStyle}" Margin="0,0,0,14">
-                                    <StackPanel>
-                                        <TextBlock Text="{Binding MyWave.Seed.Title}"
-                                                   Style="{StaticResource BodyTextStyle}"
-                                                   FontWeight="SemiBold"/>
-                                        <TextBlock Text="{Binding MyWave.SeedLabel}"
-                                                   Style="{StaticResource CaptionTextStyle}"
-                                                   Margin="0,6,0,0"/>
-                                        <TextBlock Text="{Binding MyWave.TunerSummary}"
-                                                   Style="{StaticResource CaptionTextStyle}"
-                                                   Margin="0,10,0,0"
-                                                   TextWrapping="Wrap"/>
-                                    </StackPanel>
-                                </Border>
-
-                                <WrapPanel Margin="0,0,0,16">
-                                    <Button Style="{StaticResource ContextChipButtonStyle}"
-                                            Command="{Binding MyWave.ShowFlowCommand}">
-                                        <TextBlock Text="Flow"/>
-                                    </Button>
-                                    <Button Style="{StaticResource ContextChipButtonStyle}"
-                                            Command="{Binding MyWave.ShowSnippetsCommand}">
-                                        <TextBlock Text="Snippets"/>
-                                    </Button>
-                                </WrapPanel>
-
-                                <TextBlock Text="Open My Wave to generate recommendations."
-                                           Style="{StaticResource CaptionTextStyle}"
-                                           Visibility="{Binding MyWave.HasRecommendations, Converter={StaticResource BooleanToVisibilityConverter}, ConverterParameter=invert}"/>
-
-                                <ItemsControl ItemsSource="{Binding MyWave.Recommendations}"
-                                              Visibility="{Binding MyWave.HasRecommendations, Converter={StaticResource BooleanToVisibilityConverter}}">
-                                    <ItemsControl.ItemTemplate>
-                                        <DataTemplate>
-                                            <Border Style="{StaticResource SubtleSurfaceCardStyle}" Margin="0,0,0,12">
-                                                <Grid>
-                                                    <Grid.ColumnDefinitions>
-                                                        <ColumnDefinition Width="*"/>
-                                                        <ColumnDefinition Width="Auto"/>
-                                                    </Grid.ColumnDefinitions>
-                                                    <StackPanel>
-                                                        <TextBlock Text="{Binding Track.Title}"
-                                                                   FontSize="13"
-                                                                   FontWeight="SemiBold"
-                                                                   Foreground="{StaticResource PrimaryTextBrush}"/>
-                                                        <TextBlock Text="{Binding Track.ArtistName}"
-                                                                   Style="{StaticResource CaptionTextStyle}"
-                                                                   Margin="0,4,0,0"/>
-                                                        <TextBlock Text="{Binding Reason}"
-                                                                   Style="{StaticResource SmallCaptionTextStyle}"
-                                                                   Margin="0,8,0,0"
-                                                                   TextWrapping="Wrap"/>
-                                                    </StackPanel>
-                                                    <StackPanel Grid.Column="1" Margin="14,0,0,0">
-                                                        <Button Style="{StaticResource GhostButtonStyle}"
-                                                                Command="{Binding DataContext.MyWave.PlayTrackCommand, ElementName=RootWindow}"
-                                                                CommandParameter="{Binding}"
-                                                                Margin="0,0,0,6">
-                                                            <TextBlock Text="Play"/>
-                                                        </Button>
-                                                        <Button Style="{StaticResource GhostButtonStyle}"
-                                                                Command="{Binding DataContext.MyWave.MoreLikeThisCommand, ElementName=RootWindow}"
-                                                                CommandParameter="{Binding}"
-                                                                Margin="0,0,0,6">
-                                                            <TextBlock Text="More"/>
-                                                        </Button>
-                                                        <Button Style="{StaticResource GhostButtonStyle}"
-                                                                Command="{Binding DataContext.MyWave.LessLikeThisCommand, ElementName=RootWindow}"
-                                                                CommandParameter="{Binding}">
-                                                            <TextBlock Text="Less"/>
-                                                        </Button>
-                                                    </StackPanel>
-                                                </Grid>
-                                            </Border>
-                                        </DataTemplate>
-                                    </ItemsControl.ItemTemplate>
-                                </ItemsControl>
-                            </StackPanel>
-                        </ScrollViewer>
-                    </Grid>
+                    <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="*"/></Grid.RowDefinitions>
+                    <StackPanel Grid.Row="0"><TextBlock Text="{Binding ContextPanelTitle}" Style="{StaticResource TitleTextStyle}" FontSize="24"/><TextBlock Text="{Binding ContextPanelSubtitle}" Style="{StaticResource CaptionTextStyle}" Margin="0,6,0,0" TextWrapping="Wrap"/></StackPanel>
+                    <WrapPanel Grid.Row="1" Margin="0,18,0,16"><Button Style="{StaticResource ContextChipButtonStyle}" Tag="{Binding IsQueueContextMode}" Command="{Binding ShowQueueContextCommand}"><TextBlock Text="Up Next"/></Button><Button Style="{StaticResource ContextChipButtonStyle}" Tag="{Binding IsLyricsContextMode}" Command="{Binding ShowLyricsContextCommand}"><TextBlock Text="Lyrics"/></Button><Button Style="{StaticResource ContextChipButtonStyle}" Tag="{Binding IsDetailsContextMode}" Command="{Binding ShowDetailsContextCommand}"><TextBlock Text="Details"/></Button><Button Style="{StaticResource ContextChipButtonStyle}" Tag="{Binding IsCommentsContextMode}" Command="{Binding ShowCommentsContextCommand}"><TextBlock Text="Comments"/></Button><Button Style="{StaticResource ContextChipButtonStyle}" Tag="{Binding IsWaveContextMode}" Command="{Binding ShowWaveContextCommand}"><TextBlock Text="Wave"/></Button></WrapPanel>
+                    <ScrollViewer Grid.Row="2" Style="{StaticResource ScrollViewerStyle}" VerticalScrollBarVisibility="Auto">
+                        <StackPanel>
+                            <Border Style="{StaticResource InsetSurfaceCardStyle}" Margin="0,0,0,12" Visibility="{Binding IsDetailsContextMode, Converter={StaticResource BooleanToVisibilityConverter}}"><StackPanel><TextBlock Text="{Binding NowPlaying.Title}" Style="{StaticResource BodyTextStyle}" FontWeight="SemiBold"/><TextBlock Text="{Binding NowPlaying.ContextSummary}" Style="{StaticResource CaptionTextStyle}" Margin="0,6,0,0" TextWrapping="Wrap"/></StackPanel></Border>
+                            <ItemsControl ItemsSource="{Binding NowPlaying.QueueItems}" Visibility="{Binding IsQueueContextMode, Converter={StaticResource BooleanToVisibilityConverter}}"><ItemsControl.ItemTemplate><DataTemplate><Border Style="{StaticResource SubtleSurfaceCardStyle}" Margin="0,0,0,10"><Grid><Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions><StackPanel><TextBlock Text="{Binding Track.Title}" FontSize="13" FontWeight="SemiBold" Foreground="{StaticResource PrimaryTextBrush}" TextTrimming="CharacterEllipsis"/><TextBlock Text="{Binding Track.ArtistName}" Style="{StaticResource CaptionTextStyle}" Margin="0,4,0,0"/></StackPanel><Button Grid.Column="1" Style="{StaticResource GhostButtonStyle}" Command="{Binding DataContext.NowPlaying.PlayQueueItemCommand, ElementName=RootWindow}" CommandParameter="{Binding}"><TextBlock Text="Play"/></Button></Grid></Border></DataTemplate></ItemsControl.ItemTemplate></ItemsControl>
+                            <ItemsControl ItemsSource="{Binding NowPlaying.LyricLines}" Visibility="{Binding IsLyricsContextMode, Converter={StaticResource BooleanToVisibilityConverter}}"><ItemsControl.ItemTemplate><DataTemplate><Button Style="{StaticResource LyricLineButtonStyle}" Command="{Binding DataContext.NowPlaying.SeekToLyricCommand, ElementName=RootWindow}" CommandParameter="{Binding}"><Grid><Grid.ColumnDefinitions><ColumnDefinition Width="Auto"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions><TextBlock Text="{Binding TimeLabel}" Style="{StaticResource SmallCaptionTextStyle}" Margin="0,0,12,0"/><TextBlock Grid.Column="1" Text="{Binding Text}" TextWrapping="Wrap"/></Grid></Button></DataTemplate></ItemsControl.ItemTemplate></ItemsControl>
+                            <StackPanel Visibility="{Binding IsCommentsContextMode, Converter={StaticResource BooleanToVisibilityConverter}}"><TextBox Style="{StaticResource TextBoxStyle}" Text="{Binding NowPlaying.NewCommentText, UpdateSourceTrigger=PropertyChanged}" Margin="0,0,0,10"/><Button Style="{StaticResource PrimaryButtonStyle}" Command="{Binding NowPlaying.AddCommentCommand}" Margin="0,0,0,16"><TextBlock Text="Add comment"/></Button><ItemsControl ItemsSource="{Binding NowPlaying.TimedComments}"><ItemsControl.ItemTemplate><DataTemplate><Border Style="{StaticResource SubtleSurfaceCardStyle}" Margin="0,0,0,10"><StackPanel><TextBlock Text="{Binding TimeLabel}" Style="{StaticResource LabelTextStyle}"/><TextBlock Text="{Binding Text}" Margin="0,8,0,0" Foreground="{StaticResource PrimaryTextBrush}" TextWrapping="Wrap"/></StackPanel></Border></DataTemplate></ItemsControl.ItemTemplate></ItemsControl></StackPanel>
+                            <ItemsControl ItemsSource="{Binding MyWave.Recommendations}" Visibility="{Binding IsWaveContextMode, Converter={StaticResource BooleanToVisibilityConverter}}"><ItemsControl.ItemTemplate><DataTemplate><Border Style="{StaticResource SubtleSurfaceCardStyle}" Margin="0,0,0,10"><StackPanel><TextBlock Text="{Binding Track.Title}" FontSize="13" FontWeight="SemiBold" Foreground="{StaticResource PrimaryTextBrush}"/><TextBlock Text="{Binding Reason}" Style="{StaticResource CaptionTextStyle}" Margin="0,6,0,0" TextWrapping="Wrap"/></StackPanel></Border></DataTemplate></ItemsControl.ItemTemplate></ItemsControl>
+                        </StackPanel>
+                    </ScrollViewer>
                 </Grid>
             </Border>
         </Grid>
 
-        <Border x:Name="BottomPlayerBar"
-                Grid.Row="1"
-                Margin="18,0,18,18"
-                Padding="14,12"
-                Background="{StaticResource PlayerBackgroundBrush}"
-                BorderBrush="{StaticResource BorderSubtleBrush}"
-                BorderThickness="1"
-                CornerRadius="24">
+        <Border Grid.Row="1" Margin="16,0,16,16" Padding="14,12" Background="{StaticResource PlayerBackgroundBrush}" BorderBrush="{StaticResource BorderSubtleBrush}" BorderThickness="1" CornerRadius="28">
             <Grid>
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="330"/>
-                    <ColumnDefinition Width="*"/>
-                    <ColumnDefinition Width="340"/>
-                </Grid.ColumnDefinitions>
-
-                <StackPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center">
-                    <controls:NowPlayingMiniCard Title="{Binding NowPlaying.Title}"
-                                                 Artist="{Binding NowPlaying.Artist}"
-                                                 CoverArtUrl="{Binding NowPlaying.CoverArtUrl}"
-                                                 IsPlaying="{Binding NowPlaying.IsPlaying}"
-                                                 IsLiked="{Binding NowPlaying.IsLiked}"
-                                                 LikeCommand="{Binding NowPlaying.ToggleLikeCommand}"/>
-                    <StackPanel Margin="16,0,0,0" VerticalAlignment="Center">
-                        <TextBlock Text="{Binding NowPlaying.ContextSummary}"
-                                   Style="{StaticResource SmallCaptionTextStyle}"
-                                   Width="150"
-                                   TextWrapping="Wrap"
-                                   MaxHeight="34"/>
-                        <TextBlock Text="{Binding NowPlaying.QueueCountLabel}"
-                                   Style="{StaticResource SmallCaptionTextStyle}"
-                                   Margin="0,4,0,0"/>
-                    </StackPanel>
-                </StackPanel>
-
-                <StackPanel Grid.Column="1"
-                            HorizontalAlignment="Center"
-                            VerticalAlignment="Center"
-                            Width="520">
-                    <controls:PlaybackControls HorizontalAlignment="Center"
-                                               IsPlaying="{Binding NowPlaying.IsPlaying}"
-                                               IsShuffle="{Binding NowPlaying.IsShuffle}"
-                                               RepeatMode="{Binding NowPlaying.RepeatMode}"
-                                               ToggleShuffleCommand="{Binding NowPlaying.ToggleShuffleCommand}"
-                                               PreviousCommand="{Binding NowPlaying.PreviousCommand}"
-                                               PlayPauseCommand="{Binding NowPlaying.TogglePlayPauseCommand}"
-                                               NextCommand="{Binding NowPlaying.NextCommand}"
-                                               CycleRepeatModeCommand="{Binding NowPlaying.CycleRepeatModeCommand}"/>
-
-                    <Grid Margin="0,12,0,0">
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="Auto"/>
-                            <ColumnDefinition Width="*"/>
-                            <ColumnDefinition Width="Auto"/>
-                        </Grid.ColumnDefinitions>
-                        <TextBlock Text="{Binding NowPlaying.CurrentPositionFormatted}"
-                                   Style="{StaticResource SmallCaptionTextStyle}"
-                                   VerticalAlignment="Center"
-                                   Margin="0,0,10,0"/>
-                        <controls:ProgressSlider Grid.Column="1"
-                                                 Minimum="0"
-                                                 Maximum="100"
-                                                 Value="{Binding NowPlaying.Progress, Mode=TwoWay}"/>
-                        <TextBlock Grid.Column="2"
-                                   Text="{Binding NowPlaying.TotalDurationFormatted}"
-                                   Style="{StaticResource SmallCaptionTextStyle}"
-                                   VerticalAlignment="Center"
-                                   Margin="10,0,0,0"/>
-                    </Grid>
-                </StackPanel>
-
-                <StackPanel Grid.Column="2"
-                            Orientation="Horizontal"
-                            HorizontalAlignment="Right"
-                            VerticalAlignment="Center">
-                    <Button Style="{StaticResource ContextChipButtonStyle}"
-                            Tag="{Binding IsQueueContextMode}"
-                            Command="{Binding ShowQueueContextCommand}"
-                            Margin="0,0,8,0">
-                        <StackPanel Orientation="Horizontal">
-                            <TextBlock Style="{StaticResource ShellIconTextStyle}" Text="&#xE149;" Margin="0,0,6,0"/>
-                            <TextBlock Text="Queue"/>
-                        </StackPanel>
-                    </Button>
-
-                    <Button Style="{StaticResource ContextChipButtonStyle}"
-                            Tag="{Binding IsLyricsContextMode}"
-                            Command="{Binding ShowLyricsContextCommand}"
-                            Margin="0,0,8,0">
-                        <StackPanel Orientation="Horizontal">
-                            <TextBlock Style="{StaticResource ShellIconTextStyle}" Text="&#xE8D6;" Margin="0,0,6,0"/>
-                            <TextBlock Text="Lyrics"/>
-                        </StackPanel>
-                    </Button>
-
-                    <Button Style="{StaticResource ContextChipButtonStyle}"
-                            Tag="{Binding IsCommentsContextMode}"
-                            Command="{Binding ShowCommentsContextCommand}"
-                            Margin="0,0,10,0">
-                        <StackPanel Orientation="Horizontal">
-                            <TextBlock Style="{StaticResource ShellIconTextStyle}" Text="&#xE134;" Margin="0,0,6,0"/>
-                            <TextBlock Text="Comments"/>
-                        </StackPanel>
-                    </Button>
-
-                    <Button Style="{StaticResource IconButtonStyle}"
-                            Command="{Binding NowPlaying.ToggleMuteCommand}"
-                            Margin="0,0,8,0">
-                        <TextBlock Style="{StaticResource ShellIconTextStyle}"
-                                   Text="{Binding NowPlaying.IsMuted, Converter={StaticResource VolumeIconConverter}}"/>
-                    </Button>
-
-                    <controls:VolumeSlider Minimum="0"
-                                           Maximum="1"
-                                           Value="{Binding NowPlaying.Volume, Mode=TwoWay}"
-                                           Margin="0,0,10,0"/>
-
-                    <Button Style="{StaticResource IconButtonStyle}"
-                            Command="{Binding ToggleExpandedPlayerCommand}">
-                        <TextBlock Style="{StaticResource ShellIconTextStyle}" Text="&#xE740;"/>
-                    </Button>
-                </StackPanel>
+                <Grid.ColumnDefinitions><ColumnDefinition Width="340"/><ColumnDefinition Width="*"/><ColumnDefinition Width="430"/></Grid.ColumnDefinitions>
+                <StackPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center"><controls:NowPlayingMiniCard Title="{Binding NowPlaying.Title}" Artist="{Binding NowPlaying.Artist}" CoverArtUrl="{Binding NowPlaying.CoverArtUrl}" IsPlaying="{Binding NowPlaying.IsPlaying}" IsLiked="{Binding NowPlaying.IsLiked}" LikeCommand="{Binding NowPlaying.ToggleLikeCommand}"/><StackPanel Margin="14,0,0,0" VerticalAlignment="Center"><TextBlock Text="{Binding NowPlaying.DownloadStatusLabel}" Style="{StaticResource SmallCaptionTextStyle}"/><TextBlock Text="{Binding NowPlaying.OutputQualityLabel}" Style="{StaticResource SmallCaptionTextStyle}" Margin="0,4,0,0" TextWrapping="Wrap" Width="164"/></StackPanel></StackPanel>
+                <StackPanel Grid.Column="1" Width="560" HorizontalAlignment="Center" VerticalAlignment="Center"><controls:PlaybackControls HorizontalAlignment="Center" IsPlaying="{Binding NowPlaying.IsPlaying}" IsShuffle="{Binding NowPlaying.IsShuffle}" RepeatMode="{Binding NowPlaying.RepeatMode}" ToggleShuffleCommand="{Binding NowPlaying.ToggleShuffleCommand}" PreviousCommand="{Binding NowPlaying.PreviousCommand}" PlayPauseCommand="{Binding NowPlaying.TogglePlayPauseCommand}" NextCommand="{Binding NowPlaying.NextCommand}" CycleRepeatModeCommand="{Binding NowPlaying.CycleRepeatModeCommand}"/><Grid Margin="0,12,0,0"><Grid.ColumnDefinitions><ColumnDefinition Width="Auto"/><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions><TextBlock Text="{Binding NowPlaying.CurrentPositionFormatted}" Style="{StaticResource SmallCaptionTextStyle}" Margin="0,0,10,0"/><controls:ProgressSlider Grid.Column="1" Minimum="0" Maximum="100" Value="{Binding NowPlaying.Progress, Mode=TwoWay}"/><TextBlock Grid.Column="2" Text="{Binding NowPlaying.TotalDurationFormatted}" Style="{StaticResource SmallCaptionTextStyle}" Margin="10,0,0,0"/></Grid></StackPanel>
+                <StackPanel Grid.Column="2" Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Center"><Button Style="{StaticResource ContextChipButtonStyle}" Tag="{Binding IsQueueContextMode}" Command="{Binding ShowQueueContextCommand}" Margin="0,0,8,0"><TextBlock Text="Queue"/></Button><Button Style="{StaticResource ContextChipButtonStyle}" Tag="{Binding IsLyricsContextMode}" Command="{Binding ShowLyricsContextCommand}" Margin="0,0,8,0"><TextBlock Text="Lyrics"/></Button><Button Style="{StaticResource ContextChipButtonStyle}" Command="{Binding NowPlaying.StartWaveFromTrackCommand}" Margin="0,0,8,0"><TextBlock Text="Wave"/></Button><Button Style="{StaticResource GhostButtonStyle}" Command="{Binding NavigateToSettingsCommand}" Margin="0,0,8,0"><TextBlock Text="Output"/></Button><Button Style="{StaticResource SecondaryButtonStyle}" Command="{Binding NowPlaying.ToggleMuteCommand}" Margin="0,0,8,0"><TextBlock Text="Mute"/></Button><controls:VolumeSlider Minimum="0" Maximum="1" Value="{Binding NowPlaying.Volume, Mode=TwoWay}" Margin="0,0,10,0"/><Button Style="{StaticResource IconButtonStyle}" Command="{Binding ToggleExpandedPlayerCommand}"><TextBlock Style="{StaticResource ShellIconTextStyle}" Text="&#xE740;"/></Button></StackPanel>
             </Grid>
         </Border>
-        <Grid x:Name="ExpandedPlayerOverlay"
-              Grid.RowSpan="2"
-              Panel.ZIndex="20"
-              Visibility="{Binding IsExpandedPlayerOpen, Converter={StaticResource BooleanToVisibilityConverter}}">
-            <Border Background="#D806080B"/>
 
-            <Border Width="1240"
-                    Height="760"
-                    HorizontalAlignment="Center"
-                    VerticalAlignment="Center"
-                    Background="{StaticResource MainPanelBackgroundBrush}"
-                    BorderBrush="{StaticResource BorderSubtleBrush}"
-                    BorderThickness="1"
-                    CornerRadius="34"
-                    Padding="28">
+        <Grid Grid.RowSpan="2" Panel.ZIndex="20" Visibility="{Binding IsExpandedPlayerOpen, Converter={StaticResource BooleanToVisibilityConverter}}">
+            <Border Background="#D906080B"/>
+            <Border Width="1280" Height="780" HorizontalAlignment="Center" VerticalAlignment="Center" Background="{StaticResource MainPanelBackgroundBrush}" BorderBrush="{StaticResource BorderSubtleBrush}" BorderThickness="1" CornerRadius="36" Padding="24">
                 <Grid>
-                    <Grid.RowDefinitions>
-                        <RowDefinition Height="Auto"/>
-                        <RowDefinition Height="*"/>
-                    </Grid.RowDefinitions>
-
-                    <Grid Grid.Row="0">
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="*"/>
-                            <ColumnDefinition Width="Auto"/>
-                        </Grid.ColumnDefinitions>
-                        <StackPanel>
-                            <TextBlock Text="Expanded Player"
-                                       Style="{StaticResource SectionEyebrowTextStyle}"/>
-                            <TextBlock Text="{Binding NowPlaying.Title}"
-                                       Style="{StaticResource TitleTextStyle}"
-                                       FontSize="30"
-                                       Margin="0,6,0,0"/>
-                        </StackPanel>
-
-                        <Button Grid.Column="1"
-                                Style="{StaticResource IconButtonStyle}"
-                                Command="{Binding CloseExpandedPlayerCommand}">
-                            <TextBlock Style="{StaticResource ShellIconTextStyle}" Text="&#xE711;"/>
-                        </Button>
-                    </Grid>
-
-                    <Grid Grid.Row="1" Margin="0,26,0,0">
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="460"/>
-                            <ColumnDefinition Width="28"/>
-                            <ColumnDefinition Width="*"/>
-                        </Grid.ColumnDefinitions>
-
-                        <StackPanel Grid.Column="0">
-                            <Border Height="430"
-                                    CornerRadius="28"
-                                    Background="{StaticResource ElevatedSurfaceBrush}"
-                                    BorderBrush="{StaticResource BorderSubtleBrush}"
-                                    BorderThickness="1"
-                                    ClipToBounds="True">
-                                <Grid>
-                                    <Image Source="{Binding NowPlaying.CoverArtUrl, Converter={StaticResource ImageSourceConverter}}"
-                                           Stretch="UniformToFill"/>
-                                    <Border Background="{StaticResource HeroGradientBrush}"
-                                            Visibility="{Binding NowPlaying.CoverArtUrl, Converter={StaticResource NullToVisibilityConverter}, ConverterParameter=invert}">
-                                        <TextBlock Text="Artwork"
-                                                   Foreground="{StaticResource AccentPrimaryBrush}"
-                                                   HorizontalAlignment="Center"
-                                                   VerticalAlignment="Center"/>
-                                    </Border>
-                                </Grid>
-                            </Border>
-
-                            <TextBlock Text="{Binding NowPlaying.Title}"
-                                       Style="{StaticResource HeroTextStyle}"
-                                       FontSize="42"
-                                       Margin="0,22,0,0"
-                                       TextWrapping="Wrap"/>
-                            <Button Style="{StaticResource GhostButtonStyle}"
-                                    Command="{Binding NowPlaying.NavigateToArtistCommand}"
-                                    HorizontalAlignment="Left"
-                                    Margin="0,8,0,0">
-                                <TextBlock Text="{Binding NowPlaying.Artist}"/>
-                            </Button>
-                            <TextBlock Text="{Binding NowPlaying.ContextSummary}"
-                                       Style="{StaticResource CaptionTextStyle}"
-                                       Margin="0,12,0,0"
-                                       TextWrapping="Wrap"/>
-
-                            <WrapPanel Margin="0,16,0,0">
-                                <Button Style="{StaticResource SecondaryButtonStyle}"
-                                        Command="{Binding NowPlaying.ToggleLikeCommand}"
-                                        Margin="0,0,10,10">
-                                    <TextBlock Text="Like"/>
-                                </Button>
-                                <Button Style="{StaticResource SecondaryButtonStyle}"
-                                        Command="{Binding ShowLyricsContextCommand}"
-                                        Margin="0,0,10,10">
-                                    <TextBlock Text="Lyrics"/>
-                                </Button>
-                                <Button Style="{StaticResource SecondaryButtonStyle}"
-                                        Command="{Binding ShowQueueContextCommand}"
-                                        Margin="0,0,10,10">
-                                    <TextBlock Text="Queue"/>
-                                </Button>
-                                <Button Style="{StaticResource SecondaryButtonStyle}"
-                                        Command="{Binding NowPlaying.DownloadCurrentTrackCommand}"
-                                        Margin="0,0,10,10">
-                                    <TextBlock Text="Download"/>
-                                </Button>
-                            </WrapPanel>
-
-                            <controls:PlaybackControls Margin="0,24,0,0"
-                                                       HorizontalAlignment="Left"
-                                                       IsPlaying="{Binding NowPlaying.IsPlaying}"
-                                                       IsShuffle="{Binding NowPlaying.IsShuffle}"
-                                                       RepeatMode="{Binding NowPlaying.RepeatMode}"
-                                                       ToggleShuffleCommand="{Binding NowPlaying.ToggleShuffleCommand}"
-                                                       PreviousCommand="{Binding NowPlaying.PreviousCommand}"
-                                                       PlayPauseCommand="{Binding NowPlaying.TogglePlayPauseCommand}"
-                                                       NextCommand="{Binding NowPlaying.NextCommand}"
-                                                       CycleRepeatModeCommand="{Binding NowPlaying.CycleRepeatModeCommand}"/>
-
-                            <Grid Margin="0,16,0,0">
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="Auto"/>
-                                    <ColumnDefinition Width="*"/>
-                                    <ColumnDefinition Width="Auto"/>
-                                </Grid.ColumnDefinitions>
-                                <TextBlock Text="{Binding NowPlaying.CurrentPositionFormatted}"
-                                           Style="{StaticResource SmallCaptionTextStyle}"
-                                           VerticalAlignment="Center"
-                                           Margin="0,0,10,0"/>
-                                <controls:ProgressSlider Grid.Column="1"
-                                                         Minimum="0"
-                                                         Maximum="100"
-                                                         Value="{Binding NowPlaying.Progress, Mode=TwoWay}"/>
-                                <TextBlock Grid.Column="2"
-                                           Text="{Binding NowPlaying.TotalDurationFormatted}"
-                                           Style="{StaticResource SmallCaptionTextStyle}"
-                                           VerticalAlignment="Center"
-                                           Margin="10,0,0,0"/>
-                            </Grid>
-                        </StackPanel>
-
-                        <Border Grid.Column="2"
-                                Background="{StaticResource GlassSurfaceBrush}"
-                                BorderBrush="{StaticResource BorderSubtleBrush}"
-                                BorderThickness="1"
-                                CornerRadius="28"
-                                Padding="22">
-                            <Grid>
-                                <Grid.RowDefinitions>
-                                    <RowDefinition Height="Auto"/>
-                                    <RowDefinition Height="*"/>
-                                </Grid.RowDefinitions>
-
-                                <WrapPanel Grid.Row="0" Margin="0,0,0,16">
-                                    <Button Style="{StaticResource ContextChipButtonStyle}"
-                                            Tag="{Binding IsLyricsContextMode}"
-                                            Command="{Binding ShowLyricsContextCommand}">
-                                        <TextBlock Text="Lyrics"/>
-                                    </Button>
-                                    <Button Style="{StaticResource ContextChipButtonStyle}"
-                                            Tag="{Binding IsQueueContextMode}"
-                                            Command="{Binding ShowQueueContextCommand}">
-                                        <TextBlock Text="Queue"/>
-                                    </Button>
-                                    <Button Style="{StaticResource ContextChipButtonStyle}"
-                                            Tag="{Binding IsCommentsContextMode}"
-                                            Command="{Binding ShowCommentsContextCommand}">
-                                        <TextBlock Text="Comments"/>
-                                    </Button>
-                                    <Button Style="{StaticResource ContextChipButtonStyle}"
-                                            Tag="{Binding IsDetailsContextMode}"
-                                            Command="{Binding ShowDetailsContextCommand}">
-                                        <TextBlock Text="Details"/>
-                                    </Button>
-                                </WrapPanel>
-
-                                <Grid Grid.Row="1">
-                                    <ScrollViewer VerticalScrollBarVisibility="Auto"
-                                                  Visibility="{Binding IsLyricsContextMode, Converter={StaticResource BooleanToVisibilityConverter}}">
-                                        <ItemsControl ItemsSource="{Binding NowPlaying.LyricLines}">
-                                            <ItemsControl.ItemTemplate>
-                                                <DataTemplate>
-                                                    <Button Style="{StaticResource LyricLineButtonStyle}"
-                                                            Command="{Binding DataContext.NowPlaying.SeekToLyricCommand, ElementName=RootWindow}"
-                                                            CommandParameter="{Binding}">
-                                                        <Grid>
-                                                            <Grid.ColumnDefinitions>
-                                                                <ColumnDefinition Width="Auto"/>
-                                                                <ColumnDefinition Width="*"/>
-                                                            </Grid.ColumnDefinitions>
-                                                            <TextBlock Text="{Binding TimeLabel}"
-                                                                       Style="{StaticResource SmallCaptionTextStyle}"
-                                                                       Margin="0,0,12,0"
-                                                                       VerticalAlignment="Center"/>
-                                                            <TextBlock Grid.Column="1"
-                                                                       Text="{Binding Text}"
-                                                                       TextWrapping="Wrap"
-                                                                       Foreground="{Binding RelativeSource={RelativeSource AncestorType=Button}, Path=Foreground}"/>
-                                                        </Grid>
-                                                    </Button>
-                                                </DataTemplate>
-                                            </ItemsControl.ItemTemplate>
-                                        </ItemsControl>
-                                    </ScrollViewer>
-
-                                    <ScrollViewer VerticalScrollBarVisibility="Auto"
-                                                  Visibility="{Binding IsQueueContextMode, Converter={StaticResource BooleanToVisibilityConverter}}">
-                                        <ItemsControl ItemsSource="{Binding NowPlaying.QueueItems}">
-                                            <ItemsControl.ItemTemplate>
-                                                <DataTemplate>
-                                                    <Border Style="{StaticResource SubtleSurfaceCardStyle}" Margin="0,0,0,12">
-                                                        <Grid>
-                                                            <Grid.ColumnDefinitions>
-                                                                <ColumnDefinition Width="*"/>
-                                                                <ColumnDefinition Width="Auto"/>
-                                                            </Grid.ColumnDefinitions>
-                                                            <StackPanel>
-                                                                <TextBlock Text="{Binding Track.Title}"
-                                                                           FontSize="13"
-                                                                           FontWeight="SemiBold"
-                                                                           Foreground="{StaticResource PrimaryTextBrush}"
-                                                                           TextTrimming="CharacterEllipsis"/>
-                                                                <TextBlock Text="{Binding Track.ArtistName}"
-                                                                           Style="{StaticResource CaptionTextStyle}"
-                                                                           Margin="0,4,0,0"/>
-                                                            </StackPanel>
-                                                            <Button Grid.Column="1"
-                                                                    Style="{StaticResource GhostButtonStyle}"
-                                                                    Command="{Binding DataContext.NowPlaying.PlayQueueItemCommand, ElementName=RootWindow}"
-                                                                    CommandParameter="{Binding}"
-                                                                    Margin="12,0,0,0">
-                                                                <TextBlock Text="Play"/>
-                                                            </Button>
-                                                        </Grid>
-                                                    </Border>
-                                                </DataTemplate>
-                                            </ItemsControl.ItemTemplate>
-                                        </ItemsControl>
-                                    </ScrollViewer>
-
-                                    <ScrollViewer VerticalScrollBarVisibility="Auto"
-                                                  Visibility="{Binding IsCommentsContextMode, Converter={StaticResource BooleanToVisibilityConverter}}">
-                                        <StackPanel>
-                                            <TextBox Style="{StaticResource TextBoxStyle}"
-                                                     Text="{Binding NowPlaying.NewCommentText, UpdateSourceTrigger=PropertyChanged}"
-                                                     Margin="0,0,0,10"/>
-                                            <Button Style="{StaticResource PrimaryButtonStyle}"
-                                                    Command="{Binding NowPlaying.AddCommentCommand}"
-                                                    Margin="0,0,0,16">
-                                                <TextBlock Text="Add comment"/>
-                                            </Button>
-
-                                            <ItemsControl ItemsSource="{Binding NowPlaying.TimedComments}">
-                                                <ItemsControl.ItemTemplate>
-                                                    <DataTemplate>
-                                                        <Border Style="{StaticResource SubtleSurfaceCardStyle}" Margin="0,0,0,12">
-                                                            <StackPanel>
-                                                                <TextBlock Text="{Binding TimeLabel}"
-                                                                           Style="{StaticResource LabelTextStyle}"/>
-                                                                <TextBlock Text="{Binding Text}"
-                                                                           Margin="0,8,0,0"
-                                                                           Foreground="{StaticResource PrimaryTextBrush}"
-                                                                           TextWrapping="Wrap"/>
-                                                                <Button Style="{StaticResource GhostButtonStyle}"
-                                                                        Command="{Binding DataContext.NowPlaying.JumpToCommentCommand, ElementName=RootWindow}"
-                                                                        CommandParameter="{Binding}"
-                                                                        HorizontalAlignment="Left"
-                                                                        Margin="0,10,0,0">
-                                                                    <TextBlock Text="Jump to moment"/>
-                                                                </Button>
-                                                            </StackPanel>
-                                                        </Border>
-                                                    </DataTemplate>
-                                                </ItemsControl.ItemTemplate>
-                                            </ItemsControl>
-                                        </StackPanel>
-                                    </ScrollViewer>
-
-                                    <ScrollViewer VerticalScrollBarVisibility="Auto"
-                                                  Visibility="{Binding IsDetailsContextMode, Converter={StaticResource BooleanToVisibilityConverter}}">
-                                        <StackPanel>
-                                            <WrapPanel Margin="0,0,0,14">
-                                                <Border Style="{StaticResource InfoBadgeStyle}">
-                                                    <TextBlock Text="{Binding NowPlaying.CurrentTrack.AlbumTitle}"
-                                                               Style="{StaticResource SmallCaptionTextStyle}"
-                                                               Foreground="{StaticResource PrimaryTextBrush}"/>
-                                                </Border>
-                                                <Border Style="{StaticResource InfoBadgeStyle}">
-                                                    <TextBlock Text="{Binding NowPlaying.CurrentTrack.DurationFormatted}"
-                                                               Style="{StaticResource SmallCaptionTextStyle}"
-                                                               Foreground="{StaticResource PrimaryTextBrush}"/>
-                                                </Border>
-                                                <Border Style="{StaticResource InfoBadgeStyle}">
-                                                    <TextBlock Text="{Binding NowPlaying.CurrentTrack.Language}"
-                                                               Style="{StaticResource SmallCaptionTextStyle}"
-                                                               Foreground="{StaticResource PrimaryTextBrush}"/>
-                                                </Border>
-                                            </WrapPanel>
-                                            <TextBlock Text="{Binding NowPlaying.ContextSummary}"
-                                                       Style="{StaticResource CaptionTextStyle}"
-                                                       TextWrapping="Wrap"/>
-                                        </StackPanel>
-                                    </ScrollViewer>
-                                </Grid>
-                            </Grid>
-                        </Border>
+                    <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="*"/></Grid.RowDefinitions>
+                    <Grid><Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions><StackPanel><TextBlock Text="Expanded Player" Style="{StaticResource SectionEyebrowTextStyle}"/><TextBlock Text="{Binding NowPlaying.Title}" Style="{StaticResource TitleTextStyle}" FontSize="30" Margin="0,6,0,0"/></StackPanel><Button Grid.Column="1" Style="{StaticResource IconButtonStyle}" Command="{Binding CloseExpandedPlayerCommand}"><TextBlock Style="{StaticResource ShellIconTextStyle}" Text="&#xE711;"/></Button></Grid>
+                    <Grid Grid.Row="1" Margin="0,24,0,0"><Grid.ColumnDefinitions><ColumnDefinition Width="460"/><ColumnDefinition Width="24"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
+                        <StackPanel Grid.Column="0"><Border Height="430" CornerRadius="28" Background="{StaticResource ElevatedSurfaceBrush}" BorderBrush="{StaticResource BorderSubtleBrush}" BorderThickness="1" ClipToBounds="True"><Grid><Image Source="{Binding NowPlaying.CoverArtUrl, Converter={StaticResource ImageSourceConverter}}" Stretch="UniformToFill"/><Border Background="{StaticResource HeroGradientBrush}" Visibility="{Binding NowPlaying.CoverArtUrl, Converter={StaticResource NullToVisibilityConverter}, ConverterParameter=invert}"><TextBlock Text="Artwork" Foreground="{StaticResource AccentPrimaryBrush}" HorizontalAlignment="Center" VerticalAlignment="Center"/></Border></Grid></Border><TextBlock Text="{Binding NowPlaying.Title}" Style="{StaticResource HeroTextStyle}" FontSize="42" Margin="0,18,0,0" TextWrapping="Wrap"/><TextBlock Text="{Binding NowPlaying.Artist}" Style="{StaticResource SubtitleTextStyle}" Margin="0,8,0,0"/><TextBlock Text="{Binding NowPlaying.ContextSummary}" Style="{StaticResource CaptionTextStyle}" Margin="0,12,0,0" TextWrapping="Wrap"/><controls:PlaybackControls Margin="0,20,0,0" HorizontalAlignment="Left" IsPlaying="{Binding NowPlaying.IsPlaying}" IsShuffle="{Binding NowPlaying.IsShuffle}" RepeatMode="{Binding NowPlaying.RepeatMode}" ToggleShuffleCommand="{Binding NowPlaying.ToggleShuffleCommand}" PreviousCommand="{Binding NowPlaying.PreviousCommand}" PlayPauseCommand="{Binding NowPlaying.TogglePlayPauseCommand}" NextCommand="{Binding NowPlaying.NextCommand}" CycleRepeatModeCommand="{Binding NowPlaying.CycleRepeatModeCommand}"/></StackPanel>
+                        <Border Grid.Column="2" Background="{StaticResource GlassSurfaceBrush}" BorderBrush="{StaticResource BorderSubtleBrush}" BorderThickness="1" CornerRadius="30" Padding="20"><ScrollViewer Style="{StaticResource ScrollViewerStyle}" VerticalScrollBarVisibility="Auto"><StackPanel><TextBlock Text="Lyrics" Style="{StaticResource DisplaySectionTextStyle}"/><ItemsControl ItemsSource="{Binding NowPlaying.LyricLines}" Margin="0,12,0,0"><ItemsControl.ItemTemplate><DataTemplate><Button Style="{StaticResource LyricLineButtonStyle}" Command="{Binding DataContext.NowPlaying.SeekToLyricCommand, ElementName=RootWindow}" CommandParameter="{Binding}"><TextBlock Text="{Binding Text}" TextWrapping="Wrap"/></Button></DataTemplate></ItemsControl.ItemTemplate></ItemsControl><TextBlock Text="Up Next" Style="{StaticResource DisplaySectionTextStyle}" Margin="0,20,0,0"/><ItemsControl ItemsSource="{Binding Queue.UpNextItems}" Margin="0,12,0,0"><ItemsControl.ItemTemplate><DataTemplate><TextBlock Text="{Binding Track.Title}" Style="{StaticResource BodyTextStyle}" Margin="0,0,0,8"/></DataTemplate></ItemsControl.ItemTemplate></ItemsControl><TextBlock Text="Timed Comments" Style="{StaticResource DisplaySectionTextStyle}" Margin="0,20,0,0"/><ItemsControl ItemsSource="{Binding NowPlaying.TimedComments}" Margin="0,12,0,0"><ItemsControl.ItemTemplate><DataTemplate><Border Style="{StaticResource SubtleSurfaceCardStyle}" Margin="0,0,0,10"><StackPanel><TextBlock Text="{Binding TimeLabel}" Style="{StaticResource LabelTextStyle}"/><TextBlock Text="{Binding Text}" Margin="0,8,0,0" Foreground="{StaticResource PrimaryTextBrush}" TextWrapping="Wrap"/></StackPanel></Border></DataTemplate></ItemsControl.ItemTemplate></ItemsControl></StackPanel></ScrollViewer></Border>
                     </Grid>
                 </Grid>
             </Border>
         </Grid>
-        <Grid x:Name="StartupOverlay"
-              Grid.RowSpan="2"
-              Panel.ZIndex="30"
-              Visibility="{Binding IsStartupBusy, Converter={StaticResource BooleanToVisibilityConverter}}">
+
+        <Grid Grid.RowSpan="2" Panel.ZIndex="30" Visibility="{Binding IsStartupBusy, Converter={StaticResource BooleanToVisibilityConverter}}">
             <Border Background="#EE080A0D"/>
-
-            <Border Width="460"
-                    Padding="28"
-                    HorizontalAlignment="Center"
-                    VerticalAlignment="Center"
-                    Background="{StaticResource MainPanelBackgroundBrush}"
-                    BorderBrush="{StaticResource BorderSubtleBrush}"
-                    BorderThickness="1"
-                    CornerRadius="28">
-                <StackPanel>
-                    <Border Width="56"
-                            Height="56"
-                            CornerRadius="18"
-                            Background="{StaticResource HeroGradientBrush}">
-                        <TextBlock Text="M"
-                                   FontFamily="{StaticResource DisplayFont}"
-                                   FontSize="28"
-                                   Foreground="{StaticResource AccentPrimaryBrush}"
-                                   HorizontalAlignment="Center"
-                                   VerticalAlignment="Center"/>
-                    </Border>
-
-                    <TextBlock Text="MusicApp"
-                               Style="{StaticResource TitleTextStyle}"
-                               FontSize="30"
-                               Margin="0,18,0,0"/>
-                    <TextBlock Text="{Binding StartupStatusMessage}"
-                               Style="{StaticResource SubtitleTextStyle}"
-                               Margin="0,8,0,0"
-                               TextWrapping="Wrap"/>
-
-                    <ProgressBar Height="6"
-                                 Margin="0,22,0,0"
-                                 IsIndeterminate="True"/>
-
-                    <Border Background="#20D46F63"
-                            BorderBrush="{StaticResource ErrorBrush}"
-                            BorderThickness="1"
-                            CornerRadius="14"
-                            Padding="14"
-                            Margin="0,18,0,0"
-                            Visibility="{Binding StartupErrorMessage, Converter={StaticResource NullToVisibilityConverter}}">
-                        <TextBlock Text="{Binding StartupErrorMessage}"
-                                   Foreground="{StaticResource PrimaryTextBrush}"
-                                   TextWrapping="Wrap"/>
-                    </Border>
-                </StackPanel>
-            </Border>
+            <Border Width="460" Padding="28" HorizontalAlignment="Center" VerticalAlignment="Center" Background="{StaticResource MainPanelBackgroundBrush}" BorderBrush="{StaticResource BorderSubtleBrush}" BorderThickness="1" CornerRadius="28"><StackPanel><Border Width="56" Height="56" CornerRadius="18" Background="{StaticResource HeroGradientBrush}"><TextBlock Text="M" FontFamily="{StaticResource DisplayFont}" FontSize="28" Foreground="{StaticResource AccentPrimaryBrush}" HorizontalAlignment="Center" VerticalAlignment="Center"/></Border><TextBlock Text="MusicApp" Style="{StaticResource TitleTextStyle}" FontSize="30" Margin="0,18,0,0"/><TextBlock Text="{Binding StartupStatusMessage}" Style="{StaticResource SubtitleTextStyle}" Margin="0,8,0,0" TextWrapping="Wrap"/><ProgressBar Height="6" Margin="0,22,0,0" IsIndeterminate="True"/><Border Background="#20D46F63" BorderBrush="{StaticResource ErrorBrush}" BorderThickness="1" CornerRadius="14" Padding="14" Margin="0,18,0,0" Visibility="{Binding StartupErrorMessage, Converter={StaticResource NullToVisibilityConverter}}"><TextBlock Text="{Binding StartupErrorMessage}" Foreground="{StaticResource PrimaryTextBrush}" TextWrapping="Wrap"/></Border></StackPanel></Border>
         </Grid>
     </Grid>
 </Window>

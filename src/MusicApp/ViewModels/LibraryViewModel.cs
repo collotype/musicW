@@ -42,6 +42,15 @@ public partial class LibraryViewModel : ObservableObject
     private List<Playlist> _pinnedPlaylists = new();
 
     [ObservableProperty]
+    private List<Playlist> _userPlaylists = new();
+
+    [ObservableProperty]
+    private List<Album> _downloadedAlbums = new();
+
+    [ObservableProperty]
+    private List<Playlist> _downloadedPlaylists = new();
+
+    [ObservableProperty]
     private int _totalTracks;
 
     [ObservableProperty]
@@ -56,6 +65,12 @@ public partial class LibraryViewModel : ObservableObject
     [ObservableProperty]
     private int _offlineCount;
 
+    [ObservableProperty]
+    private int _totalPlaylists;
+
+    [ObservableProperty]
+    private int _pinnedCount;
+
     public bool IsOverview => SelectedSection == LibrarySection.Overview;
     public bool IsAllTracks => SelectedSection == LibrarySection.AllTracks;
     public bool IsLikedTracks => SelectedSection == LibrarySection.LikedTracks;
@@ -66,6 +81,17 @@ public partial class LibraryViewModel : ObservableObject
     public bool IsRecentlyPlayed => SelectedSection == LibrarySection.RecentlyPlayed;
     public bool IsPinned => SelectedSection == LibrarySection.Pinned;
     public bool HasAnyLibraryContent => TotalTracks > 0 || Playlists.Count > 0;
+    public bool HasFavoriteArtists => FavoriteArtists.Count > 0;
+    public bool HasSavedAlbums => SavedAlbums.Count > 0;
+    public bool HasPinnedPlaylists => PinnedPlaylists.Count > 0;
+    public bool HasUserPlaylists => UserPlaylists.Count > 0;
+    public bool HasDownloadedAlbums => DownloadedAlbums.Count > 0;
+    public bool HasDownloadedPlaylists => DownloadedPlaylists.Count > 0;
+    public bool HasOfflineCollections => HasDownloadedAlbums || HasDownloadedPlaylists;
+    public string OverviewSummary => $"{TotalTracks} tracks, {TotalAlbums} albums, {TotalArtists} artists, {TotalPlaylists} playlists";
+    public string OfflineCollectionsSummary => HasOfflineCollections
+        ? $"{DownloadedAlbums.Count} albums and {DownloadedPlaylists.Count} playlists are ready offline."
+        : "Only downloaded tracks are available offline right now.";
     public string SectionTitle => SelectedSection switch
     {
         LibrarySection.AllTracks => "All Tracks",
@@ -145,6 +171,18 @@ public partial class LibraryViewModel : ObservableObject
             .ToList();
 
         PinnedPlaylists = _libraryService.PinnedPlaylists;
+        UserPlaylists = _libraryService.Playlists
+            .Where(playlist => !playlist.IsSystemPlaylist)
+            .OrderByDescending(playlist => playlist.LastModifiedDate ?? playlist.CreatedDate)
+            .ToList();
+        DownloadedAlbums = _libraryService.AllAlbums
+            .Where(album => album.IsDownloaded)
+            .OrderByDescending(album => album.ReleaseDate ?? DateTime.MinValue)
+            .ToList();
+        DownloadedPlaylists = _libraryService.Playlists
+            .Where(playlist => playlist.IsDownloaded || (playlist.Tracks.Count > 0 && playlist.Tracks.All(track => track.IsDownloaded)))
+            .OrderByDescending(playlist => playlist.LastModifiedDate ?? playlist.CreatedDate)
+            .ToList();
         RecentlyPlayedTracks = _libraryService.AllTracks
             .Where(track => track.LastPlayedAt.HasValue)
             .OrderByDescending(track => track.LastPlayedAt)
@@ -156,9 +194,20 @@ public partial class LibraryViewModel : ObservableObject
         TotalArtists = _libraryService.AllArtists.Count;
         LikedCount = _libraryService.LikedTracks.Count;
         OfflineCount = _libraryService.OfflineTracks.Count;
+        TotalPlaylists = _libraryService.Playlists.Count;
+        PinnedCount = _libraryService.PinnedPlaylists.Count;
 
         NotifySectionStateChanged();
         OnPropertyChanged(nameof(HasAnyLibraryContent));
+        OnPropertyChanged(nameof(HasFavoriteArtists));
+        OnPropertyChanged(nameof(HasSavedAlbums));
+        OnPropertyChanged(nameof(HasPinnedPlaylists));
+        OnPropertyChanged(nameof(HasUserPlaylists));
+        OnPropertyChanged(nameof(HasDownloadedAlbums));
+        OnPropertyChanged(nameof(HasDownloadedPlaylists));
+        OnPropertyChanged(nameof(HasOfflineCollections));
+        OnPropertyChanged(nameof(OverviewSummary));
+        OnPropertyChanged(nameof(OfflineCollectionsSummary));
     }
 
     [RelayCommand]
@@ -287,6 +336,15 @@ public partial class LibraryViewModel : ObservableObject
         await _libraryService.TogglePlaylistPinAsync(playlist.Id);
     }
 
+    [RelayCommand]
+    private void OpenPlaylist(string? playlistId)
+    {
+        if (!string.IsNullOrWhiteSpace(playlistId))
+        {
+            _navigationService.NavigateToPlaylist(playlistId);
+        }
+    }
+
     private void NotifySectionStateChanged()
     {
         OnPropertyChanged(nameof(IsOverview));
@@ -300,5 +358,14 @@ public partial class LibraryViewModel : ObservableObject
         OnPropertyChanged(nameof(IsPinned));
         OnPropertyChanged(nameof(SectionTitle));
         OnPropertyChanged(nameof(SectionSubtitle));
+        OnPropertyChanged(nameof(HasFavoriteArtists));
+        OnPropertyChanged(nameof(HasSavedAlbums));
+        OnPropertyChanged(nameof(HasPinnedPlaylists));
+        OnPropertyChanged(nameof(HasUserPlaylists));
+        OnPropertyChanged(nameof(HasDownloadedAlbums));
+        OnPropertyChanged(nameof(HasDownloadedPlaylists));
+        OnPropertyChanged(nameof(HasOfflineCollections));
+        OnPropertyChanged(nameof(OverviewSummary));
+        OnPropertyChanged(nameof(OfflineCollectionsSummary));
     }
 }

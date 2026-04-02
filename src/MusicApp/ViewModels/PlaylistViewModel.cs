@@ -1,3 +1,4 @@
+using Microsoft.Win32;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using MusicApp.Enums;
@@ -43,6 +44,15 @@ public partial class PlaylistViewModel : ObservableObject
     public string EmptyStateMessage => GetEmptyStateMessage();
     public string NoSearchMatchesMessage => GetNoSearchMatchesMessage();
     public bool IsPinned => Playlist?.IsPinned == true;
+    public bool HasPlaylist => Playlist != null;
+    public bool CanEditPlaylist => Playlist != null && !Playlist.IsSystemPlaylist;
+    public string PlaylistSummary => Playlist == null
+        ? string.Empty
+        : $"{Playlist.TotalTracks} tracks • {Playlist.TotalDurationFormatted} • {(Playlist.IsPinned ? "favorite" : "not favorite yet")}";
+    public string PlaylistMetaSummary => Playlist == null
+        ? string.Empty
+        : $"{Playlist.OwnerName} • {(Playlist.LastModifiedDate ?? Playlist.CreatedDate):g}";
+    public string CoverButtonLabel => string.IsNullOrWhiteSpace(Playlist?.CoverArtUrl) ? "Add Cover" : "Change Cover";
 
     public PlaylistViewModel(
         ILibraryService libraryService,
@@ -206,6 +216,7 @@ public partial class PlaylistViewModel : ObservableObject
         DisplayedTracks = new List<Track>();
         SearchQuery = string.Empty;
         IsEditing = false;
+        _navigationService.NavigateToLibrary(LibrarySection.Playlists);
     }
 
     [RelayCommand]
@@ -229,6 +240,46 @@ public partial class PlaylistViewModel : ObservableObject
             Title = Playlist.Title,
             Subtitle = "Wave started from this playlist."
         });
+    }
+
+    [RelayCommand]
+    private async Task ChangeCoverArt()
+    {
+        if (!CanEditPlaylist || Playlist == null)
+        {
+            return;
+        }
+
+        var dialog = new OpenFileDialog
+        {
+            Title = "Choose Playlist Cover",
+            Filter = "Images|*.png;*.jpg;*.jpeg;*.webp;*.bmp"
+        };
+
+        if (dialog.ShowDialog() != true)
+        {
+            return;
+        }
+
+        await _libraryService.UpdatePlaylistCoverAsync(Playlist.Id, dialog.FileName);
+    }
+
+    [RelayCommand]
+    private void NavigateToArtist(string? artistId)
+    {
+        if (!string.IsNullOrWhiteSpace(artistId))
+        {
+            _navigationService.NavigateToArtist(artistId);
+        }
+    }
+
+    [RelayCommand]
+    private void NavigateToAlbum(string? albumId)
+    {
+        if (!string.IsNullOrWhiteSpace(albumId))
+        {
+            _navigationService.NavigateToAlbum(albumId);
+        }
     }
 
     private async void OnLibraryChanged(object? sender, EventArgs e)
@@ -385,5 +436,10 @@ public partial class PlaylistViewModel : ObservableObject
         OnPropertyChanged(nameof(EmptyStateMessage));
         OnPropertyChanged(nameof(NoSearchMatchesMessage));
         OnPropertyChanged(nameof(IsPinned));
+        OnPropertyChanged(nameof(HasPlaylist));
+        OnPropertyChanged(nameof(CanEditPlaylist));
+        OnPropertyChanged(nameof(PlaylistSummary));
+        OnPropertyChanged(nameof(PlaylistMetaSummary));
+        OnPropertyChanged(nameof(CoverButtonLabel));
     }
 }
